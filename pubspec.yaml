@@ -110,8 +110,9 @@ dependencies:
   pretty_qr_code: ^3.5.0
   # flutter_single_instance: ^1.6.1
   # liquid_glass_renderer: ^0.1.1-dev.10
-  # flutter_sparkle:
-  #   path: ../flutter_sparkle
+  flutter_sparkle: 
+    git:
+      url: https://github.com/5vnetwork/flutter_sparkle.git
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.3
