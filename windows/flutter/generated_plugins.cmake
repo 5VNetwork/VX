@@ -13,7 +13,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   sqlite3_flutter_libs
   system_proxy
   tm_windows
-  tray_manager
   url_launcher_windows
   window_manager
 )

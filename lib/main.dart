@@ -87,7 +87,6 @@ import 'package:vx/utils/auto_update_service.dart';
 import 'package:vx/theme.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:google_fonts/google_fonts.dart';
 

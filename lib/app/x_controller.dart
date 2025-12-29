@@ -348,6 +348,9 @@ class XController implements MessageFlutterApi {
           if (result.$2) {
             _sudoPassword = sudoPassword;
           }
+        } else {
+          _statusStreamCtrl.add(XStatus.disconnected);
+          return;
         }
       }
 

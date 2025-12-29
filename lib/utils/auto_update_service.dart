@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:vx/common/version.dart';
 import 'package:vx/main.dart';
 import 'package:vx/pref_helper.dart';
