@@ -30,19 +30,7 @@ jobs:
         touch ../tm-plugin/tm_linux/assets/x
         mkdir -p assets/google_fonts
 
-    - name: Cache geo files
-      id: cache-geo
-      uses: actions/cache@v4
-      with:
-        path: |
-          assets/geo/simplified_geoip.dat
-          assets/geo/simplified_geosite.dat
-        key: geo-files-${{ runner.os }}
-        restore-keys: |
-          geo-files-
-
     - name: Download geo
-      if: steps.cache-geo.outputs.cache-hit != 'true'
       run: |
         mkdir -p assets/geo
         curl -O "https://github.com/5VNetwork/process-geo/releases/download/latest/simplified_geoip.dat" 
