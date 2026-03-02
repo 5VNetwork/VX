@@ -116,6 +116,9 @@ dependencies:
     git:
       url: https://github.com/5vnetwork/flutter_common.git
       ref: main
+  flutter_sparkle: 
+    git:
+      url: https://github.com/5vnetwork/flutter_sparkle.git
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.3

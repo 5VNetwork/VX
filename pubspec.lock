@@ -681,6 +681,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  flutter_sparkle:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: edd0da233da8df058e46d7d1ea1fa572e28ba170
+      url: "https://github.com/5vnetwork/flutter_sparkle.git"
+    source: git
+    version: "0.0.2"
   flutter_staggered_grid_view:
     dependency: "direct main"
     description:
