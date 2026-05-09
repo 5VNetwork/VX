@@ -191,7 +191,6 @@ class _Inbound extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disableTun = Platform.isWindows && !isRunningAsAdmin && isWinStore;
     return HomeCard(
       title: AppLocalizations.of(context)!.inbound,
       icon: Icons.keyboard_double_arrow_right_rounded,
@@ -208,11 +207,9 @@ class _Inbound extends StatelessWidget {
                   ChoiceChip(
                     label: Text(InboundMode.tun.toLocalString(context)),
                     selected: mode == InboundMode.tun,
-                    onSelected: disableTun
-                        ? null
-                        : (value) => context
-                              .read<InboundCubit>()
-                              .setInboundMode(InboundMode.tun),
+                    onSelected: (value) => context
+                        .read<InboundCubit>()
+                        .setInboundMode(InboundMode.tun),
                   ),
                   ChoiceChip(
                     label: Text(InboundMode.systemProxy.toLocalString(context)),
@@ -223,16 +220,6 @@ class _Inbound extends StatelessWidget {
                   ),
                 ],
               ),
-              if (disableTun)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Text(
-                    AppLocalizations.of(context)!.tunNeedAdmin,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
             ],
           );
         },
