@@ -23,6 +23,7 @@ import 'package:vx/data/database_provider.dart';
 import 'package:vx/utils/random.dart';
 
 abstract class SelectorRepo {
+  Future<SelectorConfig?> getSelector(String selectorName);
   Future<void> addSelector(SelectorConfig selector);
   Future<void> removeSelector(String selectorName);
   Future<void> updateSelector(SelectorConfig selector);
@@ -47,6 +48,7 @@ abstract class SelectorRepo {
 }
 
 abstract class RouteRepo {
+  Future<CustomRouteMode?> getCustomRouteMode(String name);
   Future<void> removeCustomRouteMode(int id);
   Stream<List<CustomRouteMode>> getCustomRouteModesStream();
   Future<List<CustomRouteMode>> getAllCustomRouteModes();
@@ -246,6 +248,13 @@ class DbHelper implements SelectorRepo, RouteRepo, SetRepo, DnsRepo {
       _databaseProvider.database.customRouteModes,
       [id],
     );
+  }
+
+  @override
+  Future<CustomRouteMode?> getCustomRouteMode(String name) async {
+    return await _databaseProvider.database.managers.customRouteModes
+        .filter((e) => e.name(name))
+        .getSingleOrNull();
   }
 
   @override
@@ -1209,6 +1218,11 @@ class DbHelper implements SelectorRepo, RouteRepo, SetRepo, DnsRepo {
         [relation.id],
       );
     }
+  }
+
+  @override
+  Future<SelectorConfig?> getSelector(String selectorName) async {
+    return await _databaseProvider.database.getSelectorConfig(selectorName);
   }
 
   @override

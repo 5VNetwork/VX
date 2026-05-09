@@ -217,7 +217,87 @@ Widget _getWidget(BuildContext context, String id, HomeLayoutPreset preset) {
     }
     return _SubScriptionById(id: subId);
   }
+  // custom selectors (Pro)
+  if (id.startsWith('SELECTOR_')) {
+    final tag = id.substring(9);
+    if (tag.isEmpty) return const SizedBox();
+    return _SelectorByTag(tag: tag);
+  }
   return const SizedBox();
+}
+
+class _SelectorByTag extends StatelessWidget {
+  const _SelectorByTag({required this.tag});
+  final String tag;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<SelectorConfig?>(
+      future: context.read<SelectorRepo>().getSelector(tag),
+      builder: (ctx, snap) {
+        final config = snap.data;
+        if (config == null) {
+          return HomeCard(
+            title: tag,
+            icon: Icons.filter_alt_outlined,
+            child: Text(
+              tag,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          );
+        }
+        return HomeCard(
+          title: tag,
+          titleWidget: Row(
+            children: [
+              Text(
+                tag,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              BlocProvider<SelectorBeingUsedCubit>(
+                create: (context) => SelectorBeingUsedCubit(
+                  selectorTag: tag,
+                  xController: context.read<XController>(),
+                  outboundRepo: context.read<OutboundRepo>(),
+                ),
+                child: const SelectorBeingUsedView(),
+              ),
+            ],
+          ),
+          icon: Icons.filter_alt_outlined,
+          child: BlocProvider(
+            create: (context) => SelectorBeingUsedCubit(
+              selectorTag: tag,
+              xController: context.read<XController>(),
+              outboundRepo: context.read<OutboundRepo>(),
+            ),
+            child: SelectorConfigWidget(
+              config: config,
+              onFilterChange: () {
+                context.read<XController>().selectorFilterChange(config);
+              },
+              onBalanceStrategyChange: () {
+                context.read<XController>().selectorBalancingStrategyChange(
+                  tag,
+                  config.balanceStrategy,
+                );
+              },
+              onStrategyOrLandHandlersChange: () {
+                context
+                    .read<XController>()
+                    .selectorSelectStrategyOrLandhandlerChange(config);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _HomeEditDialog extends StatefulWidget {
@@ -232,8 +312,7 @@ class _HomeEditDialogState extends State<_HomeEditDialog> {
 
   bool _hideInboundOnThisPlatform(BuildContext context) {
     final platform = Theme.of(context).platform;
-    return platform == TargetPlatform.android ||
-        platform == TargetPlatform.iOS;
+    return platform == TargetPlatform.android || platform == TargetPlatform.iOS;
   }
 
   @override
@@ -472,7 +551,9 @@ class _ColumnBottomDropTarget extends StatelessWidget {
         // Drop adds each widget as its own row at the bottom of this column.
         for (final id in details.data.widgetIds) {
           final allowed =
-              homeWidgetIds.contains(id) || id.startsWith('SUBSCRIPTION_');
+              homeWidgetIds.contains(id) ||
+              id.startsWith('SUBSCRIPTION_') ||
+              id.startsWith('SELECTOR_');
           if (!allowed) continue;
           // If it already exists somewhere, remove it first.
           for (final entry in layoutMap.entries) {
@@ -751,7 +832,12 @@ class _EditableCustomHomeWidgetTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final subId = int.tryParse(id.substring(13));
+    final int? subId = id.startsWith('SUBSCRIPTION_')
+        ? int.tryParse(id.substring(13))
+        : null;
+    final String? selectorTag = id.startsWith('SELECTOR_')
+        ? id.substring(9)
+        : null;
     final payload = _EditDragData(widgetIds: [id], hidden: false);
     final child = Container(
       padding: const EdgeInsets.all(14),
@@ -777,6 +863,13 @@ class _EditableCustomHomeWidgetTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       );
                     },
+                  )
+                : selectorTag != null && selectorTag.isNotEmpty
+                ? Text(
+                    selectorTag,
+                    style: theme.textTheme.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   )
                 : Text(
                     id,

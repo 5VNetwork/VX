@@ -22,6 +22,30 @@ class ProxySelectorHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return HomeCard(
       title: AppLocalizations.of(context)!.selector,
+      titleWidget: Row(
+        children: [
+          Text(
+            AppLocalizations.of(context)!.proxy,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const Spacer(),
+          if (context.watch<AuthBloc>().state.pro)
+            BlocProvider<SelectorBeingUsedCubit>(
+              create: (context) => SelectorBeingUsedCubit(
+                selectorTag: defaultProxySelectorTag,
+                xController: context.read<XController>(),
+                outboundRepo: context.read<OutboundRepo>(),
+                clearWhenSelectorEmpty: true,
+              ),
+              child: const SelectorBeingUsedView(),
+            ),
+        ],
+      ),
       icon: Icons.filter_alt_outlined,
       child: const DefaultProxySelector(),
     );

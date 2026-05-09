@@ -13,6 +13,7 @@ String? _validateUint32(AppLocalizations l10n, String value) {
   return null;
 }
 
+// [config] is not edited directly. A new config is returned
 Future<SelectorConfig?> showSelectorTestFieldsForm(
   BuildContext context,
   SelectorConfig config,

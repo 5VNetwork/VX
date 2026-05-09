@@ -21,6 +21,8 @@ import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
+import 'generated/schema_v13.dart' as v13;
+import 'generated/schema_v14.dart' as v14;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -261,6 +263,38 @@ void main() {
     final gds = await migratedDb.select(migratedDb.greatDomainSets).getSingle();
     expect(gds.name, 'test');
     expect(gds.oppositeName, 'test2');
+
+    await migratedDb.close();
+  });
+
+  test('upgrade from v13 to v14', () async {
+    final schema = await verifier.schemaAt(13);
+
+    // Add some data to the table being migrated
+    final oldDb = v13.DatabaseAtV13(schema.newConnection());
+    await oldDb
+        .into(oldDb.dnsServers)
+        .insert(
+          v13.DnsServersCompanion.insert(
+            name: 'test',
+            dnsServer: DnsServerConfig().writeToBuffer(),
+          ),
+        );
+    await oldDb.close();
+
+    // Run the migration and verify that it adds the name column.
+    final db = AppDatabase(
+      path: 'test_db.db',
+      executor: schema.newConnection(),
+    );
+    await verifier.migrateAndValidate(db, 14);
+    await db.close();
+
+    // Make sure the entry is still here
+    final migratedDb = v14.DatabaseAtV14(schema.newConnection());
+    final entry = await migratedDb.select(migratedDb.dnsServers).getSingle();
+    expect(entry.id, 1);
+    expect(entry.dnsServer, DnsServerConfig().writeToBuffer());
 
     await migratedDb.close();
   });

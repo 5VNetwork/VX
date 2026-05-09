@@ -22,10 +22,12 @@ class HomeCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.icon,
+    this.titleWidget,
     this.button,
     required this.child,
   });
   final String title;
+  final Widget? titleWidget;
   final Widget? button;
   final IconData icon;
   final Widget child;
@@ -49,16 +51,18 @@ class HomeCard extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.2,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+          child:
+              titleWidget ??
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.2,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
         ),
         if (button != null) ...[const SizedBox(width: 8), button!],
       ],

@@ -165,7 +165,7 @@ class _RoutePageState extends State<RoutePage> with TickerProviderStateMixin {
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: SelectorWidget(),
+                      child: SelectorsWidget(),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -228,7 +228,7 @@ class _RoutePageState extends State<RoutePage> with TickerProviderStateMixin {
                     children: const [
                       ModeWidget(),
                       SetWidget(),
-                      SelectorWidget(),
+                      SelectorsWidget(),
                       DnsServersWidget(),
                     ],
                   ),

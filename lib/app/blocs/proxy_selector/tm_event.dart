@@ -75,7 +75,6 @@ class ManualNodeBalanceStrategyChangeEvent extends ProxySelectorEvent {
 
 class ManualModeLandHandlersChangeEvent extends ProxySelectorEvent {
   const ManualModeLandHandlersChangeEvent();
-  // final List<int> landHandlers;
 }
 
 class AutoNodeSelectorConfigChangeEvent extends ProxySelectorEvent {
@@ -88,4 +87,9 @@ class AutoNodeSelectorConfigChangeEvent extends ProxySelectorEvent {
   final bool selectorStrategyOrLandHandlers;
   final bool balancingStragegy;
   final bool filterLandHandlers;
+}
+
+class TestParametersChangeEvent extends ProxySelectorEvent {
+  const TestParametersChangeEvent({required this.config});
+  final SelectorConfig config;
 }

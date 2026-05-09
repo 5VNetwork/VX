@@ -25,7 +25,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vx/app/blocs/inbound.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/app/routing/default.dart';
+import 'package:vx/app/routing/selector_being_used.dart';
 import 'package:vx/app/routing/selector_test_fields_form.dart';
+import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/x_controller.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/logger.dart';
@@ -34,6 +36,7 @@ import 'package:vx/l10n/app_localizations.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:tm/protos/vx/router/router.pbenum.dart';
 import 'package:vx/app/outbound/outbounds_bloc.dart';
+import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/app/blocs/proxy_selector/proxy_selector_bloc.dart';
 import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/common/common.dart';
@@ -411,16 +414,34 @@ class DefaultProxySelectorControl extends StatefulWidget {
 
 class _DefaultProxySelectorControlState
     extends State<DefaultProxySelectorControl> {
+  late final SelectorBeingUsedCubit _proxySelectorBeingUsedCubit;
+
   Future<void> _editDefaultProxySelector() async {
     final state = context.read<ProxySelectorBloc>().state;
     final config = state.autoNodeSetting;
     if (config == null) return;
     final edited = await showSelectorTestFieldsForm(context, config);
     if (edited == null || !mounted) return;
-    await context.read<SelectorRepo>().updateSelector(edited);
-    await context.read<XController>().selectorSelectStrategyOrLandhandlerChange(
-      edited,
+    context.read<ProxySelectorBloc>().add(
+      TestParametersChangeEvent(config: edited),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _proxySelectorBeingUsedCubit = SelectorBeingUsedCubit(
+      selectorTag: defaultProxySelectorTag,
+      xController: context.read<XController>(),
+      outboundRepo: context.read<OutboundRepo>(),
+      clearWhenSelectorEmpty: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _proxySelectorBeingUsedCubit.close();
+    super.dispose();
   }
 
   @override
@@ -439,12 +460,30 @@ class _DefaultProxySelectorControlState
                 if (widget.showName)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5),
-                    child: Text(
-                      AppLocalizations.of(context)!.proxy,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    child: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.proxy,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                        const Gap(5),
+                        BlocProvider.value(
+                          value: _proxySelectorBeingUsedCubit,
+                          child: const SelectorBeingUsedView(),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (!widget.showName)
+                  BlocProvider.value(
+                    value: _proxySelectorBeingUsedCubit,
+                    child: const Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: SelectorBeingUsedView(),
                     ),
                   ),
                 const DefaultProxySelector(),
@@ -476,7 +515,6 @@ class _DefaultProxySelectorControlState
     );
   }
 }
-
 class ManualModeCard extends StatelessWidget {
   const ManualModeCard({super.key});
 

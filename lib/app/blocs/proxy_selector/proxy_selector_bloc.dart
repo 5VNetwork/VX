@@ -23,11 +23,10 @@ import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:tm/tm.dart';
 import 'package:vx/app/control.dart';
 import 'package:vx/app/routing/default.dart';
+import 'package:vx/app/routing/repo.dart';
 import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/x_controller.dart';
-import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/data/database.dart';
-import 'package:vx/data/database_provider.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/utils/logger.dart';
@@ -41,7 +40,7 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
   ProxySelectorBloc({
     required SharedPreferences pref,
     required XController xConfigController,
-    required DatabaseProvider databaseProvider,
+    required DbHelper databaseProvider,
     required bool pro,
   }) : _pref = pref,
        _xController = xConfigController,
@@ -76,13 +75,14 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     on<ManualNodeBalanceStrategyChangeEvent>(_manualNodeBalanceStrategyChange);
     on<ManualModeLandHandlersChangeEvent>(_manualModeLandHandlersChange);
     on<AutoNodeSelectorConfigChangeEvent>(_autoNodeSelectorConfigChange);
+    on<TestParametersChangeEvent>(_testParametersChange);
     {
       makeSureConssitency(pro, null);
     }
   }
   final SharedPreferences _pref;
   final XController _xController;
-  final DatabaseProvider _databaseProvider;
+  final DbHelper _databaseProvider;
 
   // @override
   // void onTransition(Transition<TmEvent, XState> transition) {
@@ -98,12 +98,7 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     final rm = _pref.routingMode;
     if (rm != null) {
       try {
-        final customRouteMode = await _databaseProvider
-            .database
-            .managers
-            .customRouteModes
-            .filter((e) => e.name(rm))
-            .getSingleOrNull();
+        final customRouteMode = await _databaseProvider.getCustomRouteMode(rm);
         if (customRouteMode != null) {
           emit(
             state.copyWith(
@@ -119,8 +114,9 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     }
 
     try {
-      final proxySelectorConfig = await _databaseProvider.database
-          .getSelectorConfig(defaultProxySelectorTag);
+      final proxySelectorConfig = await _databaseProvider.getSelector(
+        defaultProxySelectorTag,
+      );
       assert(proxySelectorConfig != null);
       emit(state.copyWith(autoNodeSetting: proxySelectorConfig));
     } catch (e) {
@@ -316,7 +312,6 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     AutoNodeSelectorConfigChangeEvent e,
     Emitter<ProxySelectorState> emit,
   ) async {
-    // emit(state.copyWith(autoNodeSetting: state.autoNodeSetting));
     if (e.selectorStrategyOrLandHandlers) {
       await _xController.selectorSelectStrategyOrLandhandlerChange(
         state.autoNodeSetting!,
@@ -329,6 +324,15 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     } else if (e.filterLandHandlers) {
       await _xController.selectorFilterChange(state.autoNodeSetting!);
     }
+  }
+
+  void _testParametersChange(
+    TestParametersChangeEvent e,
+    Emitter<ProxySelectorState> emit,
+  ) async {
+    emit(state.copyWith(autoNodeSetting: e.config));
+    await _databaseProvider.updateSelector(e.config);
+    await _xController.selectorSelectStrategyOrLandhandlerChange(e.config);
   }
 }
 
