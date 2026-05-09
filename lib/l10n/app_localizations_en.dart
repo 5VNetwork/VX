@@ -803,6 +803,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginBeforeRestore => 'Please login before restoring purchase.';
 
   @override
+  String get visitWebsiteToPurchasePro =>
+      'Please visit our website to purchase Pro';
+
+  @override
   String get upgradeToPermanentPro => 'Upgrade to Pro';
 
   @override
@@ -1632,7 +1636,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugLogDesc => 'If you encountered any problem during using VX, you can enable the button, and wait until the problem occur again, then click upload to upload the logs to us, rememeber to close it and delete the logsafter uploading.  Developer logs are not uploaded automatically since they contain your network activities, including the websites and apps you use. We delete the logs immediately once we process them.';
 
   @override
-  String get clashFormatSupported => 'Only Clash Rule files are supported';
+  String get clashFormatSupported => 'Files are supported';
 
   @override
   String get network => 'Network';
@@ -2111,7 +2115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useBloomFilterDesc => 'Bloom Filter can reduce memory usage, however, there is a small chance (1%) of false positives: domains not in the set might be misclassified as in the set.';
 
   @override
-  String get addFromClashRuleFiles => 'Add from Clash Rule Files';
+  String get addFromClashRuleFiles => 'Add from Files';
 
   @override
   String get selectFromInstalledApps => 'Select from Installed Apps';
@@ -2660,4 +2664,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reservedDnsServerName => 'DNS server name \"hijack\" is reserved';
+
+  @override
+  String handlersInUseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count handlers',
+      one: '1 handler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectorHandlersInUseTitle => 'Handlers in use';
 }

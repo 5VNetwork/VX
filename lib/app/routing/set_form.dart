@@ -672,7 +672,7 @@ class _SmallDomainSetFormState extends State<SmallDomainSetForm>
               ],
             ),
             const Gap(5),
-            const TextDivider(text: 'Clash Rules'),
+            const TextDivider(text: 'Urls'),
             const Gap(5),
             ClashRule(clashRuleUrls: _clashRuleUrls),
             const Gap(10),
@@ -756,7 +756,7 @@ class _ClashRuleState extends State<ClashRule> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  labelText: 'Clash Rules Urls',
+                  labelText: 'Urls',
                 ),
                 validator: (value) {
                   if (value != null &&

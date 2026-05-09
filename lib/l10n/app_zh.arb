@@ -293,6 +293,7 @@
   "unableToConnectToStore": "无法与商店连接",
   "loginBeforePurchase": "购买前请先登录",
   "loginBeforeRestore": "恢复购买购买前请先登录",
+  "visitWebsiteToPurchasePro": "请访问我们的网站购买 Pro",
   "upgradeToPermanentPro": "升级为永久Pro",
   "caseInsensitive": "不区分大小写",
   "startFailed": "启动失败",
@@ -698,7 +699,7 @@
   "saveToDownloadFolder": "保存至下载",
   "saveToDownloadFolderDesc": "将日志转移至下载文件夹",
   "debugLogDesc": "如果你在使用过程中遇到了问题，你可以打开开发者日志，然后等再次遇到问题后，点击上传将开发者日志上传给我们，这将帮助我们发现BUG。（开发者日志不会被自动上传，你需要手动点击上传按钮或者将这些日志通过电报/邮箱给我们。开发者日志会包含您的网络活动, 比如使用了哪些应用和网站。我们在处理完日志后会立刻删除日志。）上传完毕后，请关闭开发者日志并删除日志文件。",
-  "clashFormatSupported": "支持Clash Rule",
+  "clashFormatSupported": "支持Clash等格式",
   "network": "网络类型",
   "source": "来源",
   "fallbackToProxy": "回退到代理",
@@ -1096,5 +1097,14 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "DNS 服务器名称 \"hijack\" 为保留名"
+  "reservedDnsServerName": "DNS 服务器名称 \"hijack\" 为保留名",
+  "handlersInUseCount": "{count, plural, =1{1 个节点} other{{count} 个节点}}",
+  "@handlersInUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectorHandlersInUseTitle": "使用中的节点"
 }

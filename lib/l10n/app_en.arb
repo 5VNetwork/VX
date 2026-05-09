@@ -295,6 +295,7 @@
   "unableToConnectToStore": "Unable to connect to store",
   "loginBeforePurchase": "Please login before purchasing. New users can try Pro for 7 days",
   "loginBeforeRestore": "Please login before restoring purchase.",
+  "visitWebsiteToPurchasePro": "Please visit our website to purchase Pro",
   "upgradeToPermanentPro": "Upgrade to Pro",
   "caseInsensitive": "Case Insensitive",
   "startFailed": "Failed to start",
@@ -879,7 +880,7 @@
   "debugLogNotAvailable": "Developer log function is not available in non-store version",
   "useBloomFilter": "Use Bloom Filter in iOS",
   "useBloomFilterDesc": "Bloom Filter can reduce memory usage, however, there is a small chance (1%) of false positives: domains not in the set might be misclassified as in the set.",
-  "addFromClashRuleFiles": "Add from Clash Rule Files",
+  "addFromClashRuleFiles": "Add from Files",
   "selectFromInstalledApps": "Select from Installed Apps",
   "ipToDomainDesc": "IP -> Domain is got from the recent DNS history. Because many domains can have same IP, it can only be said that the connection is likely to have the domain, but not guaranteed.",
   "followingAiTranslated": "The following languages are translated by AI, which may not be accurate.",
@@ -1088,5 +1089,14 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "DNS server name \"hijack\" is reserved"
+  "reservedDnsServerName": "DNS server name \"hijack\" is reserved",
+  "handlersInUseCount": "{count, plural, =1{1 handler} other{{count} handlers}}",
+  "@handlersInUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectorHandlersInUseTitle": "Handlers in use"
 }

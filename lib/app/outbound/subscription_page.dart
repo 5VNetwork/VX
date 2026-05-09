@@ -167,7 +167,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 ),
               ),
               if (showAd) const Ads(),
-              const SliverToBoxAdapter(child: SizedBox(height: 60)),
+              const SliverToBoxAdapter(child: SizedBox(height: 80)),
               // if (showAd)
               //   SliverToBoxAdapter(
               //     child: LayoutBuilder(builder: (ctx, constraints) {

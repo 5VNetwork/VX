@@ -1609,6 +1609,12 @@ abstract class AppLocalizations {
   /// **'Please login before restoring purchase.'**
   String get loginBeforeRestore;
 
+  /// No description provided for @visitWebsiteToPurchasePro.
+  ///
+  /// In en, this message translates to:
+  /// **'Please visit our website to purchase Pro'**
+  String get visitWebsiteToPurchasePro;
+
   /// No description provided for @upgradeToPermanentPro.
   ///
   /// In en, this message translates to:
@@ -3046,7 +3052,7 @@ abstract class AppLocalizations {
   /// No description provided for @clashFormatSupported.
   ///
   /// In en, this message translates to:
-  /// **'Only Clash Rule files are supported'**
+  /// **'Files are supported'**
   String get clashFormatSupported;
 
   /// No description provided for @network.
@@ -3988,7 +3994,7 @@ abstract class AppLocalizations {
   /// No description provided for @addFromClashRuleFiles.
   ///
   /// In en, this message translates to:
-  /// **'Add from Clash Rule Files'**
+  /// **'Add from Files'**
   String get addFromClashRuleFiles;
 
   /// No description provided for @selectFromInstalledApps.
@@ -5058,6 +5064,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DNS server name \"hijack\" is reserved'**
   String get reservedDnsServerName;
+
+  /// No description provided for @handlersInUseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 handler} other{{count} handlers}}'**
+  String handlersInUseCount(int count);
+
+  /// No description provided for @selectorHandlersInUseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Handlers in use'**
+  String get selectorHandlersInUseTitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

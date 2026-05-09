@@ -183,7 +183,9 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
               (h) => h.id == handlerBeingUsedId4 || h.id == handlerBeingUsedId6,
             );
           }
-          logger.d('handler being used, ${handlerBeingUsedId4}, ${handlerBeingUsedId6}');
+          logger.d(
+            'handler being used, ${handlerBeingUsedId4}, ${handlerBeingUsedId6}',
+          );
           return state.copyWith(
             handlers: newHandlers,
             using4: handlerBeingUsedId4,
@@ -629,6 +631,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
     _xController.handlerAdded();
     await updateCountry([newHandler], emit);
+    add(SpeedTestEvent(handlers: [newHandler]));
   }
 
   Future<void> _onAddHandlers(
@@ -685,6 +688,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
       await _outboundRepo.getHandlers(country: '', ok: 0),
       emit,
     );
+    add(SpeedTestEvent(handlers: handlers));
   }
 
   Future<void> _onAddGroup(AddGroupEvent e, Emitter<OutboundState> emit) async {

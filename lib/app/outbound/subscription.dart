@@ -14,6 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
@@ -157,20 +159,27 @@ class AutoSubscriptionUpdater with ChangeNotifier {
       final fetchRes = await _apiClient.fetchSubscriptionContent(fetchReq);
       await db.transaction(() async {
         final existingHandlers = await _outRepo.getHandlers(subId: sub.id);
-        final existingByTag = <String, OutboundHandler>{};
+        final existingByFingerprint = <String, OutboundHandler>{};
         for (final handler in existingHandlers) {
-          if (handler.config.hasOutbound() &&
-              handler.config.outbound.tag.isNotEmpty) {
-            existingByTag[handler.config.outbound.tag] = handler;
+          if (handler.config.hasOutbound()) {
+            final key = _outboundFingerprint(handler.config.outbound);
+            existingByFingerprint[key] = handler;
           }
         }
         int newHandlerId = SnowflakeId.generate();
         final updatedIds = <int>{};
+        inspect(existingByFingerprint);
         for (final config in fetchRes.handlers) {
-          final existing = existingByTag[config.tag];
+          final key = _outboundFingerprint(config);
+          logger.d("key: $key, config: ${config.tag}");
+          final existing = existingByFingerprint[key];
           final nextConfig = OutboundHandlerConfig()..mergeFromMessage(config);
           if (existing != null && existing.config.hasOutbound()) {
+            logger.d(
+              "replace handler ${existing.config.outbound.tag} with ${config.tag}",
+            );
             nextConfig.enableMux = existing.config.outbound.enableMux;
+            nextConfig.muxConfig = existing.config.outbound.muxConfig;
             nextConfig.uot = existing.config.outbound.uot;
             nextConfig.domainStrategy = existing.config.outbound.domainStrategy;
             await _outRepo.replaceHandler(
@@ -224,6 +233,21 @@ class AutoSubscriptionUpdater with ChangeNotifier {
       response.errorReasons[sub.name] = e.toString();
       return response;
     }
+  }
+
+  String _outboundFingerprint(OutboundHandlerConfig config) {
+    final transportBytes = config.hasTransport()
+        ? config.transport.writeToJson()
+        : const <int>[];
+    final protocolBytes = config.hasProtocol()
+        ? config.protocol.writeToJson()
+        : const <int>[];
+    return Object.hash(
+      config.address,
+      config.port,
+      transportBytes,
+      protocolBytes,
+    ).toString();
   }
 
   /// notify users about the result

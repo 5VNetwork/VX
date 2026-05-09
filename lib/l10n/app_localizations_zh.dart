@@ -789,6 +789,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loginBeforeRestore => '恢复购买购买前请先登录';
 
   @override
+  String get visitWebsiteToPurchasePro => '请访问我们的网站购买 Pro';
+
+  @override
   String get upgradeToPermanentPro => '升级为永久Pro';
 
   @override
@@ -1582,7 +1585,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get debugLogDesc => '如果你在使用过程中遇到了问题，你可以打开开发者日志，然后等再次遇到问题后，点击上传将开发者日志上传给我们，这将帮助我们发现BUG。（开发者日志不会被自动上传，你需要手动点击上传按钮或者将这些日志通过电报/邮箱给我们。开发者日志会包含您的网络活动, 比如使用了哪些应用和网站。我们在处理完日志后会立刻删除日志。）上传完毕后，请关闭开发者日志并删除日志文件。';
 
   @override
-  String get clashFormatSupported => '支持Clash Rule';
+  String get clashFormatSupported => '支持Clash等格式';
 
   @override
   String get network => '网络类型';
@@ -2610,4 +2613,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reservedDnsServerName => 'DNS 服务器名称 \"hijack\" 为保留名';
+
+  @override
+  String handlersInUseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个节点',
+      one: '1 个节点',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectorHandlersInUseTitle => '使用中的节点';
 }

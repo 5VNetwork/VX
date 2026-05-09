@@ -295,6 +295,7 @@
   "unableToConnectToStore": "Не удалось подключиться к магазину.",
   "loginBeforePurchase": "Пожалуйста, войдите в систему перед покупкой. Новые пользователи могут попробовать Pro-версию в течение 7 дней.",
   "loginBeforeRestore": "Пожалуйста, войдите в систему, прежде чем восстанавливать покупку.",
+  "visitWebsiteToPurchasePro": "Пожалуйста, посетите наш сайт, чтобы купить Pro.",
   "upgradeToPermanentPro": "Перейти на Pro",
   "caseInsensitive": "Регистр не имеет значения",
   "startFailed": "Не удалось запустить",
@@ -1070,5 +1071,14 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "Имя DNS-сервера \"hijack\" зарезервировано"
+  "reservedDnsServerName": "Имя DNS-сервера \"hijack\" зарезервировано",
+  "handlersInUseCount": "{count, plural, =1{1 узел} few{{count} узла} many{{count} узлов} other{{count} узлов}}",
+  "@handlersInUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectorHandlersInUseTitle": "Используемые узлы"
 }

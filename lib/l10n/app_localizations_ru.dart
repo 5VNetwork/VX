@@ -803,6 +803,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginBeforeRestore => 'Пожалуйста, войдите в систему, прежде чем восстанавливать покупку.';
 
   @override
+  String get visitWebsiteToPurchasePro =>
+      'Пожалуйста, посетите наш сайт, чтобы купить Pro.';
+
+  @override
   String get upgradeToPermanentPro => 'Перейти на Pro';
 
   @override
@@ -2662,4 +2666,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reservedDnsServerName => 'Имя DNS-сервера \"hijack\" зарезервировано';
+
+  @override
+  String handlersInUseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count узлов',
+      many: '$count узлов',
+      few: '$count узла',
+      one: '1 узел',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectorHandlersInUseTitle => 'Используемые узлы';
 }
