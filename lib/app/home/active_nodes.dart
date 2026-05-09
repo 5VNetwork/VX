@@ -74,7 +74,11 @@ class CurrentNodes extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: SizedBox(
                         height: 54,
-                        child: _NodeListItem(handler: snapshot.data![index]),
+                        child: _NodeListItem(
+                          handler: snapshot.data![index],
+                          testFuture: () =>
+                              _testHandler(context, snapshot.data![index]),
+                        ),
                       ),
                     ),
                   ),
@@ -409,7 +413,29 @@ class _NodesHelperState extends State<NodesHelper> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: _NodeListItem(handler: _handlers[index]),
+                                child: _NodeListItem(
+                                  key: ValueKey(_handlers[index].id),
+                                  handler: _handlers[index],
+                                  testFuture: () async {
+                                    final handler = _handlers[index];
+                                    final (ok, ping, speed) =
+                                        await _testHandler(context, handler);
+                                    if (_selectedSegment ==
+                                            NodesHelperSegment.recent &&
+                                        mounted) {
+                                      final index = _handlers.indexOf(handler);
+                                      if (index != -1) {
+                                        setState(() {
+                                          _handlers[index] = handler.copyWith(
+                                            ok: ok,
+                                            ping: ping,
+                                            speed: speed,
+                                          );
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
                               ),
                               const SizedBox(width: 4),
                               if (manualSelect)
@@ -440,10 +466,101 @@ class _NodesHelperState extends State<NodesHelper> {
   }
 }
 
+Future<(int, int, double)> _testHandler(
+  BuildContext context,
+  OutboundHandler handler,
+) async {
+  final xApiClient = context.read<XApiClient>();
+  final xController = context.read<XController>();
+  final bloc = context.read<OutboundBloc>();
+  final outboundRepo = context.read<OutboundRepo>();
+  final pref = context.read<SharedPreferences>();
+  // Latency test (status)
+  final pingMode = pref.pingMode;
+  int ok = 0;
+  int ping = 0;
+  double speed = 0;
+  int? pingTestTime;
+  int? speedTestTime;
+  if (pingMode == PingMode.Real) {
+    try {
+      final res = await xApiClient.handlerUsable(
+        api_pb.HandlerUsableRequest(handler: handler.toConfig()),
+      );
+      ok = res.ping > 0 ? 1 : -1;
+      ping = res.ping;
+      if (ok < 0) {
+        speed = 0;
+      }
+    } catch (e) {
+      logger.e('handlerUsable error', error: e);
+    }
+  } else {
+    try {
+      int port;
+      String addr;
+      if (handler.config.hasOutbound()) {
+        addr = handler.config.outbound.address;
+        port = handler.config.outbound.port;
+        if (port == 0) {
+          port = handler.config.outbound.ports.first.from;
+        }
+      } else {
+        final c = handler.config.chain.handlers.first;
+        addr = c.address;
+        port = c.port;
+        if (port == 0) {
+          port = c.ports.first.from;
+        }
+      }
+      final p = Tm.instance.state == TmStatus.connected
+          ? await xController.rttTest(addr, port)
+          : await xApiClient.rtt(api_pb.RttTestRequest(addr: addr, port: port));
+      ok = p > 0 ? 1 : -1;
+      ping = p;
+      pingTestTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (ok < 0) {
+        speed = 0;
+      }
+    } catch (e) {
+      logger.e('rtt error', error: e);
+    }
+  }
+
+  // Speed test
+  try {
+    final resStream = await xApiClient.speedTest(
+      api_pb.SpeedTestRequest(handlers: [handler.toConfig()]),
+    );
+    await for (final res in resStream) {
+      ok = res.down > 0 ? 1 : -1;
+      speed = bytesToMbps(res.down.toInt());
+      if (ok < 0) {
+        ping = 0;
+      }
+      speedTestTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      xController.updateHandlerSpeed(res.tag, res.down.toInt());
+    }
+  } catch (e) {
+    logger.e('speedTest error', error: e);
+  }
+  bloc.add(HandlerUpdatedEvent(handler.id));
+  await outboundRepo.updateHandler(
+    handler.id,
+    ok: ok,
+    ping: ping,
+    pingTestTime: pingTestTime,
+    speed: speed,
+    speedTestTime: speedTestTime,
+  );
+  return (ok, ping, speed);
+}
+
 class _NodeListItem extends StatefulWidget {
-  const _NodeListItem({required this.handler});
+  const _NodeListItem({required this.handler, this.testFuture, super.key});
 
   final OutboundHandler handler;
+  final Future<void> Function()? testFuture;
 
   @override
   State<_NodeListItem> createState() => _NodeListItemState();
@@ -454,86 +571,9 @@ class _NodeListItemState extends State<_NodeListItem> {
 
   Future<void> _runTests() async {
     if (_isTesting) return;
-    final handler = widget.handler;
-    final xApiClient = context.read<XApiClient>();
-    final repo = context.read<OutboundRepo>();
-    final xController = context.read<XController>();
-    final bloc = context.read<OutboundBloc>();
-    final pref = context.read<SharedPreferences>();
-
     setState(() => _isTesting = true);
     try {
-      // Latency test (status)
-      final pingMode = pref.pingMode;
-      if (pingMode == PingMode.Real) {
-        try {
-          final res = await xApiClient.handlerUsable(
-            api_pb.HandlerUsableRequest(handler: handler.toConfig()),
-          );
-          final ok = res.ping > 0;
-          await repo.updateHandler(
-            handler.id,
-            ok: ok ? 1 : -1,
-            ping: res.ping,
-            pingTestTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            speed: ok ? null : 0,
-          );
-        } catch (e) {
-          logger.e('handlerUsable error', error: e);
-        }
-      } else {
-        try {
-          int port;
-          String addr;
-          if (handler.config.hasOutbound()) {
-            addr = handler.config.outbound.address;
-            port = handler.config.outbound.port;
-            if (port == 0) port = handler.config.outbound.ports.first.from;
-          } else {
-            final c = handler.config.chain.handlers.first;
-            addr = c.address;
-            port = c.port;
-            if (port == 0) port = c.ports.first.from;
-          }
-          final ping = Tm.instance.state == TmStatus.connected
-              ? await xController.rttTest(addr, port)
-              : await xApiClient.rtt(
-                  api_pb.RttTestRequest(addr: addr, port: port),
-                );
-          await repo.updateHandler(
-            handler.id,
-            ok: ping > 0 ? 1 : -1,
-            ping: ping,
-            pingTestTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          );
-        } catch (e) {
-          logger.e('rtt error', error: e);
-        }
-      }
-
-      // Speed test
-      try {
-        final resStream = await xApiClient.speedTest(
-          api_pb.SpeedTestRequest(handlers: [handler.toConfig()]),
-        );
-        await for (final res in resStream) {
-          if (!mounted) return;
-          final id = int.parse(res.tag);
-          final ok = res.down > 0 ? 1 : -1;
-          await repo.updateHandler(
-            id,
-            ping: ok > 0 ? null : 0,
-            speed: bytesToMbps(res.down.toInt()),
-            speedTestTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            ok: ok,
-          );
-          await xController.updateHandlerSpeed(res.tag, res.down.toInt());
-        }
-      } catch (e) {
-        logger.e('speedTest error', error: e);
-      }
-
-      if (mounted) bloc.add(HandlerUpdatedEvent(handler.id));
+      await widget.testFuture?.call();
     } finally {
       if (mounted) setState(() => _isTesting = false);
     }
