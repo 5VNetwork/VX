@@ -39,6 +39,7 @@ import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:store_checker/store_checker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
 import 'package:vx/app/blocs/inbound.dart';
@@ -484,7 +485,7 @@ void main() async {
         create: (ctx) {
           final proxySelectorBloc = ProxySelectorBloc(
             pref: pref,
-            databaseProvider: ctx.read<DatabaseProvider>(),
+            databaseProvider: ctx.read<DbHelper>(),
             xConfigController: ctx.read<XController>(),
             pro: ctx.read<AuthBloc>().state.pro,
           )..add(XBlocInitialEvent());
@@ -543,6 +544,9 @@ void main() async {
   }
 }
 
+Future<Source>? installationSource = Platform.isIOS
+    ? StoreChecker.getSource
+    : null;
 // global variables
 late final Directory resourceDirectory;
 late final String cacheDirectory;

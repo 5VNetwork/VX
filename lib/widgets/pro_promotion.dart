@@ -19,11 +19,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_common/common.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:provider/provider.dart';
+import 'package:store_checker/store_checker.dart';
 import 'package:vx/common/common.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,7 +41,28 @@ final useStripe =
     (androidApkRelease) ||
     appFlavor == "pkg" ||
     Platform.isLinux;
-void showProPromotionDialog(BuildContext context, {bool showTitle = true}) {
+void showProPromotionDialog(
+  BuildContext context, {
+  bool showTitle = true,
+}) async {
+  if (Platform.isIOS) {
+    final source = await installationSource!;
+    if (source == Source.IS_INSTALLED_FROM_TEST_FLIGHT) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.visitWebsiteToPurchasePro),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(AppLocalizations.of(context)!.close),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   if (Provider.of<MyLayout>(context, listen: false).isCompact) {
     Navigator.of(context, rootNavigator: true).push(
       CupertinoPageRoute(
@@ -47,7 +70,9 @@ void showProPromotionDialog(BuildContext context, {bool showTitle = true}) {
           appBar: AppBar(title: largeProIcon),
           body: Padding(
             padding: const EdgeInsets.all(16),
-            child: !useStripe ? IAPPurchase(showTitle: showTitle) : const ProPromotion(),
+            child: !useStripe
+                ? IAPPurchase(showTitle: showTitle)
+                : const ProPromotion(),
           ),
         ),
       ),
@@ -68,7 +93,9 @@ void showProPromotionDialog(BuildContext context, {bool showTitle = true}) {
               child: Text(AppLocalizations.of(context)!.cancel),
             ),
         ],
-        content: !useStripe ? IAPPurchase(showTitle: showTitle) : const ProPromotion(),
+        content: !useStripe
+            ? IAPPurchase(showTitle: showTitle)
+            : const ProPromotion(),
       ),
     );
   }
