@@ -206,6 +206,9 @@ class CustomizableHomePage extends StatelessWidget {
 }
 
 Widget _getWidget(BuildContext context, String id, HomeLayoutPreset preset) {
+  if (id == HomeWidgetId.inbound.id && !desktopPlatforms) {
+    return const SizedBox.shrink();
+  }
   if (HomeWidgetId.fromId(id) != null) {
     return HomeWidgetId.fromId(id)!.buildWidget(context, preset);
   }

@@ -16,6 +16,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ import 'package:tm/protos/vx/transport/transport.pb.dart';
 import 'package:tm/tm.dart';
 import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/app/outbound/outbounds_bloc.dart';
+import 'package:vx/common/net.dart';
 import 'package:vx/data/database_provider.dart';
 import 'package:vx/main.dart';
 import 'package:vx/utils/logger.dart';
@@ -244,7 +246,7 @@ class AutoSubscriptionUpdater with ChangeNotifier {
         : const <int>[];
     return Object.hash(
       config.address,
-      config.port,
+      portString(config),
       transportBytes,
       protocolBytes,
     ).toString();
