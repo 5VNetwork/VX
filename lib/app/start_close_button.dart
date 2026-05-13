@@ -101,6 +101,13 @@ class StartCloseCubit extends Cubit<XStatus> {
       if (!await _serviceInstalled()) {
         return rootLocalizations()?.startFailedReasonTunNeedAdmin;
       }
+      final destServiceExePath = getServicePath();
+      if (_pref.installedWindowsServiceVersion != version ||
+          !File(destServiceExePath).existsSync()) {
+        final serviceExePath = getServiceExePath();
+        await File(serviceExePath).copy(destServiceExePath);
+        _pref.setInstalledWindowsServiceVersion(version);
+      }
     }
 
     return null;

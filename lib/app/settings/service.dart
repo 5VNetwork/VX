@@ -30,7 +30,7 @@ class _WindowsServiceButtonsState extends State<WindowsServiceButtons> {
     final tmWindowsBindings = TmWindowsBindings(
       DynamicLibrary.open(getDllPath()),
     );
-    final serviceExePath = getServiceExePath();
+    final serviceExePath = getServicePath();
     final serviceExePathPtr = serviceExePath.toNativeUtf8();
     final serviceNamePtr = serviceName.toNativeUtf8();
     final resultPtr = tmWindowsBindings.InstallService(

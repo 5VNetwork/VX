@@ -176,6 +176,10 @@ String getDllPath() {
   // }
 }
 
+String getServicePath() {
+  return join((resourceDirectory).path, 'umi_service.exe');
+}
+
 String getServiceExePath() {
   final String localExePath = join(
     'data',
