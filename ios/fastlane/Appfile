@@ -1,4 +1,4 @@
-app_identifier("com.5vnetwork.x") # The bundle identifier of your app
+app_identifier(ENV["BUNDLE_ID"]) # The bundle identifier of your app
 apple_id(ENV["APPLE_ID"]) # Your Apple Developer Portal username
 
 itc_team_id("126215122") # App Store Connect Team ID

@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios fetch_match_files
+
+```sh
+[bundle exec] fastlane ios fetch_match_files
+```
+
+Fetch match certificates and provisioning profiles
+
 ### ios beta
 
 ```sh

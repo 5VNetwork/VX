@@ -45,6 +45,24 @@
                         "appId": "1:479311300497:ios:24983b421f94721d89bc30",
                         "uploadDebugSymbols": false,
                         "fileOutput": "ios/flavors/production/GoogleService-Info.plist"
+                    },
+                    "Debug-cn": {
+                        "projectId": "vproxy-1407e",
+                        "appId": "1:479311300497:ios:503bf2031e87540c89bc30",
+                        "uploadDebugSymbols": false,
+                        "fileOutput": "ios/flavors/cn/GoogleService-Info.plist"
+                    },
+                    "Profile-cn": {
+                        "projectId": "vproxy-1407e",
+                        "appId": "1:479311300497:ios:503bf2031e87540c89bc30",
+                        "uploadDebugSymbols": true,
+                        "fileOutput": "ios/flavors/cn/GoogleService-Info.plist"
+                    },
+                    "Release-cn": {
+                        "projectId": "vproxy-1407e",
+                        "appId": "1:479311300497:ios:503bf2031e87540c89bc30",
+                        "uploadDebugSymbols": true,
+                        "fileOutput": "ios/flavors/cn/GoogleService-Info.plist"
                     }
                 }
             },
@@ -91,6 +109,12 @@
                         "android": "1:629742529281:android:ee93ecf0934d980ef44900",
                         "ios": "1:629742529281:ios:84e3c3c3f0752d74f44900",
                         "macos": "1:629742529281:ios:84e3c3c3f0752d74f44900"
+                    }
+                },
+                "lib/firebase_options_cn.dart": {
+                    "projectId": "vproxy-1407e",
+                    "configurations": {
+                        "ios": "1:479311300497:ios:503bf2031e87540c89bc30"
                     }
                 }
             }

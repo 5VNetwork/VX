@@ -1,4 +1,4 @@
-name: Release iOS
+name: Release iOS test
 
 on:
   # push:

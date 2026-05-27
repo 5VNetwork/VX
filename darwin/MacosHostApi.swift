@@ -41,7 +41,8 @@ class DarwinHostApiImpl: DarwinHostApi {
     func appGroupPath() throws -> String {
         #if os(iOS)
             let path = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: "group.com.5vnetwork.x"
+                forSecurityApplicationGroupIdentifier: "group." + Bundle
+                    .main.bundleIdentifier!
             )?
             .relativePath
         #else

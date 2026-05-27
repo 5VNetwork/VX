@@ -10,7 +10,10 @@ type("appstore") # The default type, can be: appstore, adhoc, enterprise or deve
 app_identifier([
   "com.5vnetwork.x",                    # Main app
   "com.5vnetwork.x.PacketTunnel",       # PacketTunnel extension
-  "com.5vnetwork.x.ImageNotification"   # ImageNotification extension
+  "com.5vnetwork.x.ImageNotification",   # ImageNotification extension
+  "com.5vnetwork.x.cn",                   # CN app
+  "com.5vnetwork.x.cn.PacketTunnel",    # CN PacketTunnel extension
+  "com.5vnetwork.x.cn.ImageNotification" # CN ImageNotification extension
 ])
 
 

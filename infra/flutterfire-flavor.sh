@@ -31,6 +31,13 @@ case $1 in
       --macos-bundle-id=com.5vnetwork.x \
       --macos-out=macos/flavors/production/GoogleService-Info.plist 
     ;;
+  cn)
+    flutterfire config \
+      --project=vproxy-1407e \
+      --out=lib/firebase_options_cn.dart \
+      --ios-bundle-id=com.5vnetwork.x.cn \
+      --ios-out=ios/flavors/cn/GoogleService-Info.plist 
+    ;;
   *)
     echo "Error: Invalid environment specified. Use 'staging' or 'production'."
     exit 1

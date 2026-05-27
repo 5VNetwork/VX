@@ -124,6 +124,7 @@ jobs:
 
       - name: Fastlane release
         env:
+          BUNDLE_ID: "com.5vnetwork.x"
           APPLE_ID: ${{ secrets.APPLE_ID }}
           FASTLANE_IOS_KEY_ID: ${{ secrets.FASTLANE_IOS_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}

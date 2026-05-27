@@ -25,7 +25,6 @@ import 'package:go_router/go_router.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:provider/provider.dart';
-import 'package:store_checker/store_checker.dart';
 import 'package:vx/common/common.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,8 +45,7 @@ void showProPromotionDialog(
   bool showTitle = true,
 }) async {
   if (Platform.isIOS) {
-    final source = await installationSource!;
-    if (source == Source.IS_INSTALLED_FROM_TEST_FLIGHT) {
+    if (appFlavor == 'cn') {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

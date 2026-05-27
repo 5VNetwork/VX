@@ -39,7 +39,6 @@ import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:store_checker/store_checker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
 import 'package:vx/app/blocs/inbound.dart';
@@ -116,6 +115,7 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:win32_registry/win32_registry.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options_staging.dart' as staging;
+import 'firebase_options_cn.dart' as cn;
 part 'init.dart';
 part 'desktop_tray.dart';
 part 'router.dart';
@@ -544,9 +544,6 @@ void main() async {
   }
 }
 
-Future<Source>? installationSource = Platform.isIOS
-    ? StoreChecker.getSource
-    : null;
 // global variables
 late final Directory resourceDirectory;
 late final String cacheDirectory;
@@ -1235,6 +1232,7 @@ Future<void> initializeFirebaseApp() async {
     'pkg' ||
     'apk' => production.DefaultFirebaseOptions.currentPlatform,
     'staging' => staging.DefaultFirebaseOptions.currentPlatform,
+    'cn' => cn.DefaultFirebaseOptions.currentPlatform,
     _ => null,
   };
   await Firebase.initializeApp(options: firebaseOptions);
