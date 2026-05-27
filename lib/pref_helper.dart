@@ -531,6 +531,30 @@ extension PrefHelperExtension on SharedPreferences {
     );
   }
 
+  /// Bytes to download for outbound UI speed tests (Cloudflare `__down?bytes=`).
+  static const int _defaultOutboundSpeedTestBytes = 100000;
+  static const int _minOutboundSpeedTestBytes = 1000;
+  static const int _maxOutboundSpeedTestBytes = 100000000;
+
+  int get outboundSpeedTestBytes {
+    final v = getInt('outboundSpeedTestBytes');
+    if (v == null || v < _minOutboundSpeedTestBytes) {
+      return _defaultOutboundSpeedTestBytes;
+    }
+    if (v > _maxOutboundSpeedTestBytes) {
+      return _maxOutboundSpeedTestBytes;
+    }
+    return v;
+  }
+
+  void setOutboundSpeedTestBytes(int bytes) {
+    final clamped = bytes.clamp(
+      _minOutboundSpeedTestBytes,
+      _maxOutboundSpeedTestBytes,
+    );
+    setInt('outboundSpeedTestBytes', clamped);
+  }
+
   bool get shareLog {
     if (isPkg) {
       return false;
@@ -1169,5 +1193,13 @@ extension PrefHelperExtension on SharedPreferences {
 
   void setReviewAutoPromptDisabled(bool disabled) {
     setBool('reviewAutoPromptDisabled', disabled);
+  }
+
+  String? get installedWindowsServiceVersion {
+    return getString('installedWindowsServiceVersion');
+  }
+
+  void setInstalledWindowsServiceVersion(String version) {
+    setString('installedWindowsServiceVersion', version);
   }
 }

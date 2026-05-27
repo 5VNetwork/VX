@@ -119,6 +119,14 @@ class OutboundRepo {
     );
   }
 
+  /// Get the names of all groups a specific handler belongs to.
+  Future<List<String>> getGroupNamesForHandler(int handlerId) async {
+    final rows = await (databaseProvider.database.select(
+      databaseProvider.database.outboundHandlerGroupRelations,
+    )..where((t) => t.handlerId.equals(handlerId))).get();
+    return rows.map((r) => r.groupName).toList();
+  }
+
   /// Get all handlers belonging to a specific group
   Future<List<OutboundHandler>> getHandlersByGroup(String groupName) async {
     // Join with the junction table to filter by group name

@@ -285,13 +285,17 @@ Future<void> getNodesFromUrls(
     final isSubscription = data.startsWith('http');
     rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
     if (isSubscription) {
-      String tag = '';
-      final t = await showStringForm(
-        context,
-        title: AppLocalizations.of(context)!.addRemark,
-        cancelText: AppLocalizations.of(context)!.skip,
-      );
-      if (t != null && t.isNotEmpty) tag = t;
+      // parse the url to get the remark
+      final url = Uri.parse(data);
+      String tag = url.fragment;
+      if (tag.isEmpty) {
+        final t = await showStringForm(
+          context,
+          title: AppLocalizations.of(context)!.addRemark,
+          cancelText: AppLocalizations.of(context)!.skip,
+        );
+        if (t != null && t.isNotEmpty) tag = t;
+      }
       if (tag.isEmpty) {
         // generate a random and unique tag
         int id = 1;

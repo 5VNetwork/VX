@@ -572,6 +572,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addToGroup => 'Add to Group';
 
   @override
+  String get addToAppSet => 'Add to App Set';
+
+  @override
+  String get addToDomainSet => 'Add to Domain Set';
+
+  @override
+  String get addToIpSet => 'Add to IP Set';
+
+  @override
+  String logDnsResolver(String resolver) {
+    return 'DNS: $resolver';
+  }
+
+  @override
   String get addApp => 'Add App';
 
   @override
@@ -803,8 +817,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginBeforeRestore => 'Please login before restoring purchase.';
 
   @override
-  String get visitWebsiteToPurchasePro =>
-      'Please visit our website to purchase Pro';
+  String get visitWebsiteToPurchasePro => 'Please visit our website to purchase Pro';
 
   @override
   String get upgradeToPermanentPro => 'Upgrade to Pro';
@@ -1636,7 +1649,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugLogDesc => 'If you encountered any problem during using VX, you can enable the button, and wait until the problem occur again, then click upload to upload the logs to us, rememeber to close it and delete the logsafter uploading.  Developer logs are not uploaded automatically since they contain your network activities, including the websites and apps you use. We delete the logs immediately once we process them.';
 
   @override
-  String get clashFormatSupported => 'Files are supported';
+  String get clashFormatSupported => 'Only Clash Rule files are supported';
 
   @override
   String get network => 'Network';
@@ -2324,7 +2337,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoTestNodes => 'Nodes Test';
 
   @override
-  String get autoTestNodesDesc => 'Periodically test nodes';
+  String get autoTestNodesDesc => 'Periodically test nodes and automatically test new nodes';
 
   @override
   String get autoUpdateGeoFiles => 'Auto Update Geo Files';

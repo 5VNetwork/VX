@@ -876,7 +876,23 @@ class _LogListState extends State<LogList> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  children: [SafeArea(child: child)],
+                  children: [
+                    if (showTrailing)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          (isDirect
+                              ? AppLocalizations.of(context)!.addToProxy
+                              : AppLocalizations.of(context)!.addToDirect),
+                          style: Theme.of(context).textTheme.titleLarge!
+                              .copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    SafeArea(child: child),
+                  ],
                 ),
               ),
             ),
@@ -896,6 +912,16 @@ class _LogListState extends State<LogList> {
                     size: 32,
                     color: Theme.of(context).colorScheme.error,
                   ),
+            title: showTrailing
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      (isDirect
+                          ? AppLocalizations.of(context)!.addToProxy
+                          : AppLocalizations.of(context)!.addToDirect),
+                    ),
+                  )
+                : null,
             scrollable: true,
             content: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 500),
@@ -1003,49 +1029,40 @@ class _LogListState extends State<LogList> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          // StatefulBuilder(
-          //   builder: (context, setState) {
-          //     return TextButton(
-          //       onPressed: domainAdded
-          //           ? null
-          //           : () async {
-          //               final xController = context.read<XController>();
-          //               List<String> domains = [];
-          //               if (domain.contains(',')) {
-          //                 domains = domain.split(',');
-          //               } else {
-          //                 domains.add(domain);
-          //               }
-          //               for (var domain in domains) {
-          //                 if (isDomain(domain)) {
-          //                   final d = Domain(
-          //                     type: Domain_Type.RootDomain,
-          //                     value: domain,
-          //                   );
-          //                   final setName = isDirect
-          //                       ? getCustomProxy(context)
-          //                       : getCustomDirect(context);
-          //                   await Provider.of<SetRepo>(
-          //                     context,
-          //                     listen: false,
-          //                   ).addGeoDomain(setName, d);
-          //                   setState(() {
-          //                     domainAdded = true;
-          //                   });
-          //                   xController.addGeoDomain(setName, d);
-          //                 }
-          //               }
-          //             },
-          //       child: domainAdded
-          //           ? Icon(Icons.check_rounded, size: 18)
-          //           : Text(
-          //               isDirect
-          //                   ? AppLocalizations.of(context)!.addToProxy
-          //                   : AppLocalizations.of(context)!.addToDirect,
-          //             ),
-          //     );
-          //   },
-          // ),
+          const Gap(10),
+          _DomainSetPickerButton(
+            child: Text(
+              AppLocalizations.of(context)!.addToDomainSet,
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: ShimmerPurple,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onChanged: (setName) async {
+              final xController = context.read<XController>();
+              List<String> domains = [];
+              if (domain.contains(',')) {
+                domains = domain.split(',');
+              } else {
+                domains.add(domain);
+              }
+              for (var domain in domains) {
+                final normalizedDomain = domain.trim();
+                if (isDomain(normalizedDomain)) {
+                  final d = Domain(
+                    type: Domain_Type.RootDomain,
+                    value: normalizedDomain,
+                  );
+                  await Provider.of<SetRepo>(
+                    context,
+                    listen: false,
+                  ).addGeoDomain(setName, d);
+                  xController.addGeoDomain(setName, d);
+                }
+              }
+            },
+          ),
         ],
       ),
       subtitle: Wrap(
@@ -1088,29 +1105,48 @@ class _LogListState extends State<LogList> {
       ),
       trailing: !showTrailing
           ? null
-          : _DomainSetPickerButton(
-              onChanged: (setName) async {
-                final xController = context.read<XController>();
-                List<String> domains = [];
-                if (domain.contains(',')) {
-                  domains = domain.split(',');
-                } else {
-                  domains.add(domain);
-                }
-                for (var domain in domains) {
-                  final normalizedDomain = domain.trim();
-                  if (isDomain(normalizedDomain)) {
-                    final d = Domain(
-                      type: Domain_Type.RootDomain,
-                      value: normalizedDomain,
-                    );
-                    await Provider.of<SetRepo>(
-                      context,
-                      listen: false,
-                    ).addGeoDomain(setName, d);
-                    xController.addGeoDomain(setName, d);
-                  }
-                }
+          : StatefulBuilder(
+              builder: (context, setState) {
+                return IconButton.filledTonal(
+                  icon: domainAdded
+                      ? const Icon(Icons.check_rounded, size: 18)
+                      : const Icon(Icons.add_rounded, size: 18),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: domainAdded
+                      ? null
+                      : () async {
+                          final xController = context.read<XController>();
+                          List<String> domains = [];
+                          if (domain.contains(',')) {
+                            domains = domain.split(',');
+                          } else {
+                            domains.add(domain);
+                          }
+                          for (var domain in domains) {
+                            if (isDomain(domain)) {
+                              final d = Domain(
+                                type: Domain_Type.RootDomain,
+                                value: domain,
+                              );
+                              final setName = isDirect
+                                  ? getCustomProxy(context)
+                                  : getCustomDirect(context);
+                              await Provider.of<SetRepo>(
+                                context,
+                                listen: false,
+                              ).addGeoDomain(setName, d);
+                              setState(() {
+                                domainAdded = true;
+                              });
+                              xController.addGeoDomain(setName, d);
+                            }
+                          }
+                        },
+                );
               },
             ),
     );
@@ -1179,69 +1215,72 @@ class _LogListState extends State<LogList> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          // StatefulBuilder(
-          //   builder: (context, setState) {
-          //     return TextButton(
-          //       onPressed: domainAdded
-          //           ? null
-          //           : () async {
-          //               try {
-          //                 final xController = context.read<XController>();
-          //                 // check if dst is an ip
-          //                 final domain = isDomain(destination);
-          //                 if (domain) {
-          //                   final d = Domain(
-          //                     type: Domain_Type.Full,
-          //                     value: destination,
-          //                   );
-          //                   final setName = isDirect
-          //                       ? getCustomProxy(context)
-          //                       : getCustomDirect(context);
-          //                   await Provider.of<SetRepo>(
-          //                     context,
-          //                     listen: false,
-          //                   ).addGeoDomain(setName, d);
-          //                   xController.addGeoDomain(setName, d);
-          //                 } else {
-          //                   final normalizedIp = normalizeIp(destination);
-          //                   if (isValidIp(normalizedIp)) {
-          //                     await Provider.of<SetRepo>(
-          //                       context,
-          //                       listen: false,
-          //                     ).addCidr(
-          //                       isDirect
-          //                           ? getCustomProxy(context)
-          //                           : getCustomDirect(context),
-          //                       ipToCidr(normalizedIp),
-          //                     );
-          //                   }
-          //                 }
-          //                 setState(() {
-          //                   domainAdded = true;
-          //                 });
-          //               } on DriftRemoteException catch (e) {
-          //                 if (e.remoteCause is SqliteException &&
-          //                     (e.remoteCause as SqliteException)
-          //                             .extendedResultCode ==
-          //                         2067) {
-          //                   snack(
-          //                     rootLocalizations()?.addFailedUniqueConstraint,
-          //                   );
-          //                 }
-          //               } catch (e) {
-          //                 logger.d('add address error', error: e);
-          //               }
-          //             },
-          //       child: domainAdded
-          //           ? const Icon(Icons.check_rounded, size: 18)
-          //           : Text(
-          //               isDirect
-          //                   ? AppLocalizations.of(context)!.addToProxy
-          //                   : AppLocalizations.of(context)!.addToDirect,
-          //             ),
-          //     );
-          //   },
-          // ),
+          const Gap(10),
+          isDestinationDomain
+              ? _DomainSetPickerButton(
+                  child: Text(
+                    AppLocalizations.of(context)!.addToDomainSet,
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: ShimmerPurple,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onChanged: (setName) async {
+                    try {
+                      final xController = context.read<XController>();
+                      final d = Domain(
+                        type: Domain_Type.Full,
+                        value: destination,
+                      );
+                      await Provider.of<SetRepo>(
+                        context,
+                        listen: false,
+                      ).addGeoDomain(setName, d);
+                      xController.addGeoDomain(setName, d);
+                    } on DriftRemoteException catch (e) {
+                      if (e.remoteCause is SqliteException &&
+                          (e.remoteCause as SqliteException)
+                                  .extendedResultCode ==
+                              2067) {
+                        snack(rootLocalizations()?.addFailedUniqueConstraint);
+                      }
+                    } catch (e) {
+                      logger.d('add address error', error: e);
+                    }
+                  },
+                )
+              : _IpSetPickerButton(
+                  child: Text(
+                    AppLocalizations.of(context)!.addToIpSet,
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      color: ShimmerPurple,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onChanged: (setName) async {
+                    try {
+                      final normalizedIp = normalizeIp(destination);
+                      if (!isValidIp(normalizedIp)) {
+                        return;
+                      }
+                      await Provider.of<SetRepo>(
+                        context,
+                        listen: false,
+                      ).addCidr(setName, ipToCidr(normalizedIp));
+                    } on DriftRemoteException catch (e) {
+                      if (e.remoteCause is SqliteException &&
+                          (e.remoteCause as SqliteException)
+                                  .extendedResultCode ==
+                              2067) {
+                        snack(rootLocalizations()?.addFailedUniqueConstraint);
+                      }
+                    } catch (e) {
+                      logger.d('add address error', error: e);
+                    }
+                  },
+                ),
         ],
       ),
       subtitle: (resolver.isNotEmpty)
@@ -1260,48 +1299,68 @@ class _LogListState extends State<LogList> {
           : dst,
       trailing: !showTrailing
           ? null
-          : isDestinationDomain
-          ? _DomainSetPickerButton(
-              onChanged: (setName) async {
-                try {
-                  final xController = context.read<XController>();
-                  final d = Domain(type: Domain_Type.Full, value: destination);
-                  await Provider.of<SetRepo>(
-                    context,
-                    listen: false,
-                  ).addGeoDomain(setName, d);
-                  xController.addGeoDomain(setName, d);
-                } on DriftRemoteException catch (e) {
-                  if (e.remoteCause is SqliteException &&
-                      (e.remoteCause as SqliteException).extendedResultCode ==
-                          2067) {
-                    snack(rootLocalizations()?.addFailedUniqueConstraint);
-                  }
-                } catch (e) {
-                  logger.d('add address error', error: e);
-                }
-              },
-            )
-          : _IpSetPickerButton(
-              onChanged: (setName) async {
-                try {
-                  final normalizedIp = normalizeIp(destination);
-                  if (!isValidIp(normalizedIp)) {
-                    return;
-                  }
-                  await Provider.of<SetRepo>(
-                    context,
-                    listen: false,
-                  ).addCidr(setName, ipToCidr(normalizedIp));
-                } on DriftRemoteException catch (e) {
-                  if (e.remoteCause is SqliteException &&
-                      (e.remoteCause as SqliteException).extendedResultCode ==
-                          2067) {
-                    snack(rootLocalizations()?.addFailedUniqueConstraint);
-                  }
-                } catch (e) {
-                  logger.d('add address error', error: e);
-                }
+          : StatefulBuilder(
+              builder: (context, setState) {
+                return IconButton.filledTonal(
+                  icon: domainAdded
+                      ? const Icon(Icons.check_rounded, size: 18)
+                      : const Icon(Icons.add_rounded, size: 18),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: domainAdded
+                      ? null
+                      : () async {
+                          try {
+                            final xController = context.read<XController>();
+                            // check if dst is an ip
+                            final domain = isDomain(destination);
+                            if (domain) {
+                              final d = Domain(
+                                type: Domain_Type.Full,
+                                value: destination,
+                              );
+                              final setName = isDirect
+                                  ? getCustomProxy(context)
+                                  : getCustomDirect(context);
+                              await Provider.of<SetRepo>(
+                                context,
+                                listen: false,
+                              ).addGeoDomain(setName, d);
+                              xController.addGeoDomain(setName, d);
+                            } else {
+                              final normalizedIp = normalizeIp(destination);
+                              if (isValidIp(normalizedIp)) {
+                                await Provider.of<SetRepo>(
+                                  context,
+                                  listen: false,
+                                ).addCidr(
+                                  isDirect
+                                      ? getCustomProxy(context)
+                                      : getCustomDirect(context),
+                                  ipToCidr(normalizedIp),
+                                );
+                              }
+                            }
+                            setState(() {
+                              domainAdded = true;
+                            });
+                          } on DriftRemoteException catch (e) {
+                            if (e.remoteCause is SqliteException &&
+                                (e.remoteCause as SqliteException)
+                                        .extendedResultCode ==
+                                    2067) {
+                              snack(
+                                rootLocalizations()?.addFailedUniqueConstraint,
+                              );
+                            }
+                          } catch (e) {
+                            logger.d('add address error', error: e);
+                          }
+                        },
+                );
               },
             ),
     );
@@ -1323,54 +1382,64 @@ class _LogListState extends State<LogList> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          // StatefulBuilder(
-          //   builder: (context, setState) {
-          //     return TextButton(
-          //       onPressed: appNameAdded
-          //           ? null
-          //           : () async {
-          //               try {
-          //                 await Provider.of<SetRepo>(
-          //                   context,
-          //                   listen: false,
-          //                 ).addApp(
-          //                   isDirect
-          //                       ? getProxySetName(context)
-          //                       : getDirectSetName(context),
-          //                   AppId(type: AppId_Type.Keyword, value: appName),
-          //                 );
-          //                 setState(() {
-          //                   appNameAdded = true;
-          //                 });
-          //               } catch (e) {
-          //                 logger.d('add app name error', error: e);
-          //               }
-          //             },
-          //       child: appNameAdded
-          //           ? Icon(Icons.check_rounded, size: 18)
-          //           : Text(
-          //               isDirect
-          //                   ? AppLocalizations.of(context)!.addToProxy
-          //                   : AppLocalizations.of(context)!.addToDirect,
-          //             ),
-          //     );
-          //   },
-          // ),
+          const Gap(10),
+          _AppSetPickerButton(
+            child: Text(
+              AppLocalizations.of(context)!.addToAppSet,
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: ShimmerPurple,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onChanged: (setName) async {
+              try {
+                await Provider.of<SetRepo>(context, listen: false).addApp(
+                  setName,
+                  AppId(type: AppId_Type.Keyword, value: appName),
+                );
+              } catch (e) {
+                logger.d('add app name error', error: e);
+              }
+            },
+          ),
         ],
       ),
       subtitle: Text(appName, style: Theme.of(context).textTheme.bodyLarge),
       trailing: !showTrailing
           ? null
-          : _AppSetPickerButton(
-              onChanged: (setName) async {
-                try {
-                  await Provider.of<SetRepo>(context, listen: false).addApp(
-                    setName,
-                    AppId(type: AppId_Type.Keyword, value: appName),
-                  );
-                } catch (e) {
-                  logger.d('add app name error', error: e);
-                }
+          : StatefulBuilder(
+              builder: (context, setState) {
+                return IconButton.filledTonal(
+                  icon: appNameAdded
+                      ? const Icon(Icons.check_rounded, size: 18)
+                      : const Icon(Icons.add_rounded, size: 18),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: appNameAdded
+                      ? null
+                      : () async {
+                          try {
+                            await Provider.of<SetRepo>(
+                              context,
+                              listen: false,
+                            ).addApp(
+                              isDirect
+                                  ? getProxySetName(context)
+                                  : getDirectSetName(context),
+                              AppId(type: AppId_Type.Keyword, value: appName),
+                            );
+                            setState(() {
+                              appNameAdded = true;
+                            });
+                          } catch (e) {
+                            logger.d('add app name error', error: e);
+                          }
+                        },
+                );
               },
             ),
     );
@@ -1393,40 +1462,28 @@ class _LogListState extends State<LogList> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          // StatefulBuilder(
-          //   builder: (context, setState) {
-          //     return TextButton(
-          //       onPressed: appAdded
-          //           ? null
-          //           : () async {
-          //               try {
-          //                 await Provider.of<SetRepo>(
-          //                   context,
-          //                   listen: false,
-          //                 ).addApp(
-          //                   isDirect
-          //                       ? getProxySetName(context)
-          //                       : getDirectSetName(context),
-          //                   AppId(type: AppId_Type.Exact, value: app),
-          //                   icon: icon,
-          //                 );
-          //                 setState(() {
-          //                   appAdded = true;
-          //                 });
-          //               } catch (e) {
-          //                 logger.d('add exact app id error', error: e);
-          //               }
-          //             },
-          //       child: appAdded
-          //           ? const Icon(Icons.check_rounded, size: 18)
-          //           : Text(
-          //               isDirect
-          //                   ? AppLocalizations.of(context)!.addToProxy
-          //                   : AppLocalizations.of(context)!.addToDirect,
-          //             ),
-          //     );
-          //   },
-          // ),
+          const Gap(10),
+          _AppSetPickerButton(
+            child: Text(
+              AppLocalizations.of(context)!.addToAppSet,
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: ShimmerPurple,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onChanged: (setName) async {
+              try {
+                await Provider.of<SetRepo>(context, listen: false).addApp(
+                  setName,
+                  AppId(type: AppId_Type.Exact, value: app),
+                  icon: icon,
+                );
+              } catch (e) {
+                logger.d('add exact app id error', error: e);
+              }
+            },
+          ),
         ],
       ),
       subtitle: Tooltip(
@@ -1443,17 +1500,39 @@ class _LogListState extends State<LogList> {
       ),
       trailing: !showTrailing
           ? null
-          : _AppSetPickerButton(
-              onChanged: (setName) async {
-                try {
-                  await Provider.of<SetRepo>(context, listen: false).addApp(
-                    setName,
-                    AppId(type: AppId_Type.Exact, value: app),
-                    icon: icon,
-                  );
-                } catch (e) {
-                  logger.d('add exact app id error', error: e);
-                }
+          : StatefulBuilder(
+              builder: (context, setState) {
+                return IconButton.filledTonal(
+                  icon: appAdded
+                      ? const Icon(Icons.check_rounded, size: 18)
+                      : const Icon(Icons.add_rounded, size: 18),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: appAdded
+                      ? null
+                      : () async {
+                          try {
+                            await Provider.of<SetRepo>(
+                              context,
+                              listen: false,
+                            ).addApp(
+                              isDirect
+                                  ? getProxySetName(context)
+                                  : getDirectSetName(context),
+                              AppId(type: AppId_Type.Exact, value: app),
+                              icon: icon,
+                            );
+                            setState(() {
+                              appAdded = true;
+                            });
+                          } catch (e) {
+                            logger.d('add exact app id error', error: e);
+                          }
+                        },
+                );
               },
             ),
     );
@@ -1894,9 +1973,10 @@ class _DomainSetPickerButtonState extends State<_DomainSetPickerButton> {
 }
 
 class _IpSetPickerButton extends StatefulWidget {
-  const _IpSetPickerButton({required this.onChanged});
+  const _IpSetPickerButton({required this.onChanged, this.child});
 
   final Future<void> Function(String) onChanged;
+  final Widget? child;
 
   @override
   State<_IpSetPickerButton> createState() => _IpSetPickerButtonState();
@@ -1936,20 +2016,23 @@ class _IpSetPickerButtonState extends State<_IpSetPickerButton> {
           },
         ),
       ],
-      builder: (context, controller, child) => IconButton.filledTonal(
-        onPressed: () => controller.open(),
-        icon: const Icon(Icons.add_rounded, size: 18),
-        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-        padding: EdgeInsets.zero,
-      ),
+      builder: (context, controller, child) => widget.child == null
+          ? IconButton.filledTonal(
+              onPressed: () => controller.open(),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              padding: EdgeInsets.zero,
+            )
+          : InkWell(onTap: () => controller.open(), child: widget.child!),
     );
   }
 }
 
 class _AppSetPickerButton extends StatefulWidget {
-  const _AppSetPickerButton({required this.onChanged});
+  const _AppSetPickerButton({required this.onChanged, this.child});
 
   final Future<void> Function(String) onChanged;
+  final Widget? child;
 
   @override
   State<_AppSetPickerButton> createState() => _AppSetPickerButtonState();
@@ -1982,12 +2065,17 @@ class _AppSetPickerButtonState extends State<_AppSetPickerButton> {
                 ),
               )
               .toList(),
-          builder: (context, controller, child) => IconButton.filledTonal(
-            onPressed: () => controller.open(),
-            icon: const Icon(Icons.add_rounded, size: 18),
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            padding: EdgeInsets.zero,
-          ),
+          builder: (context, controller, child) => widget.child == null
+              ? IconButton.filledTonal(
+                  onPressed: () => controller.open(),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                )
+              : InkWell(onTap: () => controller.open(), child: widget.child!),
         );
       },
     );

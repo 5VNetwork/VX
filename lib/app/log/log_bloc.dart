@@ -24,7 +24,7 @@ import 'package:installed_apps/index.dart';
 import 'package:lru_cache/lru_cache.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tm/protos/app/userlogger/config.pb.dart';
+import 'package:tm/protos/vx/userlogger/userlogger.pb.dart';
 import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/app/routing/mode_form.dart';
 import 'package:vx/app/blocs/proxy_selector/proxy_selector_bloc.dart';

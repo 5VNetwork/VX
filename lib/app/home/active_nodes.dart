@@ -530,7 +530,10 @@ Future<(int, int, double)> _testHandler(
   // Speed test
   try {
     final resStream = await xApiClient.speedTest(
-      api_pb.SpeedTestRequest(handlers: [handler.toConfig()]),
+      api_pb.SpeedTestRequest(
+        handlers: [handler.toConfig()],
+        size: pref.outboundSpeedTestBytes,
+      ),
     );
     await for (final res in resStream) {
       ok = res.down > 0 ? 1 : -1;

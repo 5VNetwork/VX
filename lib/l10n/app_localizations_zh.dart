@@ -558,6 +558,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addToGroup => '添加至分组';
 
   @override
+  String get addToAppSet => '添加至应用集合';
+
+  @override
+  String get addToDomainSet => '添加至域名集合';
+
+  @override
+  String get addToIpSet => '添加至IP集合';
+
+  @override
+  String logDnsResolver(String resolver) {
+    return 'DNS: $resolver';
+  }
+
+  @override
   String get addApp => '添加应用';
 
   @override
@@ -2273,7 +2287,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoTestNodes => '节点测试';
 
   @override
-  String get autoTestNodesDesc => '定期测试节点';
+  String get autoTestNodesDesc => '定期测试节点并且自动测试新增节点';
 
   @override
   String get autoUpdateGeoFiles => '自动更新地理位置文件';

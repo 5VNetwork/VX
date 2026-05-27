@@ -144,26 +144,39 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.only(bottom: 10, top: 8),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400,
-                    mainAxisExtent: Platform.isAndroid || Platform.isIOS
-                        ? 145
-                        : 130,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  delegate: SliverChildBuilderDelegate((ctx, index) {
-                    // if (index == 0 && showAd) {
-                    //   return const _AdCard();
-                    // }
-                    // if ((index - (showAd ? 1 : 0)) >= snap.data!.length) {
-                    //   return null;
-                    // }
-                    return SubScriptionListTile(
-                      group: snap.data![index /* - (showAd ? 1 : 0) */],
+                sliver: SliverLayoutBuilder(
+                  builder: (context, constraints) {
+                    const minTileWidth = 250.0;
+                    const crossAxisSpacing = 8.0;
+                    const mainAxisSpacing = 8.0;
+                    final width = constraints.crossAxisExtent;
+                    final crossAxisCount = ((width + crossAxisSpacing) /
+                            (minTileWidth + crossAxisSpacing))
+                        .floor()
+                        .clamp(1, 1000);
+
+                    return SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisExtent: Platform.isAndroid || Platform.isIOS
+                            ? 145
+                            : 130,
+                        crossAxisSpacing: crossAxisSpacing,
+                        mainAxisSpacing: mainAxisSpacing,
+                      ),
+                      delegate: SliverChildBuilderDelegate((ctx, index) {
+                        // if (index == 0 && showAd) {
+                        //   return const _AdCard();
+                        // }
+                        // if ((index - (showAd ? 1 : 0)) >= snap.data!.length) {
+                        //   return null;
+                        // }
+                        return SubScriptionListTile(
+                          group: snap.data![index /* - (showAd ? 1 : 0) */],
+                        );
+                      }, childCount: snap.data!.length),
                     );
-                  }, childCount: snap.data!.length),
+                  },
                 ),
               ),
               if (showAd) const Ads(),

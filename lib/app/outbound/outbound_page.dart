@@ -109,7 +109,9 @@ class _OutboundPageState extends State<OutboundPage> {
       final state = context.read<OutboundBloc>().state;
       final isHandlerVisible = state.handlers.any((h) => h.id == targetHandlerId);
       if (!isHandlerVisible) {
-        context.read<OutboundBloc>().add(SelectedGroupChangeEvent(allGroup));
+        context
+            .read<OutboundBloc>()
+            .add(SelectGroupContainingHandlerEvent(targetHandlerId));
       }
 
       final scrolled =

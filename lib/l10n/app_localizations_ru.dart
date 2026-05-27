@@ -572,6 +572,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addToGroup => 'Добавить в группу';
 
   @override
+  String get addToAppSet => 'Добавить в набор приложений';
+
+  @override
+  String get addToDomainSet => 'Добавить в набор доменов';
+
+  @override
+  String get addToIpSet => 'Добавить в набор IP-адресов';
+
+  @override
+  String logDnsResolver(String resolver) {
+    return 'DNS: $resolver';
+  }
+
+  @override
   String get addApp => 'Добавить приложение';
 
   @override
@@ -803,8 +817,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginBeforeRestore => 'Пожалуйста, войдите в систему, прежде чем восстанавливать покупку.';
 
   @override
-  String get visitWebsiteToPurchasePro =>
-      'Пожалуйста, посетите наш сайт, чтобы купить Pro.';
+  String get visitWebsiteToPurchasePro => 'Пожалуйста, посетите наш сайт, чтобы купить Pro.';
 
   @override
   String get upgradeToPermanentPro => 'Перейти на Pro';

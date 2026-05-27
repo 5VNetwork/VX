@@ -1159,6 +1159,30 @@ abstract class AppLocalizations {
   /// **'Add to Group'**
   String get addToGroup;
 
+  /// No description provided for @addToAppSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to App Set'**
+  String get addToAppSet;
+
+  /// No description provided for @addToDomainSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Domain Set'**
+  String get addToDomainSet;
+
+  /// No description provided for @addToIpSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to IP Set'**
+  String get addToIpSet;
+
+  /// No description provided for @logDnsResolver.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS: {resolver}'**
+  String logDnsResolver(String resolver);
+
   /// No description provided for @addApp.
   ///
   /// In en, this message translates to:
@@ -3052,7 +3076,7 @@ abstract class AppLocalizations {
   /// No description provided for @clashFormatSupported.
   ///
   /// In en, this message translates to:
-  /// **'Files are supported'**
+  /// **'Only Clash Rule files are supported'**
   String get clashFormatSupported;
 
   /// No description provided for @network.
@@ -4396,7 +4420,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoTestNodesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Periodically test nodes'**
+  /// **'Periodically test nodes and automatically test new nodes'**
   String get autoTestNodesDesc;
 
   /// No description provided for @autoUpdateGeoFiles.

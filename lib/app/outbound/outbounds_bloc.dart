@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:equatable/equatable.dart';
@@ -65,6 +66,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     on<SyncEvent>(_sync);
     on<UserIsNotProEvent>(_onUserIsNotPro);
     on<SelectedGroupChangeEvent>(_onSelectedChange);
+    on<SelectGroupContainingHandlerEvent>(_onSelectGroupContainingHandler);
     on<OutboundModeSwitchEvent>(_onOutboundModeSwitch);
     on<HandlersDeleteEvent>(_onDelete);
     on<DeleteUnusableEvent>(_onDeleteUnusable);
@@ -134,6 +136,26 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
   Future<void> close() async {
     _xController.outboundBloc = null;
     await super.close();
+  }
+
+  void _autoTestHandlersMissingMetrics(List<OutboundHandler> handlers) {
+    inspect(handlers);
+    if (!_pref.autoTestNodes || handlers.isEmpty) return;
+    final needsPing = handlers
+        .where((h) => h.ping == 0)
+        .toList(growable: false);
+    final needsSpeed = handlers
+        .where((h) => h.speed == 0)
+        .toList(growable: false);
+    logger.d(
+      'needsPing: ${needsPing.length}, needsSpeed: ${needsSpeed.length}',
+    );
+    if (needsPing.isNotEmpty) add(StatusTestEvent(handlers: needsPing));
+    if (needsSpeed.isNotEmpty) add(SpeedTestEvent(handlers: needsSpeed));
+  }
+
+  void _autoTestInsertedHandlers(List<OutboundHandler> handlers) {
+    _autoTestHandlersMissingMetrics(handlers);
   }
 
   @override
@@ -416,6 +438,36 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     );
   }
 
+  /// Select the subscription or group the given handler belongs to.
+  /// Falls back to [allGroup] if the handler cannot be located in any
+  /// known subscription or group.
+  Future<void> _onSelectGroupContainingHandler(
+    SelectGroupContainingHandlerEvent e,
+    Emitter<OutboundState> emit,
+  ) async {
+    NodeGroup? target;
+    final handler = await _outboundRepo.getHandlerById(e.handlerId);
+    if (handler != null) {
+      if (handler.subId != null) {
+        target = state.groups.firstWhereOrNull(
+          (g) => g is MySubscription && g.id == handler.subId,
+        );
+      }
+      if (target == null) {
+        final groupNames = await _outboundRepo.getGroupNamesForHandler(
+          e.handlerId,
+        );
+        if (groupNames.isNotEmpty) {
+          target = state.groups.firstWhereOrNull(
+            (g) => g is OutboundHandlerGroup && groupNames.contains(g.name),
+          );
+        }
+      }
+    }
+    target ??= allGroup;
+    await _onSelectedChange(SelectedGroupChangeEvent(target), emit);
+  }
+
   Future<void> _onHandlersCopy(
     HandlersCopyEvent e,
     Emitter<OutboundState> emit,
@@ -630,14 +682,15 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     handlers.add(newHandler);
     emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
     _xController.handlerAdded();
+    _autoTestInsertedHandlers([newHandler]);
     await updateCountry([newHandler], emit);
-    add(SpeedTestEvent(handlers: [newHandler]));
   }
 
   Future<void> _onAddHandlers(
     AddHandlersEvent e,
     Emitter<OutboundState> emit,
   ) async {
+    final insertedHandlers = <OutboundHandler>[];
     if (e.replaceAll) {
       final existingHandlers = await _outboundRepo.getHandlersByGroup(
         e.groupName,
@@ -663,9 +716,10 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           );
           updatedIds.add(existing.id);
         } else {
-          await _outboundRepo.insertHandlersWithGroup([
+          final inserted = await _outboundRepo.insertHandlersWithGroup([
             HandlerConfig(outbound: nextConfig),
           ], groupName: e.groupName);
+          insertedHandlers.addAll(inserted.whereType<OutboundHandler>());
         }
       }
       final toDelete = existingHandlers
@@ -676,19 +730,20 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
         await _outboundRepo.removeHandlersByIds(toDelete);
       }
     } else {
-      await _outboundRepo.insertHandlersWithGroup(
+      final inserted = await _outboundRepo.insertHandlersWithGroup(
         e.handlers,
         groupName: e.groupName,
       );
+      insertedHandlers.addAll(inserted.whereType<OutboundHandler>());
     }
     final handlers = await _getHandlers();
     emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
     _xController.handlerAdded();
+    _autoTestInsertedHandlers(insertedHandlers);
     await updateCountry(
       await _outboundRepo.getHandlers(country: '', ok: 0),
       emit,
     );
-    add(SpeedTestEvent(handlers: handlers));
   }
 
   Future<void> _onAddGroup(AddGroupEvent e, Emitter<OutboundState> emit) async {
@@ -739,6 +794,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     final resStream = await _xApiClient.speedTest(
       SpeedTestRequest(
         handlers: handlersToBeTested.map((h) => h.toConfig()).toList(),
+        size: _pref.outboundSpeedTestBytes,
       ),
     );
 
@@ -1010,6 +1066,12 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
         handlers: _sortHandlers(await _getHandlers(), state.sortCol),
       ),
     );
+    if (_pref.autoTestNodes) {
+      final subHandlers = (await _outboundRepo.getHandlers())
+          .where((h) => h.subId != null)
+          .toList();
+      _autoTestHandlersMissingMetrics(subHandlers);
+    }
     await updateCountry(await _outboundRepo.getHandlers(country: ''), emit);
   }
 
@@ -1077,6 +1139,9 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
                       ),
                     );
                   }
+                  logger.d(
+                    'updateHandler: ${h.id}, country: ${res.country}, ip: ${res.ip}',
+                  );
                   _outboundRepo.updateHandler(
                     h.id,
                     ok: 1,
@@ -1263,6 +1328,17 @@ class AddHandlersEvent extends OutboundEvent {
 class SelectedGroupChangeEvent extends OutboundEvent {
   const SelectedGroupChangeEvent(this.selected);
   final NodeGroup? selected;
+}
+
+/// Select the subscription or group that contains [handlerId]. If the handler
+/// does not belong to any visible subscription or group, [allGroup] is
+/// selected instead.
+class SelectGroupContainingHandlerEvent extends OutboundEvent {
+  const SelectGroupContainingHandlerEvent(this.handlerId);
+  final int handlerId;
+
+  @override
+  List<Object> get props => [handlerId];
 }
 
 class UserIsNotProEvent extends OutboundEvent {

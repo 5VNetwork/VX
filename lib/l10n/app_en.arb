@@ -199,6 +199,17 @@
   "deleteGroup": "Delete Group",
   "group": "Group",
   "addToGroup": "Add to Group",
+  "addToAppSet": "Add to App Set",
+  "addToDomainSet": "Add to Domain Set",
+  "addToIpSet": "Add to IP Set",
+  "logDnsResolver": "DNS: {resolver}",
+  "@logDnsResolver": {
+    "placeholders": {
+      "resolver": {
+        "type": "String"
+      }
+    }
+  },
   "addApp": "Add App",
   "noSelectedNode": "No selected node",
   "pleaseSelectNode": "Please select a node",
@@ -956,7 +967,7 @@
   "download": "Download",
   "noData": "No data yet",
   "autoTestNodes": "Nodes Test",
-  "autoTestNodesDesc": "Periodically test nodes",
+  "autoTestNodesDesc": "Periodically test nodes and automatically test new nodes",
   "autoUpdateGeoFiles": "Auto Update Geo Files",
   "autoUpdateGeoFilesDesc": "Automatically update geo files at the configured interval",
   "geoUpdateInterval": "Update Interval",

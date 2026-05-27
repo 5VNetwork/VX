@@ -37,7 +37,7 @@ class PromotionPage extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: LayoutBuilder(
           builder: (ctx, c) {
-            if (!adsProvider.running) {
+            if (!adsProvider.periodicTask.isRunning) {
               return FutureBuilder<List<Ad>>(
                 future: adsProvider.fetchAllAds(),
                 builder: (context, snapshot) {

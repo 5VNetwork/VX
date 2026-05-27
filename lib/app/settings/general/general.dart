@@ -149,6 +149,16 @@ class GeneralSettingPage extends StatelessWidget {
                 left: 16,
                 right: 16,
               ),
+              child: OutboundSpeedTestSizeSetting(),
+            ),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.only(
+                top: 10,
+                bottom: 10,
+                left: 16,
+                right: 16,
+              ),
               child: RealtimeSpeedSamplingSetting(),
             ),
             if (Platform.isWindows)
@@ -568,6 +578,14 @@ class NodeTestSettings extends StatefulWidget {
   State<NodeTestSettings> createState() => _NodeTestSettingsState();
 }
 
+class OutboundSpeedTestSizeSetting extends StatefulWidget {
+  const OutboundSpeedTestSizeSetting({super.key});
+
+  @override
+  State<OutboundSpeedTestSizeSetting> createState() =>
+      _OutboundSpeedTestSizeSettingState();
+}
+
 class RealtimeSpeedSamplingSetting extends StatefulWidget {
   const RealtimeSpeedSamplingSetting({super.key});
 
@@ -615,9 +633,71 @@ class _RealtimeSpeedSamplingSettingState
             setState(() {
               _interval = next;
             });
-            await context.read<RealtimeSpeedNotifier>().setSampleIntervalSeconds(
-              next,
-            );
+            await context
+                .read<RealtimeSpeedNotifier>()
+                .setSampleIntervalSeconds(next);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _OutboundSpeedTestSizeSettingState
+    extends State<OutboundSpeedTestSizeSetting> {
+  static const int _minBytes = 1000;
+  static const int _maxBytes = 100000000;
+
+  late final TextEditingController _bytesController;
+
+  @override
+  void initState() {
+    super.initState();
+    final pref = context.read<SharedPreferences>();
+    _bytesController = TextEditingController(
+      text: '${pref.outboundSpeedTestBytes}',
+    );
+  }
+
+  @override
+  void dispose() {
+    _bytesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.selectorTestSpeedTestSizeLabel,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const Gap(6),
+        Text(
+          AppLocalizations.of(context)!.selectorTestSpeedTestSizeHelper,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const Gap(12),
+        TextField(
+          controller: _bytesController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(
+              context,
+            )!.selectorTestSpeedTestSizeLabel,
+            border: const OutlineInputBorder(),
+          ),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onChanged: (_) {
+            final pref = context.read<SharedPreferences>();
+            final parsed = int.tryParse(_bytesController.text.trim());
+            if (parsed != null && parsed >= _minBytes && parsed <= _maxBytes) {
+              pref.setOutboundSpeedTestBytes(parsed);
+            }
           },
         ),
       ],
