@@ -110,7 +110,9 @@ jobs:
             pub-${{ runner.os }}-
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter config --no-enable-swift-package-manager
+          flutter pub get
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
@@ -198,4 +200,3 @@ jobs:
             releases/VX.dmg releases/appcast.xml \
             --repo ${{ github.repository_owner }}/vx \
             --clobber
-

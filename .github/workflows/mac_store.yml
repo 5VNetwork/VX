@@ -99,7 +99,9 @@ jobs:
           xcode-project use-profiles
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter config --no-enable-swift-package-manager
+          flutter pub get
 
       - name: Install FlutterFire
         run: dart pub global activate flutterfire_cli
@@ -123,15 +125,15 @@ jobs:
           cd macos
           VERSION="${{ steps.get_version.outputs.version }}"
           BUILD_NUMBER="${{ steps.get_version.outputs.build_number }}"
-          
+
           # Update all CURRENT_PROJECT_VERSION entries (format: CURRENT_PROJECT_VERSION = value;)
           sed -i '' "s/\(CURRENT_PROJECT_VERSION = \)[^;]*/\1$BUILD_NUMBER/g" \
             Runner.xcodeproj/project.pbxproj
-          
+
           # Update all MARKETING_VERSION entries (format: MARKETING_VERSION = value;)
           sed -i '' "s/\(MARKETING_VERSION = \)[^;]*/\1$VERSION/g" \
             Runner.xcodeproj/project.pbxproj
-          
+
           echo "Updated all CURRENT_PROJECT_VERSION to $BUILD_NUMBER"
           echo "Updated all MARKETING_VERSION to $VERSION"
 
