@@ -1,0 +1,139 @@
+name: Release iOS Testflight
+
+on:
+  # push:
+  #   tags:
+  #     - 'v*'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-vx-release]
+
+jobs:
+  release-ios:
+    runs-on: macos-26
+    environment: ios
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Checkout dependencies
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        cd ..
+        git clone https://${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+        git clone https://github.com/5VNetwork/flutter_common.git flutter_common
+
+    - name: create files 
+      run: |
+        touch ../tm-plugin/tm_windows/assets/x.dll
+        touch ../tm-plugin/tm_windows/assets/vx_service.exe
+        touch ../tm-plugin/tm_linux/assets/x.so
+        touch ../tm-plugin/tm_linux/assets/x
+        mkdir -p assets/google_fonts
+
+    - name: Download geo
+      run: |
+        mkdir -p assets/geo
+        curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geoip.dat" 
+        mv simplified_geoip.dat assets/geo/simplified_geoip.dat
+        curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geosite.dat" 
+        mv simplified_geosite.dat assets/geo/simplified_geosite.dat
+
+
+    - name: Download library from release
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        gh release download build \
+          -R 5VNetwork/vx-core \
+          -p "tm-ios.xcframework.zip"
+        unzip tm-ios.xcframework.zip 
+        mv tm.xcframework ios/tm.xcframework
+        ls -la ios/tm.xcframework
+        
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+        
+    - name: Flutter version
+      run: flutter --version
+
+    - name: Cache pub dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ${{ github.workspace }}/.dart_tool
+        key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          pub-${{ runner.os }}-
+
+    - name: Cache CocoaPods
+      uses: actions/cache@v4
+      with:
+        path: ios/Pods
+        key: pods-${{ runner.os }}-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          pods-${{ runner.os }}-
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Install FlutterFire
+      run: dart pub global activate flutterfire_cli
+
+    - name: Pod
+      run: |
+        cd ios && pod install
+
+    - name: Save keys
+      env:
+        FASTLANE_IOS_KEY_BASE64: ${{ secrets.FASTLANE_IOS_KEY }}
+      run: |
+        echo -n "$FASTLANE_IOS_KEY_BASE64" | base64 --decode -o ios/auth_key.p8
+
+    - name: fetch match files
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        FASTLANE_IOS_KEY_ID: ${{ secrets.FASTLANE_IOS_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        MATCH_FILE_GITHUB_URL: ${{ secrets.MATCH_FILE_GITHUB_URL }}
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        IS_CI: true
+      run: |
+        cd ios && fastlane fetch_match_files
+
+    - name: Build 
+      env:
+        LOG_KEY: ${{ secrets.LOG_KEY }}
+      run: 
+        flutter build ipa --flavor cn --dart-define=LOG_KEY=$LOG_KEY --release --split-debug-info=symbols/darwin
+
+    - name: Set version
+      id: get_version
+      run: |
+        BUILD_NUMBER=$(grep '^version:' pubspec.yaml | sed 's/version: .*+\(.*\)/\1/')
+        VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: \(.*\)+.*/\1/')
+        echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION_NAME"
+        echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+        echo "Extracted build number: $BUILD_NUMBER"
+
+    - name: Fastlane release
+      env:
+        BUNDLE_ID: "com.5vnetwork.x.cn"
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        FASTLANE_IOS_KEY_ID: ${{ secrets.FASTLANE_IOS_KEY_ID }}
+        APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        MATCH_FILE_GITHUB_URL: ${{ secrets.MATCH_FILE_GITHUB_URL }}
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        BUILD_NUMBER: ${{ steps.get_version.outputs.build_number }}
+        IS_CI: true
+      run: |
+        cd ios && fastlane release
+
+
+        
