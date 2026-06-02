@@ -93,8 +93,13 @@ jobs:
       - name: copy files to tm_plugin
         run: |
           cp x_win_x86_64/x.dll ../tm-plugin/tm_windows/assets/x.dll
-          cp x_win_x86_64/vx_service.exe ../tm-plugin/tm_windows/assets/vx_service.exe
-          cp x_win_x86_64/service_install.exe service_install.exe
+         # cp x_win_x86_64/vx_service.exe ../tm-plugin/tm_windows/assets/vx_service.exe
+
+      - name: zip vx_service.exe
+        shell: powershell
+        run: |
+          Compress-Archive -Path x_win_x86_64/vx_service.exe -DestinationPath x_win_x86_64/vx_service.zip -Force
+          Copy-Item x_win_x86_64/vx_service.zip ../tm-plugin/tm_windows/assets/vx_service.zip -Force
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

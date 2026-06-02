@@ -177,17 +177,17 @@ String getDllPath() {
 }
 
 String getServicePath() {
-  return join((resourceDirectory).path, 'umi_service.exe');
+  return join((resourceDirectory).path, 'vx_service.exe');
 }
 
-String getServiceExePath() {
+String getServiceExeZipPath() {
   final String localExePath = join(
     'data',
     'flutter_assets',
     'packages',
     'tm_windows',
     'assets',
-    'vx_service.exe',
+    'vx_service.zip',
   );
   String pathToExe = join(
     Directory(Platform.resolvedExecutable).parent.path,

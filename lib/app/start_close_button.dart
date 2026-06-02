@@ -23,6 +23,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:archive/archive_io.dart';
 import 'package:vx/app/routing/default.dart';
 import 'package:vx/app/blocs/proxy_selector/proxy_selector_bloc.dart';
 import 'package:vx/app/x_controller.dart';
@@ -104,9 +105,46 @@ class StartCloseCubit extends Cubit<XStatus> {
       final destServiceExePath = getServicePath();
       if (_pref.installedWindowsServiceVersion != version ||
           !File(destServiceExePath).existsSync()) {
-        final serviceExePath = getServiceExePath();
-        await File(serviceExePath).copy(destServiceExePath);
-        _pref.setInstalledWindowsServiceVersion(version);
+        final serviceExeZipPath = getServiceExeZipPath();
+        // extract vx_service.exe from vx_service.zip to destServiceExePath
+        try {
+          if (!File(serviceExeZipPath).existsSync()) {
+            return rootLocalizations()?.windowsServiceInstallFailed(
+                  'service archive not found: $serviceExeZipPath',
+                ) ??
+                'service archive not found: $serviceExeZipPath';
+          }
+
+          final serviceDir = Directory(resourceDirectory.path);
+          if (!serviceDir.existsSync()) {
+            serviceDir.createSync(recursive: true);
+          }
+
+          await extractFileToDisk(serviceExeZipPath, serviceDir.path);
+          if (!File(destServiceExePath).existsSync()) {
+            return rootLocalizations()?.windowsServiceInstallFailed(
+                  'service executable missing after extraction: $destServiceExePath',
+                ) ??
+                'service executable missing after extraction: $destServiceExePath';
+          }
+
+          _pref.setInstalledWindowsServiceVersion(version);
+        } catch (e) {
+          return rootLocalizations()?.windowsServiceInstallFailed(
+                e.toString(),
+              ) ??
+              'failed to prepare Windows service: $e';
+        }
+        // snack(
+        //   rootLocalizations()?.downloading('Windows Service') ??
+        //       'Downloading Windows Service...',
+        //   persistent: true,
+        // );
+        // await makeWinServiceAvailable(_downloader, _pref);
+        // snack(
+        //   rootLocalizations()?.windowsServiceInstalled ??
+        //       'Windows service installed',
+        // );
       }
     }
 
