@@ -1463,8 +1463,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoCheck => 'Automatically Check New Version';
 
   @override
-  String downloading(String version) {
-    return 'Downloading...';
+  String downloading(String value) {
+    return 'Downloading $value...';
   }
 
   @override

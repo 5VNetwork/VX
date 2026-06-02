@@ -368,14 +368,6 @@ class _LargeSettingSreenState extends State<LargeSettingSreen> {
 List<Widget> _getBottomButtons(BuildContext context, User? user) {
   return [
     const SizedBox(height: 5),
-    if (context.watch<AuthBloc>().state.isActivated)
-      const Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 10.0, left: 5.0),
-          child: ActivatedIcon(),
-        ),
-      ),
     if ((user == null || (user.lifetimePro == false)) &&
         !context.watch<AuthBloc>().state.isActivated)
       Padding(

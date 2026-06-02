@@ -52,7 +52,7 @@ class _RouteState extends State<_Route> {
   Widget build(BuildContext context) {
     final bloc = context.read<ProxySelectorBloc>();
     return HomeCard(
-      title: AppLocalizations.of(context)!.routing,
+      title: AppLocalizations.of(context)!.mode,
       icon: Icons.alt_route_rounded,
       child: BlocSelector<ProxySelectorBloc, ProxySelectorState, String?>(
         selector: (state) => state.routeMode,

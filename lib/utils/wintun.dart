@@ -18,6 +18,9 @@ import 'dart:io';
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vx/common/common.dart';
+import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/download.dart';
 import 'package:vx/utils/logger.dart';
 import 'package:vx/common/os.dart';
@@ -27,6 +30,61 @@ import 'package:archive/archive_io.dart';
 
 const String wintunDownloadLink =
     'https://www.wintun.net/builds/wintun-0.14.1.zip';
+// const String winServiceDownloadBaseLink = 'https://download.5vnetwork.com';
+
+// // Single-flight guard: only one caller should run the preparation logic at a
+// // time. After the first successful run, subsequent calls return immediately.
+// bool _winServiceAvailable = false;
+// Future<void>? _winServiceAvailableInFlight;
+
+// /// Make sure the latest winservice exe is available for winstore build
+// Future<void> makeWinServiceAvailable(
+//   Downloader downloader,
+//   SharedPreferences pref,
+// ) async {
+//   if (!isWinStore) {
+//     return;
+//   }
+//   if (_winServiceAvailable) {
+//     return;
+//   }
+//   if (pref.installedWindowsServiceVersion == version &&
+//       File(getServicePath()).existsSync()) {
+//     return;
+//   }
+
+//   // If another call is already preparing the service, wait for it.
+//   final inFlight = _winServiceAvailableInFlight;
+//   if (inFlight != null) {
+//     await inFlight;
+//     return;
+//   }
+
+//   final completer = Completer<void>();
+//   _winServiceAvailableInFlight = completer.future;
+
+//   try {
+//     final cacheDir = join((resourceDirectory).path, 'vx_service_cache');
+//     await downloader.downloadZip(
+//       '$winServiceDownloadBaseLink/vx_service_$version.zip',
+//       cacheDir,
+//       cleanDest: true,
+//     );
+//     await File(
+//       join(cacheDir, 'vx_service.exe'),
+//     ).copy(getServicePath());
+//     pref.setInstalledWindowsServiceVersion(version);
+//     _winServiceAvailable = true;
+//     completer.complete();
+//   } catch (e, s) {
+//     // Allow a later retry if the preparation failed.
+//     _winServiceAvailableInFlight = null;
+//     if (!completer.isCompleted) {
+//       completer.completeError(e, s);
+//     }
+//     rethrow;
+//   }
+// }
 
 Future<void> makeWinTunAvailable(Downloader downloader) async {
   if (!Platform.isWindows) {

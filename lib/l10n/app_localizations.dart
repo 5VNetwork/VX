@@ -2728,8 +2728,8 @@ abstract class AppLocalizations {
   /// No description provided for @downloading.
   ///
   /// In en, this message translates to:
-  /// **'Downloading...'**
-  String downloading(String version);
+  /// **'Downloading {value}...'**
+  String downloading(String value);
 
   /// No description provided for @installFailed.
   ///

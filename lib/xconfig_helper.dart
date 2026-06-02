@@ -153,6 +153,7 @@ class XConfigHelper {
       dialerFactory: DialerFactoryConfig(
         dialTimeout: _persistentStateRepo.globalDialTimeout,
         shouldBindDevice: true,
+        resolveDomain: true,
       ),
     );
     // redirect std err

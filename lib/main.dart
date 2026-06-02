@@ -147,7 +147,7 @@ void main() async {
   await initSupabase();
   await setStartOnBoot(pref);
 
-  bool isActivated = false;
+  final bool isActivated = true;
   AppDatabase? database;
   FlutterSecureStorage storage = const FlutterSecureStorage();
   await Future.wait([
@@ -160,26 +160,6 @@ void main() async {
         isRunningAsAdmin = await checkLinuxRootPrivileges();
       }
       logger.d('isRunningAsAdmin: $isRunningAsAdmin');
-    }),
-    Future(() async {
-      try {
-        // auth
-        String? licence = await storage.read(key: 'licence');
-        if (licence != null) {
-          String? uniqueId = await storage.read(key: uniqueIdKey);
-          if (uniqueId != null) {
-            isActivated = await validateLicence(
-              Licence.fromJson(jsonDecode(licence)),
-              uniqueId,
-            );
-            if (!isActivated) {
-              await storage.delete(key: 'licence');
-            }
-          }
-        }
-      } catch (e) {
-        logger.e('Error validating licence', error: e);
-      }
     }),
   ]);
 
@@ -982,7 +962,7 @@ void fatalMessageDialog(String message) {
   );
 }
 
-void snack(String? message, {Duration? duration}) {
+void snack(String? message, {Duration? duration, bool? persistent}) {
   if (message == null) {
     return;
   }
@@ -990,6 +970,7 @@ void snack(String? message, {Duration? duration}) {
     SnackBar(
       content: Text(message),
       duration: duration ?? const Duration(seconds: 4),
+      persist: persistent ?? false,
     ),
   );
 }

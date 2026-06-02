@@ -1413,8 +1413,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoCheck => '自动检查新版本';
 
   @override
-  String downloading(String version) {
-    return '正在下载$version...';
+  String downloading(String value) {
+    return '正在下载$value...';
   }
 
   @override

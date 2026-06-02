@@ -624,10 +624,10 @@
   "later": "Remind Me Later",
   "skip": "Skip",
   "autoCheck": "Automatically Check New Version",
-  "downloading": "Downloading {version}...",
+  "downloading": "Downloading {value}...",
   "@downloading": {
     "placeholders": {
-      "version": {
+      "value": {
         "type": "String"
       }
     }
@@ -1026,7 +1026,6 @@
   },
   "dnsRecord": "DNS Record",
   "addDnsRecord": "Add DNS Record",
-  "downloading": "Downloading...",
   "internalDns": "Internal DNS Servers",
   "fallback": "Fallback",
   "fallbackDesc": "If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if all conditions are true.",

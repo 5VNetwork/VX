@@ -926,7 +926,7 @@ extension PrefHelperExtension on SharedPreferences {
 
   // Auto node testing settings
   bool get autoTestNodes {
-    return getBool('autoTestNodes') ?? false;
+    return getBool('autoTestNodes') ?? true;
   }
 
   void setAutoTestNodes(bool enable) {
@@ -935,7 +935,7 @@ extension PrefHelperExtension on SharedPreferences {
 
   // Test interval in minutes (default: 60 minutes = 1 hour)
   int get nodeTestInterval {
-    return getInt('nodeTestInterval') ?? 300;
+    return getInt('nodeTestInterval') ?? 720;
   }
 
   void setNodeTestInterval(int minutes) {

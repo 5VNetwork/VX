@@ -35,7 +35,7 @@ class User extends Equatable {
     return pro;
   }
 
-  bool get unlockPro => isProUser;
+  bool get unlockPro => true;
 
   bool get lifetimePro => pro && proExpiredAt == null;
 }

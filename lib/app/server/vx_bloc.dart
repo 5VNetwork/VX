@@ -214,6 +214,8 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     on<VXSetLoggerConfigEvent>(_onVproxySetLoggerConfigEvent);
   }
 
+  SshServer get server => _server;
+
   @override
   void onTransition(Transition<VXEvent, VXState> transition) {
     if (transition.event is _RefreshVXStatusEvent) {
@@ -308,7 +310,12 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     Emitter<VXState> emit,
   ) async {
     _originalConfig = await _xapiClient.serverConfig(_server);
-    emit((state as VXInstalledState).copyWith(config: () => _originalConfig));
+    emit(
+      (state as VXInstalledState).copyWith(
+        config: () => _originalConfig,
+        configUnsaved: false,
+      ),
+    );
   }
 
   Future<void> _onVproxyRestartEvent(

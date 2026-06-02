@@ -1463,7 +1463,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get autoCheck => 'Автоматическая проверка новой версии';
 
   @override
-  String downloading(String version) {
+  String downloading(String value) {
     return 'Загрузка...';
   }
 

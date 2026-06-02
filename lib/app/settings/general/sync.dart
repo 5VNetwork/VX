@@ -52,24 +52,17 @@ class _SyncPageState extends State<SyncPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: !context.watch<AuthBloc>().state.pro
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: useStripe
-                        ? const ProPromotion()
-                        : const IAPPurchase(),
-                  ),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const _Sync(),
-                      TextDivider(text: AppLocalizations.of(context)!.backup),
-                      const _Backup(),
-                    ],
-                  ),
-                ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (context.read<AuthBloc>().state.isAuthenticated) ...[
+                  const _Sync(),
+                  TextDivider(text: AppLocalizations.of(context)!.backup),
+                ],
+                const _Backup(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -139,90 +132,94 @@ class __BackupState extends State<_Backup> {
             ),
           ),
         const Gap(10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              FilledButton(
-                onPressed: backupService.uploading
-                    ? null
-                    : () async {
-                        try {
-                          final fileName = await backupService.uploadBackup();
-                          snack(rootLocalizations()!.uploadDbSuccess);
-                          if (fileName != null) {
-                            setState(() {
-                              _latestBackup = fileName;
-                            });
+        if (context.read<AuthBloc>().state.user?.lifetimePro ?? false) ...[
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                FilledButton(
+                  onPressed: backupService.uploading
+                      ? null
+                      : () async {
+                          try {
+                            final fileName = await backupService.uploadBackup();
+                            snack(rootLocalizations()!.uploadDbSuccess);
+                            if (fileName != null) {
+                              setState(() {
+                                _latestBackup = fileName;
+                              });
+                            }
+                          } catch (e) {
+                            logger.e("uploadBackup", error: e);
+                            snack(e.toString());
                           }
-                        } catch (e) {
-                          logger.e("uploadBackup", error: e);
-                          snack(e.toString());
-                        }
-                      },
-                child: backupService.uploading
-                    ? SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )
-                    : Text(AppLocalizations.of(context)!.uploadDb),
-              ),
-              const Gap(10),
-              FilledButton(
-                onPressed: backupService.restoring
-                    ? null
-                    : () async {
-                        try {
-                          final appState = App.of(context);
-                          final outBloc = context.read<OutboundBloc>();
-                          await backupService.restoreBackup();
-                          snack(rootLocalizations()!.restoreDbSuccess);
-                          appState?.rebuildAllChildren();
-                          // to stop query stream and relisten
-                          outBloc.add(InitialEvent());
-                        } catch (e) {
-                          logger.e("restoreBackup", error: e);
-                          snack(e.toString());
-                        }
-                      },
-                child: backupService.restoring
-                    ? SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )
-                    : Text(AppLocalizations.of(context)!.restoreDb),
-              ),
-              const Gap(10),
-              FilledButton.tonal(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        },
+                  child: backupService.uploading
+                      ? SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        )
+                      : Text(AppLocalizations.of(context)!.uploadDb),
                 ),
-                onPressed: () async {
-                  try {
-                    await backupService.deleteBackup();
-                    snack(rootLocalizations()!.deleteDbSuccess);
-                    setState(() {
-                      _latestBackup = null;
-                    });
-                  } catch (e) {
-                    logger.e("deleteBackup", error: e);
-                    snack(e.toString());
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.deleteCloudDb),
-              ),
-            ],
+                const Gap(10),
+                FilledButton(
+                  onPressed: backupService.restoring
+                      ? null
+                      : () async {
+                          try {
+                            final appState = App.of(context);
+                            final outBloc = context.read<OutboundBloc>();
+                            await backupService.restoreBackup();
+                            snack(rootLocalizations()!.restoreDbSuccess);
+                            appState?.rebuildAllChildren();
+                            // to stop query stream and relisten
+                            outBloc.add(InitialEvent());
+                          } catch (e) {
+                            logger.e("restoreBackup", error: e);
+                            snack(e.toString());
+                          }
+                        },
+                  child: backupService.restoring
+                      ? SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        )
+                      : Text(AppLocalizations.of(context)!.restoreDb),
+                ),
+                const Gap(10),
+                FilledButton.tonal(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.errorContainer,
+                  ),
+                  onPressed: () async {
+                    try {
+                      await backupService.deleteBackup();
+                      snack(rootLocalizations()!.deleteDbSuccess);
+                      setState(() {
+                        _latestBackup = null;
+                      });
+                    } catch (e) {
+                      logger.e("deleteBackup", error: e);
+                      snack(e.toString());
+                    }
+                  },
+                  child: Text(AppLocalizations.of(context)!.deleteCloudDb),
+                ),
+              ],
+            ),
           ),
-        ),
-        const Gap(10),
+          const Gap(10),
+        ],
         Row(
           children: [
             FilledButton.tonal(

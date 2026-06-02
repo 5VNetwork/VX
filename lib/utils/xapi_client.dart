@@ -374,11 +374,30 @@ class XApiClient {
     )).config;
   }
 
+  Future<String> serverConfigJson(SshServer server) async {
+    await _completer.future;
+    final sshConfig = await _sshServerToServerSshConfig(server);
+    return (await _xApiClient.serverConfigJson(
+      ServerConfigRequest(sshConfig: sshConfig),
+    )).configJson;
+  }
+
   Future<void> updateServerConfig(SshServer server, ServerConfig config) async {
     await _completer.future;
     final sshConfig = await _sshServerToServerSshConfig(server);
     await _xApiClient.updateServerConfig(
       UpdateServerConfigRequest(sshConfig: sshConfig, config: config),
+    );
+  }
+
+  Future<void> updateServerConfigJson(SshServer server, String configJson) async {
+    await _completer.future;
+    final sshConfig = await _sshServerToServerSshConfig(server);
+    await _xApiClient.updateServerConfigJson(
+      UpdateServerConfigJsonRequest(
+        sshConfig: sshConfig,
+        configJson: configJson,
+      ),
     );
   }
 

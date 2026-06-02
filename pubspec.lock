@@ -1195,6 +1195,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.11.0"
+  json_editor_flutter:
+    dependency: "direct main"
+    description:
+      name: json_editor_flutter
+      sha256: "851a6adbfb6ee794809a941d82dde0c9f8b6c2fcadabcbde386f1cb6bf27466a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.2"
   json_serializable:
     dependency: "direct dev"
     description:

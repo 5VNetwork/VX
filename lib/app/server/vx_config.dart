@@ -13,9 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:json_editor_flutter/json_editor_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:vx/main.dart';
+import 'package:vx/utils/xapi_client.dart';
 import 'package:protobuf/well_known_types/google/protobuf/any.pb.dart';
 import 'package:tm/protos/vx/inbound/inbound.pb.dart';
 import 'package:tm/protos/vx/log/logger.pb.dart';
@@ -30,6 +35,7 @@ import 'package:vx/widgets/form_dialog.dart';
 import 'package:vx/widgets/outbound_handler_form/outbound_handler_form.dart';
 
 part 'vx_config_inbound.dart';
+part 'vx_config_json.dart';
 part 'vx_config_routing.dart';
 
 class VXConfig extends StatelessWidget {
@@ -143,16 +149,11 @@ class _Others extends StatelessWidget {
   const _Others();
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 1, // Currently only logger config, can add more later
-      itemBuilder: (context, index) {
-        switch (index) {
-          case 0:
-            return const _LoggerConfigExpansionTile();
-          default:
-            return const SizedBox.shrink();
-        }
-      },
+    return ListView(
+      children: const [
+        _LoggerConfigExpansionTile(),
+        _ServerConfigJsonExpansionTile(),
+      ],
     );
   }
 }

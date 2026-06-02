@@ -623,10 +623,10 @@
   "skip": "跳过",
   "autoDownload": "自动下载新版本",
   "autoCheck": "自动检查新版本",
-  "downloading": "正在下载{version}...",
+  "downloading": "正在下载{value}...",
   "@downloading": {
     "placeholders": {
-      "version": {
+      "value": {
         "type": "String"
       }
     }
