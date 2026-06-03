@@ -90,6 +90,7 @@ jobs:
           CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
         run: |
           app-store-connect fetch-signing-files com.5vnetwork.x --platform MAC_OS --type MAC_APP_STORE --create
+          app-store-connect fetch-signing-files com.5vnetwork.x.PacketTunnel --platform MAC_OS --type MAC_APP_STORE --create
           app-store-connect certificates list --type MAC_INSTALLER_DISTRIBUTION --save
 
       - name: Init Keychain
