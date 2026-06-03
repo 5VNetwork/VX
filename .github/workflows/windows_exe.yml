@@ -43,6 +43,7 @@ jobs:
         run: |
           touch ../tm-plugin/tm_linux/assets/x.so
           touch ../tm-plugin/tm_linux/assets/x
+          touch ../tm-plugin/tm_windows/assets/vx_service.zip
           mkdir -p assets/google_fonts
           mkdir -p assets/geo
           mkdir -p assets/ads
