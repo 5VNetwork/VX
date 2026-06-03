@@ -93,7 +93,7 @@ jobs:
       - name: copy files to tm_plugin
         run: |
           cp x_win_x86_64/x.dll ../tm-plugin/tm_windows/assets/x.dll
-          cp x_win_x86_64/vx_service.exe ../tm-plugin/tm_windows/assets/vx_service.exe
+          cp x_win_x86_64/vx_service.exe vx_service.exe
           cp x_win_x86_64/service_install.exe service_install.exe
 
       - name: Setup Flutter
