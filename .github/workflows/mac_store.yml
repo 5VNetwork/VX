@@ -89,15 +89,40 @@ jobs:
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
         run: |
-          app-store-connect fetch-signing-files com.5vnetwork.x --platform MAC_OS --type MAC_APP_STORE --create
-          app-store-connect fetch-signing-files com.5vnetwork.x.PacketTunnel --platform MAC_OS --type MAC_APP_STORE --create
+          app-store-connect fetch-signing-files com.5vnetwork.x --platform MAC_OS --type MAC_APP_STORE --strict-match-identifier --delete-stale-profiles --create
+          app-store-connect fetch-signing-files com.5vnetwork.x.PacketTunnel --platform MAC_OS --type MAC_APP_STORE --strict-match-identifier --delete-stale-profiles --create
           app-store-connect certificates list --type MAC_INSTALLER_DISTRIBUTION --save
 
       - name: Init Keychain
         run: |
           keychain initialize
           keychain add-certificates
-          xcode-project use-profiles
+          xcode-project use-profiles --code-signing-setup-verbose-logging
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          project = Path("macos/Runner.xcodeproj/project.pbxproj")
+          text = project.read_text()
+
+          # Keep the parent app and PacketTunnel extension on the same certificate.
+          for config_id in (
+              "1553803B2DB5F98E00B064E8",  # Runner Release-production
+              "1553803E2DB5F98E00B064E8",  # PacketTunnel Release-production
+          ):
+              marker = f"\t\t{config_id} /* Release-production */ = {{"
+              start = text.index(marker)
+              end = text.index("\n\t\t};", start) + len("\n\t\t};")
+              block = text[start:end]
+              block = re.sub(
+                  r'"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "[^"]+";',
+                  '"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";',
+                  block,
+              )
+              text = text[:start] + block + text[end:]
+
+          project.write_text(text)
+          PY
 
       - name: Get dependencies
         run: |
