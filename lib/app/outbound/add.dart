@@ -543,17 +543,7 @@ class _AddDialogState extends State<AddDialog>
       tabs: [
         Tab(text: AppLocalizations.of(context)!.node),
         Tab(text: AppLocalizations.of(context)!.subscription),
-        Tab(
-          child: context.read<AuthBloc>().state.pro
-              ? Text(AppLocalizations.of(context)!.chainProxy)
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(AppLocalizations.of(context)!.chainProxy),
-                    proIconSmall,
-                  ],
-                ),
-        ),
+        Tab(child: Text(AppLocalizations.of(context)!.chainProxy)),
       ],
     );
     return widget.fullScreen
@@ -601,12 +591,10 @@ class _AddDialogState extends State<AddDialog>
                 SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: context.read<AuthBloc>().state.pro
-                        ? ChainHandlerForm(
-                            formKey: _chainFormKey,
-                            key: _chainFormWidgetKey,
-                          )
-                        : const ProPromotion(),
+                    child: ChainHandlerForm(
+                      formKey: _chainFormKey,
+                      key: _chainFormWidgetKey,
+                    ),
                   ),
                 ),
               ],
@@ -649,12 +637,10 @@ class _AddDialogState extends State<AddDialog>
                               child: SingleChildScrollView(
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
-                                  child: context.read<AuthBloc>().state.pro
-                                      ? ChainHandlerForm(
-                                          formKey: _chainFormKey,
-                                          key: _chainFormWidgetKey,
-                                        )
-                                      : const ProPromotion(),
+                                  child: ChainHandlerForm(
+                                    formKey: _chainFormKey,
+                                    key: _chainFormWidgetKey,
+                                  ),
                                 ),
                               ),
                             ),

@@ -224,7 +224,7 @@ class _SshKeysState extends State<SshKeys> {
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                  if (!context.watch<AuthBloc>().state.pro) const Ads(),
+                  if (!context.watch<AuthBloc>().state.proUser) const Ads(),
                   const SliverToBoxAdapter(child: SizedBox(height: 70)),
                 ],
               ),

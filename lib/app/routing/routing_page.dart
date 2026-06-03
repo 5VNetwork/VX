@@ -89,9 +89,7 @@ class _RoutePageState extends State<RoutePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _advancedMode =
-        context.read<AuthBloc>().state.pro &&
-        context.read<SharedPreferences>().advanceRouteMode;
+    _advancedMode = context.read<SharedPreferences>().advanceRouteMode;
     _tabController = TabController(length: 4, vsync: this);
   }
 

@@ -104,7 +104,7 @@ enum SettingItem {
       case SettingItem.account:
         return BlocBuilder<AuthBloc, AuthState>(
           builder: (ctx, state) {
-            if (state.pro) {
+            if (state.proUser) {
               return proIcon;
             } else {
               return icon;
@@ -368,6 +368,14 @@ class _LargeSettingSreenState extends State<LargeSettingSreen> {
 List<Widget> _getBottomButtons(BuildContext context, User? user) {
   return [
     const SizedBox(height: 5),
+    if (context.watch<AuthBloc>().state.isActivated)
+      const Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 10.0, left: 5.0),
+          child: ActivatedIcon(),
+        ),
+      ),
     if ((user == null || (user.lifetimePro == false)) &&
         !context.watch<AuthBloc>().state.isActivated)
       Padding(
@@ -505,6 +513,14 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
     const Version(),
     const Gap(5),
     if (autoUpdateSupported) const CheckUpdateButton(),
+    BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state.proUser) {
+          return const SizedBox.shrink();
+        }
+        return const BannerAdWidget();
+      },
+    ),
     if (!isProduction())
       Column(
         children: [
@@ -560,6 +576,7 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
         ],
       ),
+      
   ];
 }
 

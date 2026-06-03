@@ -547,11 +547,9 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     try {
       final newList = List<OutboundHandler>.from(state.handlers);
       final index = newList.indexWhere((h) => h.id == e.handler.id);
-      final unlockPro = _authBloc.state.pro;
       // single node mode
-      if (!unlockPro ||
-          _pref.proxySelectorManualMode ==
-              ProxySelectorManualNodeSelectionMode.single) {
+      if (_pref.proxySelectorManualMode ==
+          ProxySelectorManualNodeSelectionMode.single) {
         // update database
         if (!e.selected) {
           await _outboundRepo.updateHandler(e.handler.id, selected: false);

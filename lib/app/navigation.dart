@@ -203,7 +203,8 @@ class _SyncButtonState extends State<SyncButton> {
   bool syncing = false;
   @override
   Widget build(BuildContext context) {
-    final isPro = context.watch<AuthBloc>().state.pro;
+    final authState = context.watch<AuthBloc>().state;
+    final isPro = authState.proUser && authState.isAuthenticated;
     final syncService = context.read<SyncService>();
     return isPro && syncService.enable
         ? IconButton(

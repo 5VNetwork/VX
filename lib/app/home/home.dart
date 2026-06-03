@@ -97,8 +97,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = context.select<AuthBloc, bool>((bloc) => bloc.state.pro);
-    final useCustom = isPro && context.watch<HomePageCubit>().state;
+    final useCustom = context.watch<HomePageCubit>().state;
     if (useCustom) {
       return const CustomizableHomePage();
     }

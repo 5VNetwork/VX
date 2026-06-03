@@ -117,11 +117,11 @@ class AuthState extends Equatable {
   bool get isAuthenticated => user != null;
 
   /// whether unlock pro features
-  bool get pro {
+  bool get proUser {
     if (isActivated) {
       return true;
     }
-    return user?.unlockPro ?? false;
+    return user?.isProUser ?? false;
   }
 
   @override

@@ -125,10 +125,6 @@ class _ModeWidgetState extends State<ModeWidget>
   }
 
   Future<void> _onTap() async {
-    if (!context.read<AuthBloc>().state.pro) {
-      showProPromotionDialog(context);
-      return;
-    }
     final dp = context.read<DatabaseProvider>();
     final al = AppLocalizations.of(context)!;
     final name = await showDialog<(String, DefaultRouteMode?)?>(
@@ -325,9 +321,6 @@ class _ModeWidgetState extends State<ModeWidget>
                         ),
                       ),
                       MenuItemButton(
-                        trailingIcon: context.watch<AuthBloc>().state.pro
-                            ? null
-                            : proIcon,
                         onPressed: _onTap,
                         child: Text(AppLocalizations.of(context)!.custom),
                       ),

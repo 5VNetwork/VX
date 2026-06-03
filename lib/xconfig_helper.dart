@@ -77,14 +77,12 @@ class XConfigHelper {
   XConfigHelper({
     required OutboundRepo outboundRepo,
     required SharedPreferences psr,
-    required AuthBloc authBloc,
     required Downloader downloader,
     required GeoDataHelper geoDataHelper,
     required XApiClient xApiClient,
     required DatabaseProvider databaseProvider,
   }) : _outboundRepo = outboundRepo,
        _persistentStateRepo = psr,
-       _authBloc = authBloc,
        _downloader = downloader,
        _geoDataHelper = geoDataHelper,
        _xApiClient = xApiClient,
@@ -92,7 +90,6 @@ class XConfigHelper {
   // final _outboundHandlerGroupBox = store.box<OHTag>();
   final OutboundRepo _outboundRepo;
   final SharedPreferences _persistentStateRepo;
-  final AuthBloc _authBloc;
   final Downloader _downloader;
   final GeoDataHelper _geoDataHelper;
   final XApiClient _xApiClient;
@@ -404,24 +401,24 @@ class XConfigHelper {
   );
 
   Future<SelectorsConfig> getSelectorsConfig(RouterConfig routerConfig) async {
-    if (!_authBloc.state.pro) {
-      assert(
-        _persistentStateRepo.proxySelectorMode == ProxySelectorMode.manual &&
-            _persistentStateRepo.proxySelectorManualMode ==
-                ProxySelectorManualNodeSelectionMode.single &&
-            _persistentStateRepo.proxySelectorManualLandHandlers.isEmpty,
-      );
-      final proxySelector = SelectorConfig(
-        strategy: SelectorConfig_SelectingStrategy.ALL,
-        tag: defaultProxySelectorTag,
-        balanceStrategy: SelectorConfig_BalanceStrategy.RANDOM,
-        filter: SelectorConfig_Filter(selected: true),
-      );
-      if ((await _outboundRepo.getHandlers(selected: true)).isEmpty) {
-        snack(rootLocalizations()?.noSelectedNode);
-      }
-      return SelectorsConfig(selectors: [proxySelector]);
-    }
+    // if (!_authBloc.state.pro) {
+    //   assert(
+    //     _persistentStateRepo.proxySelectorMode == ProxySelectorMode.manual &&
+    //         _persistentStateRepo.proxySelectorManualMode ==
+    //             ProxySelectorManualNodeSelectionMode.single &&
+    //         _persistentStateRepo.proxySelectorManualLandHandlers.isEmpty,
+    //   );
+    //   final proxySelector = SelectorConfig(
+    //     strategy: SelectorConfig_SelectingStrategy.ALL,
+    //     tag: defaultProxySelectorTag,
+    //     balanceStrategy: SelectorConfig_BalanceStrategy.RANDOM,
+    //     filter: SelectorConfig_Filter(selected: true),
+    //   );
+    //   if ((await _outboundRepo.getHandlers(selected: true)).isEmpty) {
+    //     snack(rootLocalizations()?.noSelectedNode);
+    //   }
+    //   return SelectorsConfig(selectors: [proxySelector]);
+    // }
 
     final selectors = <SelectorConfig>[];
 
@@ -619,14 +616,14 @@ class XConfigHelper {
         rootLocalizations()?.pleaseSelectARoutingMode ?? '请选择一个路由模式',
       );
     }
-    if (!_authBloc.state.pro &&
-        rootNavigationKey.currentContext != null &&
-        !isDefaultRouteMode(mode, rootNavigationKey.currentContext!)) {
-      throw ConfigException(
-        rootLocalizations()?.freeUserCannotUseCustomRoutingMode ??
-            '免费用户无法使用自定义路由模式。请选择一个默认路由模式。您可以在路由界面添加默认路由模式。',
-      );
-    }
+    // if (!_authBloc.state.pro &&
+    //     rootNavigationKey.currentContext != null &&
+    //     !isDefaultRouteMode(mode, rootNavigationKey.currentContext!)) {
+    //   throw ConfigException(
+    //     rootLocalizations()?.freeUserCannotUseCustomRoutingMode ??
+    //         '免费用户无法使用自定义路由模式。请选择一个默认路由模式。您可以在路由界面添加默认路由模式。',
+    //   );
+    // }
     final ruleConfig = await _databaseProvider
         .database
         .managers

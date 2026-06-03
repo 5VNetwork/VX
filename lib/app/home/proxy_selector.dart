@@ -34,16 +34,15 @@ class ProxySelectorHome extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          if (context.watch<AuthBloc>().state.pro)
-            BlocProvider<SelectorBeingUsedCubit>(
-              create: (context) => SelectorBeingUsedCubit(
-                selectorTag: defaultProxySelectorTag,
-                xController: context.read<XController>(),
-                outboundRepo: context.read<OutboundRepo>(),
-                clearWhenSelectorEmpty: true,
-              ),
-              child: const SelectorBeingUsedView(),
+          BlocProvider<SelectorBeingUsedCubit>(
+            create: (context) => SelectorBeingUsedCubit(
+              selectorTag: defaultProxySelectorTag,
+              xController: context.read<XController>(),
+              outboundRepo: context.read<OutboundRepo>(),
+              clearWhenSelectorEmpty: true,
             ),
+            child: const SelectorBeingUsedView(),
+          ),
         ],
       ),
       icon: Icons.filter_alt_outlined,

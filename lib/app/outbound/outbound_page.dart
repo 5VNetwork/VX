@@ -107,15 +107,18 @@ class _OutboundPageState extends State<OutboundPage> {
 
       final targetHandlerId = extra.initialHandlerId!;
       final state = context.read<OutboundBloc>().state;
-      final isHandlerVisible = state.handlers.any((h) => h.id == targetHandlerId);
+      final isHandlerVisible = state.handlers.any(
+        (h) => h.id == targetHandlerId,
+      );
       if (!isHandlerVisible) {
-        context
-            .read<OutboundBloc>()
-            .add(SelectGroupContainingHandlerEvent(targetHandlerId));
+        context.read<OutboundBloc>().add(
+          SelectGroupContainingHandlerEvent(targetHandlerId),
+        );
       }
 
       final scrolled =
-          outboundTableKey.currentState?.scrollToHandler(targetHandlerId) ?? false;
+          outboundTableKey.currentState?.scrollToHandler(targetHandlerId) ??
+          false;
       if (scrolled) {
         _lastHandledRequestToken = extra.requestToken;
         return;
@@ -349,7 +352,6 @@ class OutboundTableState extends State<OutboundTable> {
                       builder: (context, multiSelectAndPrefs) {
                         final startCloseCubit = context
                             .watch<StartCloseCubit>();
-                        final authState = context.watch<AuthBloc>().state;
                         final multiSelect = multiSelectAndPrefs.$1;
                         final smallScreenPref = multiSelectAndPrefs.$2;
                         final viewMode = multiSelectAndPrefs.$3;
@@ -358,7 +360,7 @@ class OutboundTableState extends State<OutboundTable> {
                           xstate,
                           multiSelect,
                           smallScreenPref,
-                          authState.pro,
+                          true,
                         );
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,7 +409,7 @@ class OutboundTableState extends State<OutboundTable> {
                                             final showAd = !context
                                                 .watch<AuthBloc>()
                                                 .state
-                                                .pro;
+                                                .proUser;
                                             if (viewMode ==
                                                 OutboundViewMode.grid) {
                                               // Grid View
@@ -453,9 +455,10 @@ class OutboundTableState extends State<OutboundTable> {
                                                               ),
                                                               handler:
                                                                   handlers[index],
-                                                            jumpHighlighted:
-                                                                _highlightedHandlerId ==
-                                                                handlers[index].id,
+                                                              jumpHighlighted:
+                                                                  _highlightedHandlerId ==
+                                                                  handlers[index]
+                                                                      .id,
                                                               selectedAs4:
                                                                   r.$1 != 0 &&
                                                                   startCloseCubit
@@ -555,12 +558,16 @@ class OutboundTableState extends State<OutboundTable> {
                                                               handlers[index],
                                                           color:
                                                               _highlightedHandlerId ==
-                                                                  handlers[index].id
-                                                              ? Theme.of(context)
+                                                                  handlers[index]
+                                                                      .id
+                                                              ? Theme.of(
+                                                                      context,
+                                                                    )
                                                                     .colorScheme
                                                                     .primaryContainer
                                                                     .withValues(
-                                                                      alpha: 0.75,
+                                                                      alpha:
+                                                                          0.75,
                                                                     )
                                                               : null,
                                                           showDot: showDot,
@@ -1047,11 +1054,10 @@ class OutboundMenuAnchor extends StatelessWidget {
                         if (bloc.state.multiSelect) {
                           bloc.add(MultiSelectToggleEvent(handler));
                         } else {
-                          if (!context.read<AuthBloc>().state.pro ||
-                              context
-                                  .read<ProxySelectorBloc>()
-                                  .state
-                                  .enableManualSelect) {
+                          if (context
+                              .read<ProxySelectorBloc>()
+                              .state
+                              .enableManualSelect) {
                             bloc.add(
                               SwitchHandlerEvent(handler, !handler.selected),
                             );

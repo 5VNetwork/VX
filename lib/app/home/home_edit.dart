@@ -48,9 +48,7 @@ class _HomeConfigEditorContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _useCustomizable =
-        context.watch<HomePageCubit>().state &&
-        context.read<AuthBloc>().state.pro;
+    final _useCustomizable = context.watch<HomePageCubit>().state;
     final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,14 +74,12 @@ class _HomeConfigEditorContent extends StatelessWidget {
                   child: Text(l10n.homeEditCustomizableLayout),
                 ),
                 selected: _useCustomizable,
-                onSelected: context.read<AuthBloc>().state.pro
-                    ? (selected) {
-                        if (!selected) return;
-                        context
-                            .read<HomePageCubit>()
-                            .setUseCustomizableHomePage(true);
-                      }
-                    : null,
+                onSelected: (selected) {
+                  if (!selected) return;
+                  context.read<HomePageCubit>().setUseCustomizableHomePage(
+                    true,
+                  );
+                },
               ),
             ],
           ),
@@ -133,9 +129,7 @@ class _HomeConfigDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _useCustomizable =
-        context.watch<HomePageCubit>().state &&
-        context.read<AuthBloc>().state.pro;
+    final _useCustomizable = context.watch<HomePageCubit>().state;
     final l10n = AppLocalizations.of(context)!;
     return Dialog(
       constraints: !_useCustomizable

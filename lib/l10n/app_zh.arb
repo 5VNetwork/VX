@@ -985,7 +985,7 @@
   "vxVersionTooLow": "VX-core版本过低，请更新到最新版本",
   "howToUseVX": "关于VX的使用方法，请查看我们的YouTube频道",
   "welcome": "欢迎使用VX",
-  "sourceCodeAvailable": "VX客户端已开源，并且它由Github Actions自动构建与发布",
+  "sourceCodeAvailable": "VX已完全开源，由Github Actions自动构建与发布",
   "vxSourceCode": "VX客户端源代码",
   "vxCoreSourceCode": "VX内核源代码",
   "windowsUpdateNotice1": "如果您从2.x.x版本更新到此应用，为了保留您的数据库和偏好设置，请关闭应用，重命名以下文件夹：",

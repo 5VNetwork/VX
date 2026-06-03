@@ -147,7 +147,7 @@ void main() async {
   await initSupabase();
   await setStartOnBoot(pref);
 
-  final bool isActivated = true;
+  bool isActivated = false;
   AppDatabase? database;
   FlutterSecureStorage storage = const FlutterSecureStorage();
   await Future.wait([
@@ -160,6 +160,26 @@ void main() async {
         isRunningAsAdmin = await checkLinuxRootPrivileges();
       }
       logger.d('isRunningAsAdmin: $isRunningAsAdmin');
+    }),
+    Future(() async {
+      try {
+        // auth
+        String? licence = await storage.read(key: 'licence');
+        if (licence != null) {
+          String? uniqueId = await storage.read(key: uniqueIdKey);
+          if (uniqueId != null) {
+            isActivated = await validateLicence(
+              Licence.fromJson(jsonDecode(licence)),
+              uniqueId,
+            );
+            if (!isActivated) {
+              await storage.delete(key: 'licence');
+            }
+          }
+        }
+      } catch (e) {
+        logger.e('Error validating licence', error: e);
+      }
     }),
   ]);
 
@@ -260,7 +280,6 @@ void main() async {
           outboundRepo: ctx.read<OutboundRepo>(),
           psr: pref,
           downloader: ctx.read<Downloader>(),
-          authBloc: ctx.read<AuthBloc>(),
           geoDataHelper: ctx.read<GeoDataHelper>(),
           databaseProvider: ctx.read<DatabaseProvider>(),
           xApiClient: ctx.read<XApiClient>(),
@@ -314,13 +333,13 @@ void main() async {
             downloadFunction: ctx.read<Downloader>().downloadProxyFirst,
           );
           ctx.read<AuthBloc>().stream.listen((state) {
-            if (state.pro) {
+            if (state.proUser) {
               adsProvider.stop();
             } else {
               adsProvider.start();
             }
           });
-          if (!ctx.read<AuthBloc>().state.pro) {
+          if (!ctx.read<AuthBloc>().state.proUser) {
             adsProvider.start();
           }
           return adsProvider;
@@ -467,11 +486,8 @@ void main() async {
             pref: pref,
             databaseProvider: ctx.read<DbHelper>(),
             xConfigController: ctx.read<XController>(),
-            pro: ctx.read<AuthBloc>().state.pro,
+            pro: true,
           )..add(XBlocInitialEvent());
-          ctx.read<AuthBloc>().stream.listen((state) {
-            proxySelectorBloc.add(AuthUserChangedEvent(state.pro));
-          });
           return proxySelectorBloc;
         },
       ),
@@ -898,33 +914,21 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           create: (ctx) => HomePageCubit(ctx.read<SharedPreferences>()),
         ),
       ],
-      child: BlocConsumer<AuthBloc, AuthState>(
-        listenWhen: (previous, current) => previous.pro != current.pro,
-        listener: (context, state) {
-          if (!state.pro) {
-            context.read<OutboundBloc>().add(const UserIsNotProEvent());
-          } else {}
-        },
-        builder: (context, state) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              logger.d(
-                "W: ${constraints.maxWidth}, H: ${constraints.maxHeight}",
-              );
-              Provider.of<MyLayout>(
-                context,
-                listen: false,
-              ).setFields(constraints.maxWidth, constraints.maxHeight);
-              if (constraints.isCompact) {
-                myRoutingConfig.value = compactRouteConfig;
-              } else {
-                myRoutingConfig.value = largeScreenRouteConfig(
-                  context.read<SharedPreferences>(),
-                );
-              }
-              return app;
-            },
-          );
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          logger.d("W: ${constraints.maxWidth}, H: ${constraints.maxHeight}");
+          Provider.of<MyLayout>(
+            context,
+            listen: false,
+          ).setFields(constraints.maxWidth, constraints.maxHeight);
+          if (constraints.isCompact) {
+            myRoutingConfig.value = compactRouteConfig;
+          } else {
+            myRoutingConfig.value = largeScreenRouteConfig(
+              context.read<SharedPreferences>(),
+            );
+          }
+          return app;
         },
       ),
     );

@@ -239,21 +239,24 @@ class _SelectorsWidgetState extends State<SelectorsWidget> {
                           top: 5,
                           child: MenuAnchor(
                             menuChildren: [
-                              if (context.read<AuthBloc>().state.pro)
-                                MenuItemButton(
-                                  leadingIcon: const Icon(Icons.home_outlined),
-                                  onPressed: () {
-                                    context.read<HomeLayoutRepo>().addWidgetIdToHome(
-                                          'SELECTOR_${_configs[index].tag}',
-                                        );
-                                    snack(
-                                      AppLocalizations.of(context)!.addToHomeScreen,
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context)!.addToHomeScreen,
-                                  ),
+                              MenuItemButton(
+                                leadingIcon: const Icon(Icons.home_outlined),
+                                onPressed: () {
+                                  context
+                                      .read<HomeLayoutRepo>()
+                                      .addWidgetIdToHome(
+                                        'SELECTOR_${_configs[index].tag}',
+                                      );
+                                  snack(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.addToHomeScreen,
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)!.addToHomeScreen,
                                 ),
+                              ),
                               MenuItemButton(
                                 leadingIcon: const Icon(Icons.edit_outlined),
                                 onPressed: () => _showEditSelectorForm(index),

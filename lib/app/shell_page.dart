@@ -144,7 +144,6 @@ class _ShellPageState extends State<ShellPage> {
     naviDestination = newNaviDestination;
     cache = LayoutBuilder(
       builder: (ctx, c) {
-        final isPro = ctx.watch<AuthBloc>().state.pro;
         if (c.isSuperLarge) {
           Widget body = Row(
             children: [
@@ -281,7 +280,7 @@ class _ShellPageState extends State<ShellPage> {
           //   title = MyBannderAdWidget(adSize: AdSize.banner);
           // }
           Widget? leading;
-          if (Platform.isWindows || (isPro && !Platform.isMacOS)) {
+          if (Platform.isWindows || (!Platform.isMacOS)) {
             leading = GlobalQuicActionMenuAnchor(
               child: Center(
                 child: SizedBox(

@@ -137,7 +137,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         if (!snap.hasData) {
           return const SizedBox();
         }
-        final showAd = !ctx.watch<AuthBloc>().state.pro;
+        final showAd = !ctx.watch<AuthBloc>().state.proUser;
         snap.data!.sort((a, b) => a.placeOnTop ? -1 : 1);
         return Material(
           child: CustomScrollView(
@@ -150,10 +150,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     const crossAxisSpacing = 8.0;
                     const mainAxisSpacing = 8.0;
                     final width = constraints.crossAxisExtent;
-                    final crossAxisCount = ((width + crossAxisSpacing) /
-                            (minTileWidth + crossAxisSpacing))
-                        .floor()
-                        .clamp(1, 1000);
+                    final crossAxisCount =
+                        ((width + crossAxisSpacing) /
+                                (minTileWidth + crossAxisSpacing))
+                            .floor()
+                            .clamp(1, 1000);
 
                     return SliverGrid(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -717,7 +718,6 @@ class _SubScriptionListTileState extends State<SubScriptionListTile> {
         parsedData?.expirationDate != null &&
         parsedData!.expirationDate!.isBefore(DateTime.now());
 
-    final isPro = context.read<AuthBloc>().state.pro;
     return MenuAnchor(
       menuChildren: [
         MenuItemButton(
@@ -727,12 +727,8 @@ class _SubScriptionListTileState extends State<SubScriptionListTile> {
         ),
         MenuItemButton(
           leadingIcon: const Icon(Icons.add_home_rounded),
-          trailingIcon: isPro ? null : proIcon,
           child: Text(AppLocalizations.of(context)!.addToHomeScreen),
           onPressed: () {
-            if (!isPro) {
-              showProPromotionDialog(context);
-            }
             context.read<HomeLayoutRepo>().addWidgetIdToHome(
               'SUBSCRIPTION_${widget.group.id}',
             );

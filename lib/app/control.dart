@@ -115,7 +115,7 @@ class Control extends StatelessWidget {
         ),
         BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (state.pro) {
+            if (state.proUser) {
               return const SizedBox.shrink();
             }
             return const BannerAdWidget();

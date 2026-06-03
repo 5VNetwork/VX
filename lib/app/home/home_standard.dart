@@ -64,7 +64,7 @@ class StandardHomePage extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 10),
                         child: BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
-                            if (state.pro) {
+                            if (state.proUser) {
                               return const SizedBox.shrink();
                             }
                             return const BannerAdWidget();
@@ -113,7 +113,7 @@ class StandardHomePage extends StatelessWidget {
                                   ),
                                 BlocBuilder<AuthBloc, AuthState>(
                                   builder: (context, state) {
-                                    if (state.pro) {
+                                    if (state.proUser) {
                                       return const SizedBox.shrink();
                                     }
                                     return ConstrainedBox(

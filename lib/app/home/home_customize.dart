@@ -172,28 +172,31 @@ class CustomizableHomePage extends StatelessWidget {
                       right: column == preset.columns - 1 ? 0 : 10,
                     ),
                     child: Column(
-                      children: visibility.getColumn(column).map((item) {
-                        if (item.length == 2) {
+                      children: [
+                        ...visibility.getColumn(column).map((item) {
+                          if (item.length == 2) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _getWidget(context, item[0], preset),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: _getWidget(context, item[1], preset),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _getWidget(context, item[0], preset),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _getWidget(context, item[1], preset),
-                                ),
-                              ],
-                            ),
+                            child: _getWidget(context, item.single, preset),
                           );
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: _getWidget(context, item.single, preset),
-                        );
-                      }).toList(),
+                        }),
+                        _columnEndBannerAd(context),
+                      ],
                     ),
                   ),
                 ),
@@ -203,6 +206,20 @@ class CustomizableHomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _columnEndBannerAd(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 0),
+    child: BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state.proUser) {
+          return const SizedBox.shrink();
+        }
+        return const BannerAdWidget();
+      },
+    ),
+  );
 }
 
 Widget _getWidget(BuildContext context, String id, HomeLayoutPreset preset) {

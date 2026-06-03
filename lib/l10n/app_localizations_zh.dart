@@ -2350,7 +2350,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get welcome => '欢迎使用VX';
 
   @override
-  String get sourceCodeAvailable => 'VX客户端已开源，并且它由Github Actions自动构建与发布';
+  String get sourceCodeAvailable => 'VX已完全开源，由Github Actions自动构建与发布';
 
   @override
   String get vxSourceCode => 'VX客户端源代码';

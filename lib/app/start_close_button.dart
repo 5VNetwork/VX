@@ -86,14 +86,6 @@ class StartCloseCubit extends Cubit<XStatus> {
     if (_pref.routingMode == null) {
       return rootLocalizations()?.pleaseSelectARoutingMode;
     }
-    if (rootNavigationKey.currentContext != null &&
-        !_authBloc.state.pro &&
-        !isDefaultRouteMode(
-          _pref.routingMode!,
-          rootNavigationKey.currentContext!,
-        )) {
-      return rootLocalizations()?.freeUserCannotUseCustomRoutingMode;
-    }
     if (isProduction() &&
         Platform.isWindows &&
         _pref.inboundMode == InboundMode.tun &&

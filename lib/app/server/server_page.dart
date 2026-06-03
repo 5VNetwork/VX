@@ -151,11 +151,6 @@ class _ServersState extends State<Servers> {
   }
 
   void _addServer() {
-    if (!context.read<AuthBloc>().state.pro && _servers.isNotEmpty) {
-      showProPromotionDialog(context);
-      return;
-    }
-
     final fullScreen = Provider.of<MyLayout>(context, listen: false).isCompact;
     if (fullScreen) {
       Navigator.of(context, rootNavigator: true).push(
@@ -266,7 +261,7 @@ class _ServersState extends State<Servers> {
                       ),
                     ),
                     const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                    if (!context.watch<AuthBloc>().state.pro) const Ads(),
+                    if (!context.watch<AuthBloc>().state.proUser) const Ads(),
                     const SliverToBoxAdapter(child: SizedBox(height: 70)),
                   ],
                 );
