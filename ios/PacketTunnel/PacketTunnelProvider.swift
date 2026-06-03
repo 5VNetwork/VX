@@ -36,7 +36,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             let groupIdentifier = "K4FDLB3LLD.com.5vnetwork.x"
         #else
         // if this is invalid, the containerURL method returns nil
-            let groupIdentifier = "group.com.5vnetwork.x"
+        let groupIdentifier = "group.com.5vnetwork.x"
         #endif
         return FileManager.default
             .containerURL(
