@@ -1027,6 +1027,18 @@ abstract class AppLocalizations {
   /// **'Share diagnostic logs with developers'**
   String get shareDiagnosticLogWithDeveloper;
 
+  /// No description provided for @shareCnDirectAppsWithDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Help improve CN routing (share direct app list)'**
+  String get shareCnDirectAppsWithDeveloper;
+
+  /// No description provided for @shareCnDirectAppsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When enabled, package names and app labels from your Direct app set are sent anonymously to help build a list of China apps. This is done after you have finished editing your Direct app set. The data uploaded is not linked to you.'**
+  String get shareCnDirectAppsDescription;
+
   /// No description provided for @yes.
   ///
   /// In en, this message translates to:
@@ -1048,8 +1060,14 @@ abstract class AppLocalizations {
   /// No description provided for @contactUsFreely.
   ///
   /// In en, this message translates to:
-  /// **'If you have any questions, please contact us.'**
+  /// **'If you have any questions or need any features, please contact us.'**
   String get contactUsFreely;
+
+  /// No description provided for @contactUsProPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'If you are a Pro user, please let us know when contacting us — we prioritize Pro users\' inquiries.'**
+  String get contactUsProPriority;
 
   /// No description provided for @bugAreWelcome.
   ///
@@ -1128,12 +1146,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pro Expiry'**
   String get proExpiredAt;
-
-  /// No description provided for @lifetimeProAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifetime Pro Account'**
-  String get lifetimeProAccount;
 
   /// No description provided for @addGroup.
   ///
@@ -3337,6 +3349,12 @@ abstract class AppLocalizations {
   /// **'Sniff When No Domain Info'**
   String get whenNoDomain;
 
+  /// No description provided for @hasNoDomain.
+  ///
+  /// In en, this message translates to:
+  /// **'No domain info'**
+  String get hasNoDomain;
+
   /// No description provided for @enable.
   ///
   /// In en, this message translates to:
@@ -5100,6 +5118,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Handlers in use'**
   String get selectorHandlersInUseTitle;
+
+  /// No description provided for @addFreeSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Free Subscription'**
+  String get addFreeSubscription;
+
+  /// No description provided for @resetSubscriptionLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset subscription link'**
+  String get resetSubscriptionLink;
+
+  /// No description provided for @addFreeSubscriptionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Once clicked, a subscription named \"{name}\" will be added. The subscription might not have available nodes at any time. The remaining traffic of the subscription will be updated daily.'**
+  String addFreeSubscriptionDesc(String name);
+
+  /// No description provided for @resetSubscriptionLinkDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.'**
+  String get resetSubscriptionLinkDesc;
+
+  /// No description provided for @cnDomainsGoDirectRule.
+  ///
+  /// In en, this message translates to:
+  /// **'CN domains go direct'**
+  String get cnDomainsGoDirectRule;
+
+  /// No description provided for @cnIpsGoDirectRule.
+  ///
+  /// In en, this message translates to:
+  /// **'CN IPs go direct'**
+  String get cnIpsGoDirectRule;
+
+  /// No description provided for @cnExcludeGfwDomains.
+  ///
+  /// In en, this message translates to:
+  /// **'CN Domains Exclude GFW'**
+  String get cnExcludeGfwDomains;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

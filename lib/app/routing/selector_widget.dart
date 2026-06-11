@@ -556,6 +556,99 @@ class _SelectorFilter extends StatefulWidget {
 }
 
 class _SelectorFilterState extends State<_SelectorFilter> {
+  List<NodeGroup> _nodeMenuGroups = [];
+  Map<String, List<OutboundHandler>> _handlersByGroup = {};
+  bool _nodeMenuLoading = false;
+  List<NodeGroup> _nodeGroupMenuGroups = [];
+
+  Future<void> _loadNodeMenu() async {
+    if (_nodeMenuLoading) return;
+    setState(() {
+      _nodeMenuLoading = true;
+    });
+
+    final repo = context.read<OutboundRepo>();
+    final groups = context.read<OutboundBloc>().state.groups;
+    final handlersByGroup = <String, List<OutboundHandler>>{};
+    try {
+      for (final group in groups) {
+        final handlers = await repo.getHandlersByNodeGroup(group);
+        handlersByGroup[group.name] = handlers
+            .where((handler) => handler.config.hasOutbound())
+            .toList();
+      }
+      if (!mounted) return;
+      setState(() {
+        _nodeMenuGroups = groups;
+        _handlersByGroup = handlersByGroup;
+        _nodeMenuLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _nodeMenuLoading = false;
+      });
+    }
+  }
+
+  Widget _buildNodeGroupSubmenu(
+    NodeGroup group,
+    List<OutboundHandler> handlers,
+  ) {
+    final valueListenable = ValueNotifier(0);
+    final selectedMap = <int, bool>{};
+    for (final handler in handlers) {
+      selectedMap[handler.id] = widget.config.filter.handlerIds.contains(
+        Int64(handler.id),
+      );
+      if (selectedMap[handler.id]!) {
+        valueListenable.value++;
+      }
+    }
+    return SubmenuButton(
+      leadingIcon: ValueListenableBuilder(
+        valueListenable: valueListenable,
+        builder: (context, value, child) {
+          return value > 0
+              ? const Icon(Icons.check_box_outlined)
+              : const Icon(Icons.check_box_outline_blank_rounded);
+        },
+      ),
+      menuChildren: handlers.map((e) {
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return MenuItemButton(
+              leadingIcon: Checkbox(
+                value: selectedMap[e.id],
+                onChanged: (value) {
+                  _onHandlerChange(
+                    e.id,
+                    value ?? false,
+                    setState,
+                    valueListenable,
+                    selectedMap,
+                  );
+                },
+              ),
+              closeOnActivate: false,
+              onPressed: () {
+                _onHandlerChange(
+                  e.id,
+                  !selectedMap[e.id]!,
+                  setState,
+                  valueListenable,
+                  selectedMap,
+                );
+              },
+              child: Text(e.name),
+            );
+          },
+        );
+      }).toList(),
+      child: Text(groupNametoLocalizedName(context, group.name)),
+    );
+  }
+
   void _onHandlerChange(
     int handlerId,
     bool selected,
@@ -686,75 +779,16 @@ class _SelectorFilterState extends State<_SelectorFilter> {
         children: [
           MenuAnchor(
             consumeOutsideTap: true,
-            menuChildren: context.read<OutboundBloc>().state.groups.map((e) {
-              return FutureBuilder(
-                future: context.read<OutboundRepo>().getHandlersByNodeGroup(e),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  }
-                  final valueListenable = ValueNotifier(0);
-                  final selectedMap = <int, bool>{};
-                  for (var handler
-                      in snapshot.data?.where((e) => e.config.hasOutbound()) ??
-                          <OutboundHandler>[]) {
-                    selectedMap[handler.id] = widget.config.filter.handlerIds
-                        .contains(Int64(handler.id));
-                    if (selectedMap[handler.id]!) {
-                      valueListenable.value++;
-                    }
-                  }
-                  return SubmenuButton(
-                    leadingIcon: ValueListenableBuilder(
-                      valueListenable: valueListenable,
-                      builder: (context, value, child) {
-                        return value > 0
-                            ? const Icon(Icons.check_box_outlined)
-                            : const Icon(Icons.check_box_outline_blank_rounded);
-                      },
-                    ),
-                    menuChildren:
-                        snapshot.data?.where((e) => e.config.hasOutbound()).map(
-                          (e) {
-                            return StatefulBuilder(
-                              builder: (ctx, setState) {
-                                // bool handlerSelected = widget
-                                //     .config.filter.handlerIds
-                                //     .contains(Int64(e.id));
-                                return MenuItemButton(
-                                  leadingIcon: Checkbox(
-                                    value: selectedMap[e.id],
-                                    onChanged: (value) {
-                                      _onHandlerChange(
-                                        e.id,
-                                        value ?? false,
-                                        setState,
-                                        valueListenable,
-                                        selectedMap,
-                                      );
-                                    },
-                                  ),
-                                  closeOnActivate: false,
-                                  onPressed: () {
-                                    _onHandlerChange(
-                                      e.id,
-                                      !selectedMap[e.id]!,
-                                      setState,
-                                      valueListenable,
-                                      selectedMap,
-                                    );
-                                  },
-                                  child: Text(e.name),
-                                );
-                              },
-                            );
-                          },
-                        ).toList() ??
-                        [],
-                    child: Text(groupNametoLocalizedName(context, e.name)),
-                  );
-                },
-              );
+            onClose: () {
+              setState(() {
+                _nodeMenuGroups = [];
+                _handlersByGroup = {};
+              });
+            },
+            menuChildren: _nodeMenuGroups.map((group) {
+              final handlers =
+                  _handlersByGroup[group.name] ?? const <OutboundHandler>[];
+              return _buildNodeGroupSubmenu(group, handlers);
             }).toList(),
             builder: (context, controller, child) {
               return ActionChip(
@@ -763,10 +797,12 @@ class _SelectorFilterState extends State<_SelectorFilter> {
                 avatar: widget.config.filter.handlerIds.isNotEmpty
                     ? const Icon(Icons.check_box_outlined)
                     : const Icon(Icons.check_box_outline_blank_rounded),
-                onPressed: () {
+                onPressed: () async {
                   if (controller.isOpen) {
                     controller.close();
                   } else {
+                    await _loadNodeMenu();
+                    if (!mounted) return;
                     controller.open();
                   }
                 },
@@ -776,10 +812,7 @@ class _SelectorFilterState extends State<_SelectorFilter> {
           const Gap(5),
           MenuAnchor(
             consumeOutsideTap: true,
-            menuChildren: context
-                .read<OutboundBloc>()
-                .state
-                .groups
+            menuChildren: _nodeGroupMenuGroups
                 .map(
                   (e) => StatefulBuilder(
                     builder: (context, setState) {
@@ -847,7 +880,15 @@ class _SelectorFilterState extends State<_SelectorFilter> {
                   if (controller.isOpen) {
                     controller.close();
                   } else {
-                    controller.open();
+                    setState(() {
+                      _nodeGroupMenuGroups = context
+                          .read<OutboundBloc>()
+                          .state
+                          .groups;
+                    });
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) controller.open();
+                    });
                   }
                 },
               );

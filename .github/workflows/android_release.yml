@@ -110,11 +110,12 @@ jobs:
       - name: build apks
         env:
           LOG_KEY: ${{ secrets.LOG_KEY }}
+          CN_DIRECT_APPS_KEY: ${{ secrets.CN_DIRECT_APPS_KEY }}
         run: |
-          flutter build apk  --flavor apk --dart-define=LOG_KEY=$LOG_KEY --release --split-per-abi
+          flutter build apk  --flavor apk --dart-define=LOG_KEY=$LOG_KEY --dart-define=CN_DIRECT_APPS_KEY=$CN_DIRECT_APPS_KEY --release --split-per-abi
           mv build/app/outputs/flutter-apk/app-arm64-v8a-apk-release.apk releases/vx-arm64-v8a.apk
           zip -j releases/vx-arm64-v8a.apk.zip releases/vx-arm64-v8a.apk
-          flutter build apk  --flavor apk --dart-define=LOG_KEY=$LOG_KEY --release --dart-define=LOG_KEY=$LOG_KEY
+          flutter build apk  --flavor apk --dart-define=LOG_KEY=$LOG_KEY --dart-define=CN_DIRECT_APPS_KEY=$CN_DIRECT_APPS_KEY --release --dart-define=LOG_KEY=$LOG_KEY
           mv build/app/outputs/flutter-apk/app-apk-release.apk releases/vx-universal.apk
           zip -j releases/vx-universal.apk.zip releases/vx-universal.apk
           rm releases/vx-universal.apk

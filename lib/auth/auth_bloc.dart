@@ -44,7 +44,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void setTestUser() {
     emit(
       const AuthState(
-        user: User(id: 'test', email: 'test@test.com', pro: true),
+        user: User(
+          id: 'test',
+          email: 'test@test.com',
+          pro: true,
+          level: UserLevel.max,
+        ),
         isActivated: false,
       ),
     );
@@ -90,6 +95,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       proExpiredAt: proExpiredAt != null
           ? DateTime.fromMillisecondsSinceEpoch(proExpiredAt * 1000)
           : null,
+      level: UserLevel.values.byName(claims['level'] as String? ?? 'free'),
     );
   }
 }

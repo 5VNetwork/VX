@@ -442,9 +442,9 @@ void main() async {
                     setSkipCurrentInstaller: rootNavigationKey.currentContext!
                         .read<AutoUpdateService>()
                         .setSkipCurrentVersion,
-                    installLocalInstaller: () {
+                    installLocalInstaller: () async {
                       // stop vpn first
-                      context.read<XController>().stop();
+                      await context.read<XController>().stop();
                       rootNavigationKey.currentContext!
                           .read<AutoUpdateService>()
                           .installLocalInstaller();
@@ -1064,6 +1064,7 @@ Future<void> _initWindow(SharedPreferences pref) async {
 }
 
 Future<void> initSupabase() async {
+  logger.d('supabaseUrl: $supabaseUrl');
   await Supabase.initialize(
     authOptions: const FlutterAuthClientOptions(
       detectSessionInUri: !kDebugMode,
@@ -1071,9 +1072,7 @@ Future<void> initSupabase() async {
     headers: Platform.isWindows
         ? {'X-Supabase-Client-Platform-Version': 'Windows'}
         : null,
-    url: false
-        ? 'http://127.0.0.1:14572'
-        : 'https://qgewguqxyteoowbxeofi.supabase.co',
+    url: supabaseUrl,
     anonKey: false
         ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
         : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZXdndXF4eXRlb293Ynhlb2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTc2ODAsImV4cCI6MjA2NzI3MzY4MH0.UmaVdCukolvrboBhEDhgvXVVbxKZSV0r1TDjlozq0TI',

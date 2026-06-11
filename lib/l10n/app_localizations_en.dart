@@ -506,6 +506,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareDiagnosticLogWithDeveloper => 'Share diagnostic logs with developers';
 
   @override
+  String get shareCnDirectAppsWithDeveloper => 'Help improve CN routing (share direct app list)';
+
+  @override
+  String get shareCnDirectAppsDescription => 'When enabled, package names and app labels from your Direct app set are sent anonymously to help build a list of China apps. This is done after you have finished editing your Direct app set. The data uploaded is not linked to you.';
+
+  @override
   String get yes => 'Yes';
 
   @override
@@ -515,7 +521,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactUsSummary => 'You can contact us by the following ways. Thank you!';
 
   @override
-  String get contactUsFreely => 'If you have any questions, please contact us.';
+  String get contactUsFreely => 'If you have any questions or need any features, please contact us.';
+
+  @override
+  String get contactUsProPriority => 'If you are a Pro user, please let us know when contacting us — we prioritize Pro users\' inquiries.';
 
   @override
   String get bugAreWelcome => 'Bug reports and suggestions are welcome, thanks very much!';
@@ -555,9 +564,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proExpiredAt => 'Pro Expiry';
-
-  @override
-  String get lifetimeProAccount => 'Lifetime Pro Account';
 
   @override
   String get addGroup => 'Add Group';
@@ -1783,6 +1789,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whenNoDomain => 'Sniff When No Domain Info';
 
   @override
+  String get hasNoDomain => 'No domain info';
+
+  @override
   String get enable => 'Enable';
 
   @override
@@ -2691,4 +2700,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectorHandlersInUseTitle => 'Handlers in use';
+
+  @override
+  String get addFreeSubscription => 'Add Free Subscription';
+
+  @override
+  String get resetSubscriptionLink => 'Reset subscription link';
+
+  @override
+  String addFreeSubscriptionDesc(String name) {
+    return 'Once clicked, a subscription named \"$name\" will be added. The subscription might not have available nodes at any time. The remaining traffic of the subscription will be updated daily.';
+  }
+
+  @override
+  String get resetSubscriptionLinkDesc => 'Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.';
+
+  @override
+  String get cnDomainsGoDirectRule => 'CN domains go direct';
+
+  @override
+  String get cnIpsGoDirectRule => 'CN IPs go direct';
+
+  @override
+  String get cnExcludeGfwDomains => 'CN Domains Exclude GFW';
 }

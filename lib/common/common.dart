@@ -30,6 +30,10 @@ const dartBackendUrl = false
     ? 'http://127.0.0.1:8080/verifypurchase'
     : 'https://iap.5vnetwork.com/verifypurchase';
 const logKey = String.fromEnvironment('LOG_KEY', defaultValue: '1234567890');
+const cnDirectAppsKey = String.fromEnvironment(
+  'CN_DIRECT_APPS_KEY',
+  defaultValue: '00000000',
+);
 
 List<int> generateUniqueNumbers(int count, {int min = 1, int max = 100}) {
   final random = Random();
@@ -42,6 +46,9 @@ List<int> generateUniqueNumbers(int count, {int min = 1, int max = 100}) {
   return numbers.toList();
 }
 
+final supabaseUrl = false
+    ? 'http://192.168.31.1:10110'
+    : 'https://qgewguqxyteoowbxeofi.supabase.co';
 final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 final numericRegExp = RegExp(r'^\d+$');
 const isWinStore = bool.fromEnvironment('STORE');
@@ -49,7 +56,9 @@ const isPkg = appFlavor == 'pkg';
 final androidApkRelease =
     Platform.isAndroid && !const bool.fromEnvironment('PLAY_STORE');
 final autoUpdateSupported =
-    androidApkRelease || (Platform.isWindows && !isWinStore) || Platform.isLinux;
+    androidApkRelease ||
+    (Platform.isWindows && !isWinStore) ||
+    Platform.isLinux;
 String getUserCountryFromLocale() {
   final locale = PlatformDispatcher.instance.locale;
   return locale.countryCode ?? 'Unknown';

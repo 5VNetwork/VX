@@ -492,6 +492,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shareDiagnosticLogWithDeveloper => '分享诊断日志给开发者';
 
   @override
+  String get shareCnDirectAppsWithDeveloper => '帮助完善中国应用路由（分享直连应用列表）';
+
+  @override
+  String get shareCnDirectAppsDescription => '开启后，在您编辑完成直连应用集合时，将匿名上传您「直连」应用集合中的应用包名与显示名称，用于汇总中国常用应用列表(该列表会发布在VX文档网站上)。上传的应用列表不与您建立关联。';
+
+  @override
   String get yes => '好的';
 
   @override
@@ -501,7 +507,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactUsSummary => '您可以通过以下方式联系我们。';
 
   @override
-  String get contactUsFreely => '如果您在使用VX的过程中有任何问题，请随时联系我们。';
+  String get contactUsFreely => '如果您在使用VX的过程中有任何问题或需要任何功能，请随时联系我们。';
+
+  @override
+  String get contactUsProPriority => '如果您是 Pro 用户，联系我们时请告知，我们会优先处理 Pro 用户的咨询。';
 
   @override
   String get bugAreWelcome => '欢迎向我们反馈bug和建议，谢谢!';
@@ -541,9 +550,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proExpiredAt => 'Pro 到期时间';
-
-  @override
-  String get lifetimeProAccount => '永久Pro账户';
 
   @override
   String get addGroup => '添加分组';
@@ -1733,6 +1739,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get whenNoDomain => '没有域名时嗅探';
 
   @override
+  String get hasNoDomain => '无域名信息';
+
+  @override
   String get enable => '启用';
 
   @override
@@ -2641,4 +2650,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get selectorHandlersInUseTitle => '使用中的节点';
+
+  @override
+  String get addFreeSubscription => '添加免费订阅';
+
+  @override
+  String get resetSubscriptionLink => '重置订阅链接';
+
+  @override
+  String addFreeSubscriptionDesc(String name) {
+    return '点击后，将添加名为 \"$name\" 的订阅。该订阅不保证时刻都有可用节点。订阅剩余流量每日更新。';
+  }
+
+  @override
+  String get resetSubscriptionLinkDesc => '点击后，将重置订阅链接。新链接将用于获取订阅。可用于防止订阅链接泄露。';
+
+  @override
+  String get cnDomainsGoDirectRule => 'CN域名直连';
+
+  @override
+  String get cnIpsGoDirectRule => 'CN IP直连';
+
+  @override
+  String get cnExcludeGfwDomains => 'CN域名排除GFW';
 }

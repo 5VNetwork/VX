@@ -20,11 +20,14 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_common/common.dart';
+import 'package:vx/app/outbound/outbound_repo.dart';
+import 'package:vx/app/outbound/subscription_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gap/gap.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vx/app/settings/privacy.dart';
+import 'package:vx/auth/user.dart';
 import 'package:vx/common/common.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -169,17 +172,21 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   ],
                 ),
-                if (state.user!.lifetimePro == true)
+                if (state.user!.lifetimePro == true ||
+                    state.user!.level == UserLevel.max)
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0),
-                    child: Chip(
-                      avatar: proIcon,
-                      label: Text(
-                        AppLocalizations.of(context)!.lifetimeProAccount,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Chip(
+                        avatar: proIcon,
+                        label: Text(
+                          state.user!.level == UserLevel.max ? 'Max' : 'Pro',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
                       ),
                     ),
                   ),
@@ -322,6 +329,8 @@ class _AccountPageState extends State<AccountPage> {
                 const Gap(20),
                 divider,
                 const Gap(20),
+                if (context.read<AuthBloc>().state.user!.level == UserLevel.max)
+                  const _Subscription(),
                 // const _Invitation(),
               ],
             ),
@@ -653,6 +662,139 @@ class __InvitationState extends State<_Invitation> {
                 ),
             ],
           ),
+      ],
+    );
+  }
+}
+
+class _Subscription extends StatefulWidget {
+  const _Subscription({super.key});
+
+  @override
+  State<_Subscription> createState() => __SubscriptionState();
+}
+
+class __SubscriptionState extends State<_Subscription> {
+  static const _maxSubName = 'Max';
+  bool _adding = false;
+  bool _resetting = false;
+
+  String _fetchSubscriptionUrl(String secret) {
+    return '$supabaseUrl/functions/v1/fetch/$secret';
+  }
+
+  Future<String> _getFetchSecret() async {
+    return await supabase.rpc('get_fetch_secret') as String;
+  }
+
+  Future<String> _resetFetchSecret() async {
+    return await supabase.rpc('reset_fetch_secret') as String;
+  }
+
+  Future<void> _addFreeSubscription() async {
+    setState(() {
+      _adding = true;
+    });
+    try {
+      final outboundRepo = context.read<OutboundRepo>();
+      final existing = await outboundRepo.getSubsByName(_maxSubName);
+      if (existing.isNotEmpty) {
+        snack('Subscription "$_maxSubName" already exists');
+        return;
+      }
+      final secret = await _getFetchSecret();
+      final url = _fetchSubscriptionUrl(secret);
+      if (!mounted) {
+        return;
+      }
+      context.read<SubscriptionBloc>().add(
+        AddSubscriptionEvent(_maxSubName, url),
+      );
+      snack('Added subscription "$_maxSubName"');
+    } catch (e) {
+      logger.e('Failed to add free subscription: $e');
+      snack(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _adding = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _resetSubscriptionLink() async {
+    setState(() {
+      _resetting = true;
+    });
+    try {
+      final outboundRepo = context.read<OutboundRepo>();
+      final secret = await _resetFetchSecret();
+      final url = _fetchSubscriptionUrl(secret);
+      final existing = await outboundRepo.getSubsByName(_maxSubName);
+      if (existing.isNotEmpty) {
+        if (!mounted) {
+          return;
+        }
+        context.read<SubscriptionBloc>().add(
+          SubscriptionEditedEvent(id: existing.first.id, link: url),
+        );
+        snack('Reset subscription link for "$_maxSubName"');
+      } else {
+        snack('Subscription link reset');
+      }
+    } catch (e) {
+      logger.e('Failed to reset subscription link: $e');
+      snack(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _resetting = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FilledButton(
+          onPressed: _adding ? null : _addFreeSubscription,
+          child: _adding
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(AppLocalizations.of(context)!.addFreeSubscription),
+        ),
+        const Gap(10),
+        Text(
+          AppLocalizations.of(context)!.addFreeSubscriptionDesc(_maxSubName),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const Gap(10),
+        FilledButton(
+          onPressed: _resetting ? null : _resetSubscriptionLink,
+          child: _resetting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(AppLocalizations.of(context)!.resetSubscriptionLink),
+        ),
+        const Gap(10),
+        Text(
+          AppLocalizations.of(context)!.resetSubscriptionLinkDesc,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

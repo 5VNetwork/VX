@@ -189,8 +189,7 @@ enum DefaultRouteMode {
           customDirectSet,
           customProxySet,
           AtomicDomainSet(
-            name: notCn,
-            inverse: true,
+            name: cn,
             useBloomFilter: true,
             geositeConfig: GeositeConfig(codes: ['cn']),
           ),
@@ -280,8 +279,8 @@ enum DefaultRouteMode {
           ),
           publicSet,
           AtomicIpSet(
-            name: notCn,
-            inverse: true,
+            name: cn,
+            inverse: false,
             geoIpConfig: GeoIPConfig(codes: ['cn']),
           ),
         ];
@@ -325,6 +324,16 @@ enum DefaultRouteMode {
               name: al.gfwModeProxyDomains,
               inNames: [gfw, al.customProxy, 'Fallback'],
               exNames: [al.customDirect],
+            ),
+          ),
+          GreatDomainSet(
+            name: al.cnExcludeGfwDomains,
+            oppositeName: '!${al.cnExcludeGfwDomains}',
+            set: GreatDomainSetConfig(
+              name: al.cnExcludeGfwDomains,
+              oppositeName: '!${al.cnExcludeGfwDomains}',
+              inNames: [cn, al.cnGames],
+              exNames: [if (Platform.isIOS) gfw],
             ),
           ),
         ];
@@ -521,6 +530,16 @@ enum DefaultRouteMode {
       dstIpTags: [al.gfwModeProxyIps],
       selectorTag: defaultProxySelectorTag,
     );
+    final cnDomainsGoDirectRule = RuleConfig(
+      ruleName: al.cnDomainsGoDirectRule,
+      domainTags: [al.cnExcludeGfwDomains],
+      outboundTag: directHandlerTag,
+    );
+    final cnIpsGoDirectRule = RuleConfig(
+      ruleName: al.cnIpsGoDirectRule,
+      condition: Condition(dstIpTags: [cn], hasNoDomain: true),
+      outboundTag: directHandlerTag,
+    );
     final goDirectRule = RuleConfig(
       ruleName: al.ruleNameDefaultDirect,
       outboundTag: directHandlerTag,
@@ -529,12 +548,7 @@ enum DefaultRouteMode {
         RuleConfig_Fallback(
           selectorTag: defaultProxySelectorTag,
           action: RuleConfig_Fallback_Action(ipToDomain: true),
-          domainTags: [notCn],
-        ),
-        RuleConfig_Fallback(
-          selectorTag: defaultProxySelectorTag,
-          action: RuleConfig_Fallback_Action(ipToDomain: true),
-          dstIpTags: [notCn],
+          matchAll: true,
         ),
       ],
     );
@@ -553,6 +567,8 @@ enum DefaultRouteMode {
       customDirectDomainGoDirectRule,
       proxyIpGoProxyRule,
       proxyDomainGoProxyRule,
+      cnDomainsGoDirectRule,
+      cnIpsGoDirectRule,
       goDirectRule,
     ];
   }
@@ -673,7 +689,7 @@ enum DefaultRouteMode {
             dnsServerName: dnsServerFake,
             ruleName: al.dnsRuleNameGfwProxyFake,
             includedTypes: [DnsType.DnsType_A, DnsType.DnsType_AAAA],
-            domainTags: [al.gfwModeProxyDomains, notCn],
+            domainTags: [al.gfwModeProxyDomains, '!${al.cnExcludeGfwDomains}'],
           ),
           DnsRuleConfig(
             ruleName: al.dnsRuleNameGfwProxy,

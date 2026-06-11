@@ -475,6 +475,7 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
       if (toAdd.isNotEmpty) {
         await _setRepo.addApps(toAdd);
       }
+      unawaited(_maybeUploadCnDirectApps());
       if (context.mounted) {
         Navigator.of(context).pop();
       }
@@ -485,6 +486,25 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
         _saving = false;
       });
     }
+  }
+
+  Future<void> _maybeUploadCnDirectApps() async {
+    if (!Platform.isAndroid) return;
+    if (widget.appSetName != directAppSetName) return;
+    if (getUserCountryFromLocale() != 'CN') return;
+    final pref = context.read<SharedPreferences>();
+    if (!pref.shareCnDirectApps) return;
+
+    final appsByPackage = <String, String?>{};
+    for (final entry in _selectedApps.entries) {
+      if (entry.key == androidPackageNme) continue;
+      appsByPackage[entry.key] = entry.value.name;
+    }
+
+    await CnDirectAppsUpload.uploadSnapshot(
+      deviceId: pref.uniqueDeviceId,
+      appsByPackage: appsByPackage,
+    );
   }
 
   @override

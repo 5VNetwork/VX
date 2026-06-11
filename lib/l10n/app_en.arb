@@ -177,10 +177,13 @@
   "privacyPolicySummary": "VX only collects diagnostic logs if the switch button below is on. These logs do not contain personal data. Please click the button below to view the detailed privacy policy.",
   "diagnosticLogDoesNotContainPersonalData": "Diagnostic logs does not link to you, and does not contain personal data",
   "shareDiagnosticLogWithDeveloper": "Share diagnostic logs with developers",
+  "shareCnDirectAppsWithDeveloper": "Help improve CN routing (share direct app list)",
+  "shareCnDirectAppsDescription": "When enabled, package names and app labels from your Direct app set are sent anonymously to help build a list of China apps. This is done after you have finished editing your Direct app set. The data uploaded is not linked to you.",
   "yes": "Yes",
   "no": "No",
   "contactUsSummary": "You can contact us by the following ways. Thank you!",
-  "contactUsFreely": "If you have any questions, please contact us.",
+  "contactUsFreely": "If you have any questions or need any features, please contact us.",
+  "contactUsProPriority": "If you are a Pro user, please let us know when contacting us — we prioritize Pro users' inquiries.",
   "bugAreWelcome": "Bug reports and suggestions are welcome, thanks very much!",
   "copiedToClipboard": "Copied to clipboard",
   "sourceCodeUrl": "URL to source code",
@@ -194,7 +197,6 @@
   "loginWithMicrosoft": "Microsoft",
   "newUserTrialText": "New users can try Pro for 7 days for free",
   "proExpiredAt": "Pro Expiry",
-  "lifetimeProAccount": "Lifetime Pro Account",
   "addGroup": "Add Group",
   "deleteGroup": "Delete Group",
   "group": "Group",
@@ -755,6 +757,7 @@
   "outboundStream": "Stream",
   "staticPorts": "Static Ports",
   "whenNoDomain": "Sniff When No Domain Info",
+  "hasNoDomain": "No domain info",
   "enable": "Enable",
   "disable": "Disable",
   "checkUpdate": "Check Update",
@@ -1108,5 +1111,19 @@
       }
     }
   },
-  "selectorHandlersInUseTitle": "Handlers in use"
+  "selectorHandlersInUseTitle": "Handlers in use",
+  "addFreeSubscription": "Add Free Subscription",
+  "resetSubscriptionLink": "Reset subscription link",
+  "addFreeSubscriptionDesc": "Once clicked, a subscription named \"{name}\" will be added. The subscription might not have available nodes at any time. The remaining traffic of the subscription will be updated daily.",
+  "@addFreeSubscriptionDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resetSubscriptionLinkDesc": "Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.",
+  "cnDomainsGoDirectRule": "CN domains go direct",
+  "cnIpsGoDirectRule": "CN IPs go direct",
+  "cnExcludeGfwDomains": "CN Domains Exclude GFW"
 }

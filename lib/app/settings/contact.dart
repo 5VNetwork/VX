@@ -119,6 +119,8 @@ class ContactScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Text(AppLocalizations.of(context)!.contactUsFreely),
             const SizedBox(height: 10),
+            Text(AppLocalizations.of(context)!.contactUsProPriority),
+            const SizedBox(height: 10),
             Text(AppLocalizations.of(context)!.bugAreWelcome),
           ],
         ),

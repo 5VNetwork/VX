@@ -177,7 +177,7 @@ enum ProxyProtocolLabel {
       case ProxyProtocolLabel.http:
         return HttpServerConfig();
       case ProxyProtocolLabel.wireguard:
-        return DeviceConfig(isClient: false);
+        return DeviceConfig();
     }
   }
 }

@@ -45,6 +45,7 @@ import 'package:vx/data/database.dart';
 import 'package:vx/main.dart' hide App;
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/pref_helper.dart';
+import 'package:vx/utils/cn_direct_apps_upload.dart';
 import 'package:vx/utils/desktop_installed_apps.dart';
 import 'package:vx/utils/xapi_client.dart';
 

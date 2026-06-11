@@ -555,6 +555,14 @@ extension PrefHelperExtension on SharedPreferences {
     setInt('outboundSpeedTestBytes', clamped);
   }
 
+  bool get shareCnDirectApps {
+    return getBool('shareCnDirectApps') ?? false;
+  }
+
+  void setShareCnDirectApps(bool enable) {
+    setBool('shareCnDirectApps', enable);
+  }
+
   bool get shareLog {
     if (isPkg) {
       return false;

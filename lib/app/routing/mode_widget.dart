@@ -35,7 +35,7 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:vx/app/routing/routing_page.dart';
-import 'package:vx/app/routing/mode_form.dart';
+import 'package:vx/app/routing/mode_form.dart' hide Condition;
 import 'package:vx/app/routing/set_widget.dart';
 import 'package:vx/app/blocs/proxy_selector/proxy_selector_bloc.dart';
 import 'package:vx/common/config.dart';
@@ -703,54 +703,9 @@ const ruleNameRuBlockProxyIp = 'RU-Block模式代理IP';
 const ruleNameRuBlockAllProxyDomain = 'RU-Block(All)模式代理域名';
 const ruleNameRuBlockAllProxyIp = 'RU-Block(All)模式代理IP';
 
-extension RuleConfigExtension on RuleConfig {
-  // String localizedName(BuildContext context) {
-  //   switch (ruleName) {
-  //     case ruleNameInternalDnsProxyGoProxy:
-  //       return AppLocalizations.of(context)!.ruleNameInternalDnsProxyGoProxy;
-  //     case ruleNameInternalDnsDirectGoDirect:
-  //       return AppLocalizations.of(context)!.ruleNameInternalDnsDirectGoDirect;
-  //     case ruleNameProxyDnsServerGoProxy:
-  //       return AppLocalizations.of(context)!.ruleNameProxyDnsServerGoProxy;
-  //     case ruleNameDirectDnsServerGoDirect:
-  //       return AppLocalizations.of(context)!.ruleNameDirectDnsServerGoDirect;
-  //     case ruleNameVXTestNode:
-  //       return AppLocalizations.of(context)!.ruleNameVXTestNodes;
-  //     case ruleNameCustomDirectDomain:
-  //       return AppLocalizations.of(context)!.ruleNameCustomDirectDomain;
-  //     case ruleNameCustomDirectIp:
-  //       return AppLocalizations.of(context)!.ruleNameCustomDirectIp;
-  //     case ruleNameCustomProxyDomain:
-  //       return AppLocalizations.of(context)!.ruleNameCustomProxyDomain;
-  //     case ruleNameCustomProxyIp:
-  //       return AppLocalizations.of(context)!.ruleNameCustomProxyIp;
-  //     case ruleNameProxyApp:
-  //       return AppLocalizations.of(context)!.ruleNameProxyApp;
-  //     case ruleNameDirectApp:
-  //       return AppLocalizations.of(context)!.ruleNameDirectApp;
-  //     case ruleNameCnModeDirectIp:
-  //       return AppLocalizations.of(context)!.ruleNameCnDirectIp;
-  //     case ruleNameDefaultProxy:
-  //       return AppLocalizations.of(context)!.ruleNameDefaultProxy;
-  //     case ruleNameCnModeDirectDomain:
-  //       return AppLocalizations.of(context)!.ruleNameCnDirectDomain;
-  //     case ruleNameGfwModeProxyDomain:
-  //       return AppLocalizations.of(context)!.ruleNameGfwProxyDomain;
-  //     case ruleNameGfwModeProxyIp:
-  //       return AppLocalizations.of(context)!.ruleNameGfwProxyIp;
-  //     case ruleNameDefaultDirect:
-  //       return AppLocalizations.of(context)!.ruleNameDefaultDirect;
-  //     case ruleNameGlobalDirectDomain:
-  //       return AppLocalizations.of(context)!.ruleNameGlobalDirectDomain;
-  //     case ruleNameGlobalDirectIp:
-  //       return AppLocalizations.of(context)!.ruleNameGlobalDirectIp;
-  //     default:
-  //       return ruleName;
-  //   }
-  // }
-
-  List<Widget> children(BuildContext context) {
-    final ret = <Widget>[const Gap(10)];
+extension ConditionExtension on Condition {
+  List<Widget> conditionChildren(BuildContext context) {
+    final ret = <Widget>[];
     if (matchAll) {
       ret.add(
         Align(
@@ -801,6 +756,20 @@ extension RuleConfigExtension on RuleConfig {
         ),
       );
     }
+    if (hasNoDomain) {
+      ret.add(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              AppLocalizations.of(context)!.hasNoDomain,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+        ),
+      );
+    }
     if (domainTags.isNotEmpty) {
       ret.add(
         Padding(
@@ -815,12 +784,6 @@ extension RuleConfigExtension on RuleConfig {
               ...domainTags.map(
                 (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
               ),
-              // Text(
-              //   skipSniff
-              //       ? '(${AppLocalizations.of(context)!.skipSniff})'
-              //       : '(${AppLocalizations.of(context)!.sniff})',
-              //   style: Theme.of(context).textTheme.labelSmall,
-              // )
             ],
           ),
         ),
@@ -843,9 +806,6 @@ extension RuleConfigExtension on RuleConfig {
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ),
-              // Text(skipSniff
-              //     ? '(${AppLocalizations.of(context)!.skipSniff})'
-              //     : '(${AppLocalizations.of(context)!.sniff})')
             ],
           ),
         ),
@@ -906,12 +866,6 @@ extension RuleConfigExtension on RuleConfig {
               ...dstIpTags.map(
                 (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
               ),
-              // Text(
-              //   resolveDomain
-              //       ? '(${AppLocalizations.of(context)!.resolve})'
-              //       : '(${AppLocalizations.of(context)!.skipResolve})',
-              //   style: Theme.of(context).textTheme.labelSmall,
-              // )
             ],
           ),
         ),
@@ -936,6 +890,76 @@ extension RuleConfigExtension on RuleConfig {
         ),
       );
     }
+    return ret;
+  }
+}
+
+extension RuleConfigExtension on RuleConfig {
+  Condition get _displayCondition {
+    if (hasCondition()) {
+      return condition;
+    }
+    return Condition(
+      inboundTags: inboundTags,
+      fakeIp: fakeIp,
+      domainTags: domainTags,
+      geoDomains: geoDomains,
+      appTags: appTags,
+      appIds: appIds,
+      dstIpTags: dstIpTags,
+      allTags: allTags,
+      matchAll: matchAll,
+    );
+  }
+
+  // String localizedName(BuildContext context) {
+  //   switch (ruleName) {
+  //     case ruleNameInternalDnsProxyGoProxy:
+  //       return AppLocalizations.of(context)!.ruleNameInternalDnsProxyGoProxy;
+  //     case ruleNameInternalDnsDirectGoDirect:
+  //       return AppLocalizations.of(context)!.ruleNameInternalDnsDirectGoDirect;
+  //     case ruleNameProxyDnsServerGoProxy:
+  //       return AppLocalizations.of(context)!.ruleNameProxyDnsServerGoProxy;
+  //     case ruleNameDirectDnsServerGoDirect:
+  //       return AppLocalizations.of(context)!.ruleNameDirectDnsServerGoDirect;
+  //     case ruleNameVXTestNode:
+  //       return AppLocalizations.of(context)!.ruleNameVXTestNodes;
+  //     case ruleNameCustomDirectDomain:
+  //       return AppLocalizations.of(context)!.ruleNameCustomDirectDomain;
+  //     case ruleNameCustomDirectIp:
+  //       return AppLocalizations.of(context)!.ruleNameCustomDirectIp;
+  //     case ruleNameCustomProxyDomain:
+  //       return AppLocalizations.of(context)!.ruleNameCustomProxyDomain;
+  //     case ruleNameCustomProxyIp:
+  //       return AppLocalizations.of(context)!.ruleNameCustomProxyIp;
+  //     case ruleNameProxyApp:
+  //       return AppLocalizations.of(context)!.ruleNameProxyApp;
+  //     case ruleNameDirectApp:
+  //       return AppLocalizations.of(context)!.ruleNameDirectApp;
+  //     case ruleNameCnModeDirectIp:
+  //       return AppLocalizations.of(context)!.ruleNameCnDirectIp;
+  //     case ruleNameDefaultProxy:
+  //       return AppLocalizations.of(context)!.ruleNameDefaultProxy;
+  //     case ruleNameCnModeDirectDomain:
+  //       return AppLocalizations.of(context)!.ruleNameCnDirectDomain;
+  //     case ruleNameGfwModeProxyDomain:
+  //       return AppLocalizations.of(context)!.ruleNameGfwProxyDomain;
+  //     case ruleNameGfwModeProxyIp:
+  //       return AppLocalizations.of(context)!.ruleNameGfwProxyIp;
+  //     case ruleNameDefaultDirect:
+  //       return AppLocalizations.of(context)!.ruleNameDefaultDirect;
+  //     case ruleNameGlobalDirectDomain:
+  //       return AppLocalizations.of(context)!.ruleNameGlobalDirectDomain;
+  //     case ruleNameGlobalDirectIp:
+  //       return AppLocalizations.of(context)!.ruleNameGlobalDirectIp;
+  //     default:
+  //       return ruleName;
+  //   }
+  // }
+
+  List<Widget> children(BuildContext context) {
+    final ret = <Widget>[const Gap(10)];
+    ret.addAll(_displayCondition.conditionChildren(context));
     if (fallbacks.isNotEmpty) {
       ret.add(
         Padding(

@@ -21,19 +21,26 @@ class User extends Equatable {
     required this.email,
     this.proExpiredAt,
     required this.pro,
+    required this.level,
   });
   final String id;
   final String email;
   final DateTime? proExpiredAt;
+  final UserLevel level;
 
   final bool pro;
 
   @override
-  List<Object?> get props => [id, email, proExpiredAt, pro];
+  List<Object?> get props => [id, email, proExpiredAt, pro, level];
 
   bool get isProUser {
     return pro;
   }
 
-  bool get lifetimePro => pro && proExpiredAt == null;
+  bool get lifetimePro =>
+      pro && proExpiredAt == null ||
+      level == UserLevel.max ||
+      level == UserLevel.pro;
 }
+
+enum UserLevel { free, pro, max }

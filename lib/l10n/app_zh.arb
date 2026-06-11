@@ -175,11 +175,14 @@
   "copy": "复制",
   "privacyPolicySummary": "VX只在下方按钮开启的情况下收集诊断日志，这些日志不包含您的个人数据。详细的隐私政策请点击下方按钮查看。",
   "shareDiagnosticLogWithDeveloper": "分享诊断日志给开发者",
+  "shareCnDirectAppsWithDeveloper": "帮助完善中国应用路由（分享直连应用列表）",
+  "shareCnDirectAppsDescription": "开启后，在您编辑完成直连应用集合时，将匿名上传您「直连」应用集合中的应用包名与显示名称，用于汇总中国常用应用列表(该列表会发布在VX文档网站上)。上传的应用列表不与您建立关联。",
   "diagnosticLogDoesNotContainPersonalData": "诊断日志不与您建立关联，也不包含个人数据",
   "yes": "好的",
   "no": "不",
   "contactUsSummary": "您可以通过以下方式联系我们。",
-  "contactUsFreely": "如果您在使用VX的过程中有任何问题，请随时联系我们。",
+  "contactUsFreely": "如果您在使用VX的过程中有任何问题或需要任何功能，请随时联系我们。",
+  "contactUsProPriority": "如果您是 Pro 用户，联系我们时请告知，我们会优先处理 Pro 用户的咨询。",
   "bugAreWelcome": "欢迎向我们反馈bug和建议，谢谢!",
   "copiedToClipboard": "已复制到剪贴板",
   "sourceCodeUrl": "源码链接",
@@ -193,7 +196,6 @@
   "loginWithMicrosoft": "微软",
   "newUserTrialText": "新用户可免费试用Pro 7天",
   "proExpiredAt": "Pro 到期时间",
-  "lifetimeProAccount": "永久Pro账户",
   "addGroup": "添加分组",
   "deleteGroup": "删除分组",
   "group": "分组",
@@ -754,6 +756,7 @@
   "outboundStream": "传输流",
   "staticPorts": "固定端口",
   "whenNoDomain": "没有域名时嗅探",
+  "hasNoDomain": "无域名信息",
   "enable": "启用",
   "disable": "禁用",
   "checkUpdate": "检查更新",
@@ -1110,5 +1113,19 @@
       }
     }
   },
-  "selectorHandlersInUseTitle": "使用中的节点"
+  "selectorHandlersInUseTitle": "使用中的节点",
+  "addFreeSubscription": "添加免费订阅",
+  "resetSubscriptionLink": "重置订阅链接",
+  "addFreeSubscriptionDesc": "点击后，将添加名为 \"{name}\" 的订阅。该订阅不保证时刻都有可用节点。订阅剩余流量每日更新。",
+  "@addFreeSubscriptionDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resetSubscriptionLinkDesc": "点击后，将重置订阅链接。新链接将用于获取订阅。可用于防止订阅链接泄露。",
+  "cnDomainsGoDirectRule": "CN域名直连",
+  "cnIpsGoDirectRule": "CN IP直连",
+  "cnExcludeGfwDomains": "CN域名排除GFW"
 }

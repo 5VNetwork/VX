@@ -506,6 +506,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shareDiagnosticLogWithDeveloper => 'Делитесь диагностическими журналами с разработчиками.';
 
   @override
+  String get shareCnDirectAppsWithDeveloper => 'Помочь улучшить маршрутизацию CN (список прямых приложений)';
+
+  @override
+  String get shareCnDirectAppsDescription => 'При включении анонимно отправляются имена пакетов и подписи приложений из набора Direct. Без учётной записи и личных данных.';
+
+  @override
   String get yes => 'Да';
 
   @override
@@ -516,6 +522,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactUsFreely => 'Если у вас возникнут какие-либо вопросы, пожалуйста, свяжитесь с нами.';
+
+  @override
+  String get contactUsProPriority => 'Если вы пользователь Pro, пожалуйста, сообщите об этом при обращении — мы в первую очередь отвечаем на запросы пользователей Pro.';
 
   @override
   String get bugAreWelcome => 'Сообщения об ошибках и предложения приветствуются, большое спасибо!';
@@ -555,9 +564,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get proExpiredAt => 'Срок действия Pro';
-
-  @override
-  String get lifetimeProAccount => 'Пожизненный профессиональный аккаунт';
 
   @override
   String get addGroup => 'Добавить группу';
@@ -1783,6 +1789,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get whenNoDomain => 'Проверка при отсутствии информации о домене.';
 
   @override
+  String get hasNoDomain => 'Нет информации о домене';
+
+  @override
   String get enable => 'Давать возможность';
 
   @override
@@ -2695,4 +2704,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get selectorHandlersInUseTitle => 'Используемые узлы';
+
+  @override
+  String get addFreeSubscription => 'Добавить бесплатную подписку';
+
+  @override
+  String get resetSubscriptionLink => 'Сбросить ссылку подписки';
+
+  @override
+  String addFreeSubscriptionDesc(String name) {
+    return 'После нажатия будет добавлена подписка с именем \"$name\". Остаток трафика подписки будет обновляться ежедневно.';
+  }
+
+  @override
+  String get resetSubscriptionLinkDesc => 'После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку.';
+
+  @override
+  String get cnDomainsGoDirectRule => 'CN domains go direct';
+
+  @override
+  String get cnIpsGoDirectRule => 'CN IPs go direct';
+
+  @override
+  String get cnExcludeGfwDomains => 'CN Domains Exclude GFW';
 }

@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,11 +41,14 @@ class PrivacyPolicyScreen extends StatefulWidget {
 
 class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   bool _shareLog = false;
+  bool _shareCnDirectApps = false;
 
   @override
   void initState() {
     super.initState();
-    _shareLog = context.read<SharedPreferences>().shareLog;
+    final pref = context.read<SharedPreferences>();
+    _shareLog = pref.shareLog;
+    _shareCnDirectApps = pref.shareCnDirectApps;
   }
 
   @override
@@ -104,6 +109,40 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
+            if (Platform.isAndroid) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.shareCnDirectAppsWithDeveloper,
+                    ),
+                  ),
+                  Switch(
+                    value: _shareCnDirectApps,
+                    onChanged: isPkg
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _shareCnDirectApps = value;
+                            });
+                            context
+                                .read<SharedPreferences>()
+                                .setShareCnDirectApps(value);
+                          },
+                  ),
+                ],
+              ),
+              const Gap(5),
+              Text(
+                AppLocalizations.of(context)!.shareCnDirectAppsDescription,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ],
         ),
       ),
