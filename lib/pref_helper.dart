@@ -556,7 +556,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   bool get shareCnDirectApps {
-    return getBool('shareCnDirectApps') ?? false;
+    return getBool('shareCnDirectApps') ?? true;
   }
 
   void setShareCnDirectApps(bool enable) {
