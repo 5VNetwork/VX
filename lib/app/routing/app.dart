@@ -502,7 +502,7 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
     }
 
     await CnDirectAppsUpload.uploadSnapshot(
-      deviceId: pref.uniqueDeviceId,
+      deviceId: pref.uniqueDeviceIdForCnDirectApps,
       appsByPackage: appsByPackage,
     );
   }

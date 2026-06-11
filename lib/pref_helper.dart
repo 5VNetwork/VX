@@ -556,7 +556,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   bool get shareCnDirectApps {
-    return getBool('shareCnDirectApps') ?? true;
+    return getBool('shareCnDirectApps') ?? false;
   }
 
   void setShareCnDirectApps(bool enable) {
@@ -1088,6 +1088,23 @@ extension PrefHelperExtension on SharedPreferences {
 
   String get uniqueDeviceId {
     const key = 'unique_device_id';
+
+    // Check if we already have a stored device ID
+    String? deviceId = getString(key);
+    if (deviceId != null && deviceId.isNotEmpty) {
+      return deviceId;
+    }
+
+    // Fallback to UUID if hardware ID is not available
+    deviceId ??= const Uuid().v4();
+
+    // Store for future use
+    setString(key, deviceId);
+    return deviceId;
+  }
+
+  String get uniqueDeviceIdForCnDirectApps {
+    const key = 'unique_device_id_for_cn_direct_apps';
 
     // Check if we already have a stored device ID
     String? deviceId = getString(key);
