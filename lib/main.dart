@@ -372,7 +372,7 @@ void main() async {
       ),
       Provider<MyLayout>(create: (_) => MyLayout()),
       if (autoUpdateSupported)
-        Provider(
+        ChangeNotifierProvider(
           lazy: false,
           create: (ctx) {
             final a = AutoUpdateService(
@@ -444,7 +444,7 @@ void main() async {
                         .setSkipCurrentVersion,
                     installLocalInstaller: () async {
                       // stop vpn first
-                      await context.read<XController>().stop();
+                      await context.read<XController>().stopIfConnected();
                       rootNavigationKey.currentContext!
                           .read<AutoUpdateService>()
                           .installLocalInstaller();

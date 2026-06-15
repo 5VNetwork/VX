@@ -713,45 +713,51 @@ class CheckUpdateButton extends StatefulWidget {
 
 class _CheckUpdateButtonState extends State<CheckUpdateButton> {
   bool _checkingUpdate = false;
-  bool _downloadingUpdate = false;
-  String? _version;
 
   @override
   Widget build(BuildContext context) {
+    final autoUpdateService = context.watch<AutoUpdateService>();
+    final isDownloading = autoUpdateService.isDownloading;
+
     return TextButton(
-      onPressed: () async {
-        setState(() {
-          _checkingUpdate = true;
-        });
-        try {
-          final autoUpdateService = context.read<AutoUpdateService>();
-          final release = await autoUpdateService.getLatestRelease();
-          if (release != null) {
-            setState(() {
-              _checkingUpdate = false;
-              _downloadingUpdate = true;
-              _version = release.version;
-            });
-            await autoUpdateService.updateToRelease(release);
-          } else {
-            snack(AppLocalizations.of(context)!.noNewVersion);
-          }
-        } catch (e, stackTrace) {
-          logger.e('Error checking update', error: e, stackTrace: stackTrace);
-          snack(e.toString());
-        } finally {
-          setState(() {
-            _downloadingUpdate = false;
-            _checkingUpdate = false;
-            _version = null;
-          });
-        }
-      },
+      onPressed: (_checkingUpdate || isDownloading)
+          ? null
+          : () async {
+              setState(() {
+                _checkingUpdate = true;
+              });
+              try {
+                final release = await autoUpdateService.getLatestRelease();
+                if (release != null) {
+                  setState(() {
+                    _checkingUpdate = false;
+                  });
+                  await autoUpdateService.updateToRelease(release);
+                } else {
+                  snack(AppLocalizations.of(context)!.noNewVersion);
+                }
+              } catch (e, stackTrace) {
+                logger.e(
+                  'Error checking update',
+                  error: e,
+                  stackTrace: stackTrace,
+                );
+                snack(e.toString());
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _checkingUpdate = false;
+                  });
+                }
+              }
+            },
       child: _checkingUpdate
           ? smallCircularProgressIndicator
           : Text(
-              _downloadingUpdate
-                  ? AppLocalizations.of(context)!.downloading(_version ?? '')
+              isDownloading
+                  ? AppLocalizations.of(
+                      context,
+                    )!.downloading(autoUpdateService.downloadingVersion ?? '')
                   : AppLocalizations.of(context)!.checkUpdate,
             ),
     );

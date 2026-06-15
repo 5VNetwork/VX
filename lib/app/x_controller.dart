@@ -573,6 +573,13 @@ class XController implements MessageFlutterApi {
     }
   }
 
+  Future<void> stopIfConnected() async {
+    await waitForConnectedIfConnecting();
+    if (Tm.instance.state == TmStatus.connected) {
+      await stop();
+    }
+  }
+
   /// Should be called before the app is exiting
   Future<void> beforeExitCleanup() async {
     logger.d('beforeExitCleanup');
