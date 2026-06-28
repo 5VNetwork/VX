@@ -25,6 +25,7 @@ import 'package:image/image.dart' as img;
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:vx/app/outbound/add_realm_device.dart';
 import 'package:vx/app/outbound/add_chain_handler.dart';
 import 'package:vx/app/outbound/outbound_page.dart';
 import 'package:vx/app/outbound/outbound_repo.dart';
@@ -116,6 +117,14 @@ class AddMenuAnchor extends StatelessWidget {
               );
             },
           ),
+        MenuItemButton(
+          leadingIcon: const Icon(Icons.devices_other_outlined),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(AppLocalizations.of(context)!.realmDevice),
+          ),
+          onPressed: () => showAddRealmDeviceDialog(context),
+        ),
         MenuItemButton(
           leadingIcon: const Icon(Icons.edit_outlined),
           child: Padding(

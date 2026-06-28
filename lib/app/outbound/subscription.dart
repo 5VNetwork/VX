@@ -213,9 +213,7 @@ class AutoSubscriptionUpdater with ChangeNotifier {
           SubscriptionsCompanion(
             lastSuccessUpdate: Value(now),
             description: Value(
-              fetchRes.description.isNotEmpty
-                  ? fetchRes.description
-                  : sub.description,
+              fetchRes.description,
             ),
           ),
         );

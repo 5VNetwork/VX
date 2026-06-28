@@ -11,6 +11,7 @@ class StandardHomePage extends StatelessWidget {
     context.read<RealtimeSpeedNotifier>().setStatsWidgetsVisible(
       anyStatsVisible,
     );
+    final showRealm = !hidden.contains(HomeWidgetId.realmServer.id);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -59,6 +60,13 @@ class StandardHomePage extends StatelessWidget {
                         const Padding(
                           padding: EdgeInsets.only(top: 10),
                           child: _Subscription(),
+                        ),
+                      if (showRealm &&
+                          ctx.watch<StartCloseCubit>().state.status ==
+                              XStatus.connected)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: _RealmServerCard(),
                         ),
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
@@ -110,6 +118,13 @@ class StandardHomePage extends StatelessWidget {
                                       bottom: 10,
                                     ),
                                     child: _Subscription(),
+                                  ),
+                                if (showRealm &&
+                                    ctx.watch<StartCloseCubit>().state.status ==
+                                        XStatus.connected)
+                                  const Padding(
+                                    padding: EdgeInsets.only(bottom: 10),
+                                    child: _RealmServerCard(),
                                   ),
                                 BlocBuilder<AuthBloc, AuthState>(
                                   builder: (context, state) {

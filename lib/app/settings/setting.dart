@@ -358,7 +358,12 @@ class _LargeSettingSreenState extends State<LargeSettingSreen> {
         children: [
           Expanded(child: list),
           const VerticalDivider(),
-          Expanded(child: detail),
+          Expanded(
+            child: KeyedSubtree(
+              key: ValueKey(selectedItem),
+              child: detail,
+            ),
+          ),
         ],
       ),
     );

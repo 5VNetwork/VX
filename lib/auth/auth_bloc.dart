@@ -88,6 +88,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Extract the 'pro' claim from JWT
     final isPro = claims['pro'] as bool? ?? false;
     final proExpiredAt = claims['pro_expired_at'] as int?;
+    if (claims['level'] == '' || claims['level'] == null) {
+      claims['level'] = 'free';
+    }
     return User(
       id: user.id,
       email: user.email!,
@@ -95,7 +98,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       proExpiredAt: proExpiredAt != null
           ? DateTime.fromMillisecondsSinceEpoch(proExpiredAt * 1000)
           : null,
-      level: UserLevel.values.byName(claims['level'] as String? ?? 'free'),
+      level: UserLevel.values.byName(claims['level']),
     );
   }
 }

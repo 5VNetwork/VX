@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archßive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.9.2+2081
+version: 3.10.0+2082
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -37,6 +37,8 @@ dependencies:
   protobuf: ^6.0.0
   tm:
     path: ../tm-plugin/tm
+  tm_android:
+    path: ../tm-plugin/tm_android
   google_fonts: ^6.2.1
   provider: ^6.1.2
   equatable: ^2.0.5

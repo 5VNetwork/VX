@@ -26,6 +26,7 @@ import 'package:vx/data/database.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:vx/app/settings/advanced/proxy_share.dart';
+import 'package:vx/app/settings/advanced/hysteria_realm.dart';
 import 'package:vx/pref_helper.dart';
 
 class AdvancedScreen extends StatelessWidget {
@@ -99,6 +100,28 @@ class AdvancedScreen extends StatelessWidget {
                   CupertinoPageRoute(
                     builder: (ctx) {
                       return ProxyShareSettingScreen(fullscreen: showAppBar);
+                    },
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              title: Text(
+                AppLocalizations.of(context)!.hysteriaRealm,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              onTap: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (ctx) {
+                      return HysteriaRealmSettingScreen(
+                        fullscreen: showAppBar,
+                      );
                     },
                   ),
                 );
@@ -329,6 +352,8 @@ class _TunSettingState extends State<TunSetting> {
   late final TextEditingController _cidr6Controller;
   late final TextEditingController _dns4Controller;
   late final TextEditingController _dns6Controller;
+  late final TextEditingController _routes4Controller;
+  late final TextEditingController _routes6Controller;
   late final TextEditingController _mtuController;
 
   @override
@@ -341,6 +366,8 @@ class _TunSettingState extends State<TunSetting> {
     _cidr6Controller = TextEditingController(text: pref.tunCidr6);
     _dns4Controller = TextEditingController(text: pref.tunDns4);
     _dns6Controller = TextEditingController(text: pref.tunDns6);
+    _routes4Controller = TextEditingController(text: pref.tunRoutes4);
+    _routes6Controller = TextEditingController(text: pref.tunRoutes6);
     _mtuController = TextEditingController(text: '${pref.tunMtu}');
     if (widget.onRegisterApply != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -356,6 +383,8 @@ class _TunSettingState extends State<TunSetting> {
     _cidr6Controller.dispose();
     _dns4Controller.dispose();
     _dns6Controller.dispose();
+    _routes4Controller.dispose();
+    _routes6Controller.dispose();
     _mtuController.dispose();
     super.dispose();
   }
@@ -372,6 +401,12 @@ class _TunSettingState extends State<TunSetting> {
     );
     pref.setTunDns4(_dns4Controller.text.isEmpty ? null : _dns4Controller.text);
     pref.setTunDns6(_dns6Controller.text.isEmpty ? null : _dns6Controller.text);
+    pref.setTunRoutes4(
+      _routes4Controller.text.isEmpty ? null : _routes4Controller.text,
+    );
+    pref.setTunRoutes6(
+      _routes6Controller.text.isEmpty ? null : _routes6Controller.text,
+    );
     final mtuStr = _mtuController.text.trim();
     final mtu = mtuStr.isEmpty ? null : int.tryParse(mtuStr);
     pref.setTunMtu(mtu != null && mtu > 0 ? mtu : null);
@@ -397,6 +432,20 @@ class _TunSettingState extends State<TunSetting> {
 
   void _saveDns6(String value) {
     context.read<SharedPreferences>().setTunDns6(value.isEmpty ? null : value);
+    context.read<XController>().restart();
+  }
+
+  void _saveRoutes4(String value) {
+    context.read<SharedPreferences>().setTunRoutes4(
+      value.isEmpty ? null : value,
+    );
+    context.read<XController>().restart();
+  }
+
+  void _saveRoutes6(String value) {
+    context.read<SharedPreferences>().setTunRoutes6(
+      value.isEmpty ? null : value,
+    );
     context.read<XController>().restart();
   }
 
@@ -516,6 +565,36 @@ class _TunSettingState extends State<TunSetting> {
           onEditingComplete: _inDialog
               ? null
               : () => _saveDns6(_dns6Controller.text),
+        ),
+        const Gap(10),
+        TextField(
+          controller: _routes4Controller,
+          decoration: InputDecoration(
+            labelText: l10n.tunRoutes4,
+            hintText: l10n.tunRoutes4Hint,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          textInputAction: TextInputAction.next,
+          onSubmitted: _inDialog ? null : _saveRoutes4,
+          onEditingComplete: _inDialog
+              ? null
+              : () => _saveRoutes4(_routes4Controller.text),
+        ),
+        const Gap(10),
+        TextField(
+          controller: _routes6Controller,
+          decoration: InputDecoration(
+            labelText: l10n.tunRoutes6,
+            hintText: l10n.tunRoutes6Hint,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          textInputAction: TextInputAction.next,
+          onSubmitted: _inDialog ? null : _saveRoutes6,
+          onEditingComplete: _inDialog
+              ? null
+              : () => _saveRoutes6(_routes6Controller.text),
         ),
         const Gap(10),
         TextField(

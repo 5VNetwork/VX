@@ -86,17 +86,21 @@ class __BackupState extends State<_Backup> {
     super.initState();
     final backupService = context.read<BackupSerevice>();
     backupService.getLatestBackup().then((value) {
-      setState(() {
-        _latestBackup = value;
-      });
+      if (mounted) {
+        setState(() {
+          _latestBackup = value;
+        });
+      }
     });
     context.read<FlutterSecureStorage>().read(key: 'backupPassword').then((
       value,
     ) {
-      setState(() {
-        _passwordController.text = value ?? '';
-        _password = value;
-      });
+      if (mounted) {
+        setState(() {
+          _passwordController.text = value ?? '';
+          _password = value;
+        });
+      }
     });
   }
 

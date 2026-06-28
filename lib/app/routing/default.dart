@@ -29,6 +29,7 @@ import 'package:vx/xconfig_helper.dart';
 const gfw = 'GFW';
 const cn = 'CN';
 const notCn = '!CN';
+const google = 'Google';
 // const cnGames = 'CN游戏';
 // const private = '私有';
 // const gfwWithoutCustomDirect = 'GFW(排除自定义直连)';
@@ -135,22 +136,30 @@ enum DefaultRouteMode {
     final commonRules = [
       // RuleConfig(
       //   ruleName: al.ruleNameInternalDnsProxyGoProxy,
-      //   inboundTags: [internalDnsProxy],
+      //   conditions: [
+      //     Condition(inboundTags: [internalDnsProxy]),
+      //   ],
       //   selectorTag: defaultProxySelectorTag,
       // ),
       // RuleConfig(
       //   ruleName: al.ruleNameInternalDnsDirectGoDirect,
-      //   inboundTags: [internalDnsDirect],
+      //   conditions: [
+      //     Condition(inboundTags: [internalDnsDirect]),
+      //   ],
       //   outboundTag: directHandlerTag,
       // ),
       RuleConfig(
         ruleName: al.ruleNameProxyDnsServerGoProxy,
-        inboundTags: [al.dnsServerProxy],
+        conditions: [
+          Condition(inboundTags: [al.dnsServerProxy]),
+        ],
         selectorTag: defaultProxySelectorTag,
       ),
       RuleConfig(
         ruleName: al.ruleNameDirectDnsServerGoDirect,
-        inboundTags: [al.dnsServerDirect],
+        conditions: [
+          Condition(inboundTags: [al.dnsServerDirect]),
+        ],
         outboundTag: directHandlerTag,
       ),
       ...(getCommonAppRules(al: al)),
@@ -211,6 +220,11 @@ enum DefaultRouteMode {
               useBloomFilter: false,
               geositeConfig: GeositeConfig(codes: ['gfw']),
             ),
+          AtomicDomainSet(
+            name: google,
+            useBloomFilter: false,
+            geositeConfig: GeositeConfig(codes: ['google']),
+          ),
           AtomicDomainSet(
             name: cn,
             useBloomFilter: true,
@@ -371,6 +385,7 @@ enum DefaultRouteMode {
               exNames: [
                 al.customProxy,
                 if (Platform.isIOS) al.gfwWithoutCustomDirect,
+                google,
               ],
             ),
           ),
@@ -463,7 +478,9 @@ enum DefaultRouteMode {
   List<RuleConfig> getProxyAllSpecificRules({required AppLocalizations al}) {
     final directIpGoDirectRule = RuleConfig(
       ruleName: al.ruleNameGlobalDirectIp,
-      dstIpTags: [al.proxyAllModeDirectIps],
+      conditions: [
+        Condition(dstIpTags: [al.proxyAllModeDirectIps]),
+      ],
       outboundTag: directHandlerTag,
     );
     final goProxyRule = RuleConfig(
@@ -473,7 +490,9 @@ enum DefaultRouteMode {
     );
     final directDomainGoDirectRule = RuleConfig(
       ruleName: al.ruleNameGlobalDirectDomain,
-      domainTags: [al.proxyAllModeDirectDomains],
+      conditions: [
+        Condition(domainTags: [al.proxyAllModeDirectDomains]),
+      ],
       outboundTag: directHandlerTag,
     );
     return [
@@ -486,7 +505,9 @@ enum DefaultRouteMode {
   List<RuleConfig> getWhiteListSpecificRules({required AppLocalizations al}) {
     final directIpGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCnDirectIp,
-      dstIpTags: [al.cnModeDirectIps],
+      conditions: [
+        Condition(dstIpTags: [al.cnModeDirectIps]),
+      ],
       outboundTag: directHandlerTag,
     );
     final goProxyRule = RuleConfig(
@@ -496,17 +517,23 @@ enum DefaultRouteMode {
     );
     final directDomainGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCnDirectDomain,
-      domainTags: [al.cnModeDirectDomains],
+      conditions: [
+        Condition(domainTags: [al.cnModeDirectDomains]),
+      ],
       outboundTag: directHandlerTag,
     );
     final customProxyDomainGoProxyRule = RuleConfig(
       ruleName: al.ruleNameCustomProxyDomain,
-      domainTags: [al.customProxy],
+      conditions: [
+        Condition(domainTags: [al.customProxy]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final customProxyIpGoProxyRule = RuleConfig(
       ruleName: al.ruleNameCustomProxyIp,
-      dstIpTags: [al.customProxy],
+      conditions: [
+        Condition(dstIpTags: [al.customProxy]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
 
@@ -522,22 +549,30 @@ enum DefaultRouteMode {
   List<RuleConfig> getBlackListSpecificRules({required AppLocalizations al}) {
     final proxyDomainGoProxyRule = RuleConfig(
       ruleName: al.ruleNameGfwProxyDomain,
-      domainTags: [al.gfwModeProxyDomains],
+      conditions: [
+        Condition(domainTags: [al.gfwModeProxyDomains]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final proxyIpGoProxyRule = RuleConfig(
       ruleName: al.ruleNameGfwProxyIp,
-      dstIpTags: [al.gfwModeProxyIps],
+      conditions: [
+        Condition(dstIpTags: [al.gfwModeProxyIps]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final cnDomainsGoDirectRule = RuleConfig(
       ruleName: al.cnDomainsGoDirectRule,
-      domainTags: [al.cnExcludeGfwDomains],
+      conditions: [
+        Condition(domainTags: [al.cnExcludeGfwDomains]),
+      ],
       outboundTag: directHandlerTag,
     );
     final cnIpsGoDirectRule = RuleConfig(
       ruleName: al.cnIpsGoDirectRule,
-      condition: Condition(dstIpTags: [cn], hasNoDomain: true),
+      conditions: [
+        Condition(dstIpTags: [cn], hasNoDomain: true),
+      ],
       outboundTag: directHandlerTag,
     );
     final goDirectRule = RuleConfig(
@@ -554,12 +589,16 @@ enum DefaultRouteMode {
     );
     final customDirectDomainGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectDomain,
-      domainTags: [al.customDirect],
+      conditions: [
+        Condition(domainTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     final customDirectIpGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectIp,
-      dstIpTags: [al.customDirect],
+      conditions: [
+        Condition(dstIpTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     return [
@@ -576,12 +615,16 @@ enum DefaultRouteMode {
   List<RuleConfig> getRuBlockSpecificRules({required AppLocalizations al}) {
     final proxyDomainGoProxyRule = RuleConfig(
       ruleName: al.ruleNameRuBlockProxyDomain,
-      domainTags: [al.ruBlockModeProxyDomains],
+      conditions: [
+        Condition(domainTags: [al.ruBlockModeProxyDomains]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final proxyIpGoProxyRule = RuleConfig(
       ruleName: al.ruleNameRuBlockProxyIp,
-      dstIpTags: [al.ruBlockModeProxyIps],
+      conditions: [
+        Condition(dstIpTags: [al.ruBlockModeProxyIps]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final goDirectRule = RuleConfig(
@@ -591,12 +634,16 @@ enum DefaultRouteMode {
     );
     final customDirectDomainGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectDomain,
-      domainTags: [al.customDirect],
+      conditions: [
+        Condition(domainTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     final customDirectIpGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectIp,
-      dstIpTags: [al.customDirect],
+      conditions: [
+        Condition(dstIpTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     return [
@@ -611,12 +658,16 @@ enum DefaultRouteMode {
   List<RuleConfig> getRuBlockAllSpecificRules({required AppLocalizations al}) {
     final proxyDomainGoProxyRule = RuleConfig(
       ruleName: al.ruleNameRuBlockAllProxyDomain,
-      domainTags: [al.ruBlockAllModeProxyDomains],
+      conditions: [
+        Condition(domainTags: [al.ruBlockAllModeProxyDomains]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final proxyIpGoProxyRule = RuleConfig(
       ruleName: al.ruleNameRuBlockAllProxyIp,
-      dstIpTags: [al.ruBlockAllModeProxyIps],
+      conditions: [
+        Condition(dstIpTags: [al.ruBlockAllModeProxyIps]),
+      ],
       selectorTag: defaultProxySelectorTag,
     );
     final goDirectRule = RuleConfig(
@@ -626,12 +677,16 @@ enum DefaultRouteMode {
     );
     final customDirectDomainGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectDomain,
-      domainTags: [al.customDirect],
+      conditions: [
+        Condition(domainTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     final customDirectIpGoDirectRule = RuleConfig(
       ruleName: al.ruleNameCustomDirectIp,
-      dstIpTags: [al.customDirect],
+      conditions: [
+        Condition(dstIpTags: [al.customDirect]),
+      ],
       outboundTag: directHandlerTag,
     );
     return [
@@ -649,12 +704,16 @@ enum DefaultRouteMode {
       appRules.add(
         RuleConfig(
           ruleName: al.ruleNameVXTestNodes,
-          allTags: [node],
-          appIds: [
-            if (Platform.isAndroid)
-              AppId(type: AppId_Type.Exact, value: androidPackageNme),
-            if (Platform.isWindows)
-              AppId(type: AppId_Type.Keyword, value: 'vx.exe'),
+          conditions: [
+            Condition(
+              allTags: [node],
+              appIds: [
+                if (Platform.isAndroid)
+                  AppId(type: AppId_Type.Exact, value: androidPackageNme),
+                if (Platform.isWindows)
+                  AppId(type: AppId_Type.Keyword, value: 'vx.exe'),
+              ],
+            ),
           ],
           outboundTag: directHandlerTag,
         ),
@@ -663,14 +722,18 @@ enum DefaultRouteMode {
     appRules.add(
       RuleConfig(
         ruleName: al.ruleNameProxyApp,
-        appTags: [al.proxy],
+        conditions: [
+          Condition(appTags: [al.proxy]),
+        ],
         selectorTag: defaultProxySelectorTag,
       ),
     );
     appRules.add(
       RuleConfig(
         ruleName: al.ruleNameDirectApp,
-        appTags: [al.direct],
+        conditions: [
+          Condition(appTags: [al.direct]),
+        ],
         outboundTag: directHandlerTag,
       ),
     );

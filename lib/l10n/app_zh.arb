@@ -212,7 +212,8 @@
   "ruleName": "命中规则名称",
   "block": "阻止",
   "matchAll": "匹配所有",
-  "ruleMatchCondition": "当所有条件成立时，规则匹配。如果条件数量为零，规则永远不会匹配。",
+  "ruleMatchCondition": "当任一条件成立时，规则匹配。如果条件数量为零，规则不会匹配。",
+  "conditionMatch": "当所有子条件成立时，该条件成立。如果子条件数量为零，该条件不成立。",
   "inboundLabel": "入站",
   "domainSet": "域名集合:",
   "appSet": "应用集合:",
@@ -593,6 +594,10 @@
   "tunDns6": "TUN DNS IPv6",
   "tunDns4Hint": "例如 172.23.27.2（多个用逗号分隔）",
   "tunDns6Hint": "例如 fc20::2（多个用逗号分隔）",
+  "tunRoutes4": "TUN IPv4 路由",
+  "tunRoutes6": "TUN IPv6 路由",
+  "tunRoutes4Hint": "例如 0.0.0.0/0（多个用逗号分隔）",
+  "tunRoutes6Hint": "例如 ::/0（多个用逗号分隔）",
   "tunMtu": "TUN MTU",
   "tunMtuHint": "留空为系统默认",
   "failedToCreateAllFirstLaunch": "初始化数据库失败: {value}",
@@ -695,6 +700,24 @@
       }
     }
   },
+  "enabledSubconditions": "已启用的子条件: {number}",
+  "@enabledSubconditions": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "conditionsCount": "{number} 个条件",
+  "@conditionsCount": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
   "showSelector": "显示选择器",
   "hideSelector": "隐藏选择器",
   "showHandler": "显示节点",
@@ -731,6 +754,8 @@
   "startOnBootDesc": "开机时自动运行VX",
   "alwaysOn": "保持连接",
   "alwaysOnDesc": "在点击“连接”后，只要不点击“断开连接”，会一直保持连接状态。",
+  "systemManagedVpnNotice": "此 VPN 连接由 Android 系统管理。如需连接或断开，请前往 设置 > 网络和互联网 > VPN。",
+  "openVpnSettings": "打开 VPN 设置",
   "checkAndUpdate": "检测并更新",
   "noNewVersion": "无更新版本",
   "enableSystemExtension": "请前往[系统设置->通用->登录项与扩展->网络扩展]并开启 VX SystemExtension",
@@ -1033,7 +1058,7 @@
   "showRealtimeUsage": "显示实时使用情况",
   "internalDns": "内部DNS服务器",
   "fallback": "回退",
-  "fallbackDesc": "如果此规则所使用的节点失败，使用以下回退。每个回退都有一些条件，只有当所有条件都成立时，回退才会被使用。",
+  "fallbackDesc": "如果此规则所使用的节点失败，使用以下回退。每个回退都有一些条件，只有当回退的任意一个条件成立时，回退才会被使用。",
   "rewriteIpToDomain": "将IP重写为域名",
   "rewriteIpToDomainDesc": "如果请求地址是IP，并且有嗅探域名，则使用嗅探域名作为请求地址。为了应对由DNS污染而导致的失败",
   "resultIpSet": "结果IP集合",
@@ -1127,5 +1152,80 @@
   "resetSubscriptionLinkDesc": "点击后，将重置订阅链接。新链接将用于获取订阅。可用于防止订阅链接泄露。",
   "cnDomainsGoDirectRule": "CN域名直连",
   "cnIpsGoDirectRule": "CN IP直连",
-  "cnExcludeGfwDomains": "CN域名排除GFW"
+  "cnExcludeGfwDomains": "CN域名排除GFW",
+  "hysteriaRealm": "Hysteria Realm",
+  "enableRealmServer": "启用 Realm 服务器",
+  "enableRealmServerDesc": "在 VX 连接时运行 Hysteria Realm 入站",
+  "configureServerSettingsFirst": "请先配置服务器设置",
+  "configureRealmSettings": "请在下方配置 Realm 设置",
+  "enterDeviceName": "请输入设备名称",
+  "configureValidRealmUrlFirst": "请先配置有效的 Realm URL",
+  "failedInboundToOutbound": "入站配置转换为出站配置失败",
+  "failedConvertToUrl": "转换为 URL 失败。{details}",
+  "realmDeviceRegistered": "设备已注册，可供其他客户端使用",
+  "realmUploadFailed": "上传失败：{error}",
+  "registerForOtherDevices": "注册供其他设备使用",
+  "registerForOtherDevicesDesc": "上传设备名称和加密的 Realm URL，以便其他 VX 客户端通过 节点 → 添加 → Realm 设备 添加此设备。请单独分享加密密码。",
+  "realmDeviceName": "设备名称",
+  "realmDeviceNameHint": "我的手机",
+  "realmDeviceNameHelper": "在其他设备的选择器中显示的名称",
+  "uploadToCloud": "上传到云端",
+  "realmServerConfiguration": "服务器配置",
+  "realmReadyToRun": "可以运行",
+  "realmNeedsSetup": "需要配置",
+  "realmAuth": "认证",
+  "realmNotSet": "未设置",
+  "realmConfigured": "已配置",
+  "realmRendezvous": "会合服务器",
+  "realmId": "Realm ID",
+  "realmUrl": "Realm URL",
+  "realmNotConfigured": "未配置",
+  "realmLocalPort": "本地端口",
+  "realmTlsSni": "TLS SNI",
+  "realmObfuscation": "混淆",
+  "salamander": "Salamander",
+  "realmSection": "Realm",
+  "ignoreClientBandwidth": "忽略客户端带宽",
+  "realmUrlHint": "realm://public@realm.hy2.io/random-realm-id",
+  "generateRealmUrl": "生成 Realm URL",
+  "autoConfigureRealmServer": "自动配置",
+  "realmAutoConfigured": "Realm 服务器已配置",
+  "realmAutoConfigureFailed": "自动配置失败：{error}",
+  "@realmAutoConfigureFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "realmLocalPortHelper": "Realm 打洞的本地 UDP 端口；留空则使用随机端口",
+  "insecureRendezvous": "不安全的会合连接",
+  "insecureRendezvousDesc": "跳过会合服务器的 SNI 验证",
+  "stunServers": "STUN 服务器",
+  "stunServersHint": "stun.l.google.com:19302",
+  "stunTimeoutSeconds": "STUN 超时（秒）",
+  "punchTimeoutSeconds": "打洞超时（秒）",
+  "heartbeatIntervalSeconds": "心跳间隔（秒）",
+  "ipMode": "IP 模式",
+  "portMappingUpnp": "端口映射（UPnP/NAT-PMP）",
+  "mappingTimeoutSeconds": "映射超时（秒）",
+  "mappingLifetimeSeconds": "映射生命周期（秒）",
+  "addRealmOutbound": "添加 Realm 出站",
+  "realmDevicePicker": "设备",
+  "failedLoadRealmDevices": "加载 Realm 设备失败：{error}",
+  "noRealmDevicesFound": "未找到其他已配置 Realm 的设备",
+  "invalidRealmUrlForDevice": "所选设备的 Realm URL 无效",
+  "addedRealmDevice": "已添加 {name}",
+  "realmServer": "Realm 服务器",
+  "realmRegistered": "已注册",
+  "realmRegistering": "注册中…",
+  "realmPeersCount": "{count, plural, other{{count} 个对端}}",
+  "discoveringPublicAddresses": "正在发现公网地址…",
+  "realmDevice": "Realm 设备",
+  "realmCloudEncryptionPassword": "云端加密密码",
+  "realmCloudEncryptionPasswordHelper": "其他设备需要此密码才能解密上传的 URL。密码不会存储在服务器上。",
+  "enterRealmCloudEncryptionPassword": "请输入云端加密密码",
+  "realmDecryptPassword": "解密密码",
+  "realmDecryptPasswordDesc": "输入设备所有者分享的密码以解密 Realm URL。",
+  "realmDecryptFailed": "密码错误或加密 Realm URL 无效"
 }

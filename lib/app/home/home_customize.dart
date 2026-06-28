@@ -1280,6 +1280,7 @@ const List<String> homeWidgetIds = [
   'proxySelector',
   'nodesHelper',
   'inbound',
+  'realmServer',
 ];
 
 const Set<String> compactHomeWidgetIds = {
@@ -1320,6 +1321,7 @@ Map<int, List<List<String>>> defaultHomeWidgetOrder(HomeLayoutPreset preset) {
           ['route'],
           ['proxySelector'],
           ['inbound'],
+          ['realmServer'],
         ],
       };
     case HomeLayoutPreset.medium:
@@ -1329,6 +1331,7 @@ Map<int, List<List<String>>> defaultHomeWidgetOrder(HomeLayoutPreset preset) {
           ['route'],
           ['proxySelector'],
           ['inbound'],
+          ['realmServer'],
         ],
         1: [
           ['memory', 'connections'],
@@ -1342,6 +1345,7 @@ Map<int, List<List<String>>> defaultHomeWidgetOrder(HomeLayoutPreset preset) {
           ['upload', 'download'],
           ['route'],
           ['inbound'],
+          ['realmServer'],
         ],
         1: [
           ['memory', 'connections'],

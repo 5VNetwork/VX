@@ -390,7 +390,10 @@ class XApiClient {
     );
   }
 
-  Future<void> updateServerConfigJson(SshServer server, String configJson) async {
+  Future<void> updateServerConfigJson(
+    SshServer server,
+    String configJson,
+  ) async {
     await _completer.future;
     final sshConfig = await _sshServerToServerSshConfig(server);
     await _xApiClient.updateServerConfigJson(
@@ -411,6 +414,24 @@ class XApiClient {
       InboundConfigToOutboundConfigRequest(
         serverAddress: server.address,
         serverName: server.name,
+        inbound: inbound,
+        multiInbound: multiInbound,
+      ),
+    );
+    return response.outboundConfigs;
+  }
+
+  Future<List<OutboundHandlerConfig>> inboundConfigToOutboundConfig(
+    String serverName,
+    String serverAddress,
+    ProxyInboundConfig? inbound,
+    MultiProxyInboundConfig? multiInbound,
+  ) async {
+    await _completer.future;
+    final response = await _xApiClient.inboundConfigToOutboundConfig(
+      InboundConfigToOutboundConfigRequest(
+        serverName: serverName,
+        serverAddress: serverAddress,
         inbound: inbound,
         multiInbound: multiInbound,
       ),

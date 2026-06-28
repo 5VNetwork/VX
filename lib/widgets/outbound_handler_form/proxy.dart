@@ -1151,11 +1151,13 @@ class HysteriaClient extends StatefulWidget {
 
 class _HysteriaClientState extends State<HysteriaClient> {
   late TextEditingController _authController;
+  late bool _realmEnabled;
 
   @override
   void initState() {
     super.initState();
     _authController = TextEditingController(text: widget.config.auth);
+    _realmEnabled = hysteriaRealmEnabled(widget.config.realm);
   }
 
   @override
@@ -1166,6 +1168,7 @@ class _HysteriaClientState extends State<HysteriaClient> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         TextFormField(
@@ -1201,6 +1204,31 @@ class _HysteriaClientState extends State<HysteriaClient> {
             ),
           ],
         ),
+        boxH10,
+        TextDivider(text: l10n.realmSection),
+        boxH10,
+        Row(
+          children: [
+            Text(l10n.realmSection, style: Theme.of(context).textTheme.titleMedium),
+            Switch(
+              value: _realmEnabled,
+              onChanged: (value) {
+                setState(() {
+                  _realmEnabled = value;
+                  if (!value) {
+                    clearRealmConfig(widget.config.ensureRealm());
+                  }
+                });
+              },
+            ),
+          ],
+        ),
+        if (_realmEnabled) ...[
+          boxH10,
+          HysteriaRealmConfig(
+            config: widget.config.ensureRealm(),
+          ),
+        ],
       ],
     );
   }
@@ -1583,10 +1611,24 @@ class _HysteriaState extends State<Hysteria> {
           ],
         ),
         const Gap(10),
-        FormContainer(
+        ExpansionTile(
+          title: Text(
+            'TLS',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+          collapsedBackgroundColor:
+              Theme.of(context).colorScheme.surfaceContainerLow,
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
+          childrenPadding: const EdgeInsets.all(10),
           children: [
-            const Text('TLS'),
-            const Gap(10),
             _TransportSecurityTls(
               config: widget.tlsConfig,
               showAlpn: false,
@@ -1600,7 +1642,10 @@ class _HysteriaState extends State<Hysteria> {
 }
 
 class HysteriaServer extends StatefulWidget {
-  const HysteriaServer({super.key, required this.config});
+  const HysteriaServer({
+    super.key,
+    required this.config,
+  });
   final Hysteria2ServerConfig config;
 
   @override
@@ -1608,13 +1653,17 @@ class HysteriaServer extends StatefulWidget {
 }
 
 class _HysteriaServerState extends State<HysteriaServer> {
+  late bool _realmEnabled;
+
   @override
   void initState() {
     super.initState();
+    _realmEnabled = hysteriaRealmEnabled(widget.config.realm);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Hysteria(
@@ -1628,7 +1677,7 @@ class _HysteriaServerState extends State<HysteriaServer> {
         Row(
           children: [
             Text(
-              'Ignore Client Bandwidth',
+              l10n.ignoreClientBandwidth,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Switch(
@@ -1641,6 +1690,32 @@ class _HysteriaServerState extends State<HysteriaServer> {
             ),
           ],
         ),
+        boxH10,
+        TextDivider(text: l10n.realmSection),
+        boxH10,
+        Row(
+          children: [
+            Text(l10n.realmSection, style: Theme.of(context).textTheme.titleMedium),
+            Switch(
+              value: _realmEnabled,
+              onChanged: (value) {
+                setState(() {
+                  _realmEnabled = value;
+                  if (!value) {
+                    clearRealmConfig(widget.config.ensureRealm());
+                  }
+                });
+              },
+            ),
+          ],
+        ),
+        if (_realmEnabled) ...[
+          boxH10,
+          HysteriaRealmConfig(
+            config: widget.config.ensureRealm(),
+            server: true,
+          ),
+        ],
       ],
     );
   }

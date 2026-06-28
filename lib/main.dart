@@ -67,6 +67,7 @@ import 'package:vx/common/config.dart';
 import 'package:vx/common/const.dart';
 import 'package:vx/common/extension.dart';
 import 'package:vx/data/database_provider.dart';
+import 'package:vx/data/realm_device.dart';
 import 'package:vx/data/sync.dart';
 import 'package:vx/iap/pro.dart';
 import 'package:flutter/cupertino.dart';
@@ -228,7 +229,7 @@ void main() async {
             context.read<OutboundRepo>(),
             context.read<XApiClient>(),
           );
-          makeWinTunAvailable(downloader);
+          // makeWinTunAvailable(downloader);
           return downloader;
         },
       ),
@@ -316,6 +317,12 @@ void main() async {
           return ss;
         },
       ),
+      Provider(
+        create: (ctx) => RealmDeviceService(
+          deviceId: pref.uniqueDeviceId,
+          prefHelper: pref,
+        ),
+      ),
       BlocProvider(
         create: (ctx) => StartCloseCubit(
           pref: pref,
@@ -368,6 +375,12 @@ void main() async {
         create: (ctx) => RealtimeSpeedNotifier(
           controller: ctx.read<XController>(),
           outboundRepo: ctx.read<OutboundRepo>(),
+        ),
+      ),
+      ChangeNotifierProvider<RealmServerStatusNotifier>(
+        create: (ctx) => RealmServerStatusNotifier(
+          controller: ctx.read<XController>(),
+          prefs: ctx.read<SharedPreferences>(),
         ),
       ),
       Provider<MyLayout>(create: (_) => MyLayout()),

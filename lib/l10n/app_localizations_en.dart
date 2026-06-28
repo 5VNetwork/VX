@@ -613,7 +613,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matchAll => 'Match All';
 
   @override
-  String get ruleMatchCondition => 'When all conditions are met, the rule matches. If there are zero conditions, the rule will never match.';
+  String get ruleMatchCondition => 'When any condition is true, the rule matches. If there is no condition, the rule will never match.';
+
+  @override
+  String get conditionMatch => 'When all subconditions are true, the condition is true. If there are zero subconditions, the condition is false.';
 
   @override
   String get inboundLabel => 'Inbound';
@@ -1433,6 +1436,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tunDns6Hint => 'e.g. fc20::2';
 
   @override
+  String get tunRoutes4 => 'TUN IPv4 routes';
+
+  @override
+  String get tunRoutes6 => 'TUN IPv6 routes';
+
+  @override
+  String get tunRoutes4Hint => 'e.g. 0.0.0.0/0 (comma-separated)';
+
+  @override
+  String get tunRoutes6Hint => 'e.g. ::/0 (comma-separated)';
+
+  @override
   String get tunMtu => 'TUN MTU';
 
   @override
@@ -1625,6 +1640,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String enabledSubconditions(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return 'Enabled subconditions: $numberString';
+  }
+
+  @override
+  String conditionsCount(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$numberString conditions';
+  }
+
+  @override
   String get showSelector => 'Show Selector';
 
   @override
@@ -1712,6 +1749,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alwaysOnDesc => 'As long as you did not click disconnect, always try to be connected when the app is running';
+
+  @override
+  String get systemManagedVpnNotice => 'This VPN connection is managed by Android. To connect or disconnect, go to Settings > Network & Internet > VPN.';
+
+  @override
+  String get openVpnSettings => 'Open VPN Settings';
 
   @override
   String get checkAndUpdate => 'Check and Update';
@@ -2510,7 +2553,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fallback => 'Fallback';
 
   @override
-  String get fallbackDesc => 'If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if all conditions are true.';
+  String get fallbackDesc => 'If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if any condition is true.';
 
   @override
   String get rewriteIpToDomain => 'Rewrite IP to Domain';
@@ -2723,4 +2766,226 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cnExcludeGfwDomains => 'CN Domains Exclude GFW';
+
+  @override
+  String get hysteriaRealm => 'Hysteria Realm';
+
+  @override
+  String get enableRealmServer => 'Enable Realm server';
+
+  @override
+  String get enableRealmServerDesc => 'Run a Hysteria Realm inbound while VX is connected';
+
+  @override
+  String get configureServerSettingsFirst => 'Configure server settings first';
+
+  @override
+  String get configureRealmSettings => 'Configure realm settings below';
+
+  @override
+  String get enterDeviceName => 'Enter a device name';
+
+  @override
+  String get configureValidRealmUrlFirst => 'Configure a valid Realm URL first';
+
+  @override
+  String get failedInboundToOutbound => 'Failed to convert inbound config to outbound config';
+
+  @override
+  String failedConvertToUrl(String details) {
+    return 'Failed to convert to URL. $details';
+  }
+
+  @override
+  String get realmDeviceRegistered => 'Device registered for other clients';
+
+  @override
+  String realmUploadFailed(String error) {
+    return 'Upload failed: $error';
+  }
+
+  @override
+  String get registerForOtherDevices => 'Register for other devices';
+
+  @override
+  String get registerForOtherDevicesDesc => 'Upload your device name and an encrypted Realm URL so your other VX clients can add this device via Nodes → Add → Realm device. Share the encryption password separately.';
+
+  @override
+  String get realmDeviceName => 'Device name';
+
+  @override
+  String get realmDeviceNameHint => 'My phone';
+
+  @override
+  String get realmDeviceNameHelper => 'Label shown in the picker on your other devices';
+
+  @override
+  String get uploadToCloud => 'Upload to cloud';
+
+  @override
+  String get realmServerConfiguration => 'Server configuration';
+
+  @override
+  String get realmReadyToRun => 'Ready to run';
+
+  @override
+  String get realmNeedsSetup => 'Needs setup';
+
+  @override
+  String get realmAuth => 'Auth';
+
+  @override
+  String get realmNotSet => 'Not set';
+
+  @override
+  String get realmConfigured => 'Configured';
+
+  @override
+  String get realmRendezvous => 'Rendezvous';
+
+  @override
+  String get realmId => 'Realm ID';
+
+  @override
+  String get realmUrl => 'Realm URL';
+
+  @override
+  String get realmNotConfigured => 'Not configured';
+
+  @override
+  String get realmLocalPort => 'Local port';
+
+  @override
+  String get realmTlsSni => 'TLS SNI';
+
+  @override
+  String get realmObfuscation => 'Obfuscation';
+
+  @override
+  String get salamander => 'Salamander';
+
+  @override
+  String get realmSection => 'Realm';
+
+  @override
+  String get ignoreClientBandwidth => 'Ignore Client Bandwidth';
+
+  @override
+  String get realmUrlHint => 'realm://public@realm.hy2.io/random-realm-id';
+
+  @override
+  String get generateRealmUrl => 'Generate Realm URL';
+
+  @override
+  String get autoConfigureRealmServer => 'Auto-configure';
+
+  @override
+  String get realmAutoConfigured => 'Realm server configured';
+
+  @override
+  String realmAutoConfigureFailed(String error) {
+    return 'Auto-configuration failed: $error';
+  }
+
+  @override
+  String get realmLocalPortHelper => 'Local UDP port for realm punch; empty uses random port';
+
+  @override
+  String get insecureRendezvous => 'Insecure rendezvous';
+
+  @override
+  String get insecureRendezvousDesc => 'Skip SNI verification for rendezvous server';
+
+  @override
+  String get stunServers => 'STUN servers';
+
+  @override
+  String get stunServersHint => 'stun.l.google.com:19302';
+
+  @override
+  String get stunTimeoutSeconds => 'STUN timeout (s)';
+
+  @override
+  String get punchTimeoutSeconds => 'Punch timeout (s)';
+
+  @override
+  String get heartbeatIntervalSeconds => 'Heartbeat interval (s)';
+
+  @override
+  String get ipMode => 'IP mode';
+
+  @override
+  String get portMappingUpnp => 'Port mapping (UPnP/NAT-PMP)';
+
+  @override
+  String get mappingTimeoutSeconds => 'Mapping timeout (s)';
+
+  @override
+  String get mappingLifetimeSeconds => 'Mapping lifetime (s)';
+
+  @override
+  String get addRealmOutbound => 'Add Realm Outbound';
+
+  @override
+  String get realmDevicePicker => 'Device';
+
+  @override
+  String failedLoadRealmDevices(String error) {
+    return 'Failed to load realm devices: $error';
+  }
+
+  @override
+  String get noRealmDevicesFound => 'No other devices with Realm configured were found';
+
+  @override
+  String get invalidRealmUrlForDevice => 'Invalid realm URL for selected device';
+
+  @override
+  String addedRealmDevice(String name) {
+    return 'Added $name';
+  }
+
+  @override
+  String get realmServer => 'Realm server';
+
+  @override
+  String get realmRegistered => 'Registered';
+
+  @override
+  String get realmRegistering => 'Registering…';
+
+  @override
+  String realmPeersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count peers',
+      one: '1 peer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get discoveringPublicAddresses => 'Discovering public addresses…';
+
+  @override
+  String get realmDevice => 'Realm device';
+
+  @override
+  String get realmCloudEncryptionPassword => 'Cloud encryption password';
+
+  @override
+  String get realmCloudEncryptionPasswordHelper => 'Other devices need this password to decrypt the uploaded URL. It is never stored on the server.';
+
+  @override
+  String get enterRealmCloudEncryptionPassword => 'Enter a cloud encryption password';
+
+  @override
+  String get realmDecryptPassword => 'Decryption password';
+
+  @override
+  String get realmDecryptPasswordDesc => 'Enter the password shared by the device owner to decrypt its Realm URL.';
+
+  @override
+  String get realmDecryptFailed => 'Wrong password or invalid encrypted Realm URL';
 }

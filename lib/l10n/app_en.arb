@@ -219,7 +219,8 @@
   "pleaseEnterRuleName": "Please enter rule name",
   "ruleName": "Matched Rule Name",
   "matchAll": "Match All",
-  "ruleMatchCondition": "When all conditions are met, the rule matches. If there are zero conditions, the rule will never match.",
+  "ruleMatchCondition": "When any condition is true, the rule matches. If there is no condition, the rule will never match.",
+  "conditionMatch": "When all subconditions are true, the condition is true. If there are zero subconditions, the condition is false.",
   "inboundLabel": "Inbound",
   "domainSet": "Domain Set",
   "appSet": "App Set",
@@ -595,6 +596,10 @@
   "tunDns6": "TUN DNS IPv6",
   "tunDns4Hint": "e.g. 172.23.27.2",
   "tunDns6Hint": "e.g. fc20::2",
+  "tunRoutes4": "TUN IPv4 routes",
+  "tunRoutes6": "TUN IPv6 routes",
+  "tunRoutes4Hint": "e.g. 0.0.0.0/0 (comma-separated)",
+  "tunRoutes6Hint": "e.g. ::/0 (comma-separated)",
   "tunMtu": "TUN MTU",
   "tunMtuHint": "Empty = platform default",
   "failedToCreateAllFirstLaunch": "Failed to create database tables: {value}",
@@ -696,6 +701,24 @@
       }
     }
   },
+  "enabledSubconditions": "Enabled subconditions: {number}",
+  "@enabledSubconditions": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "conditionsCount": "{number} conditions",
+  "@conditionsCount": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
   "showSelector": "Show Selector",
   "hideSelector": "Hide Selector",
   "showHandler": "Show Handler",
@@ -732,6 +755,8 @@
   "startOnBootDesc": "Start VX automatically at startup",
   "alwaysOn": "Always ON",
   "alwaysOnDesc": "As long as you did not click disconnect, always try to be connected when the app is running",
+  "systemManagedVpnNotice": "This VPN connection is managed by Android. To connect or disconnect, go to Settings > Network & Internet > VPN.",
+  "openVpnSettings": "Open VPN Settings",
   "checkAndUpdate": "Check and Update",
   "noNewVersion": "No new versions",
   "enableSystemExtension": "Please enable VX SystemExtension by going to System Settings -> General -> Login Items & Extensions -> Network Extensions",
@@ -1031,7 +1056,7 @@
   "addDnsRecord": "Add DNS Record",
   "internalDns": "Internal DNS Servers",
   "fallback": "Fallback",
-  "fallbackDesc": "If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if all conditions are true.",
+  "fallbackDesc": "If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if any condition is true.",
   "rewriteIpToDomain": "Rewrite IP to Domain",
   "rewriteIpToDomainDesc": "If the request address is IP, and there is sniffed domain, then use the sniffed domain as the request address. This is a measure for DNS pollution",
   "resultIpSet": "Result IP Set",
@@ -1125,5 +1150,115 @@
   "resetSubscriptionLinkDesc": "Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.",
   "cnDomainsGoDirectRule": "CN domains go direct",
   "cnIpsGoDirectRule": "CN IPs go direct",
-  "cnExcludeGfwDomains": "CN Domains Exclude GFW"
+  "cnExcludeGfwDomains": "CN Domains Exclude GFW",
+  "hysteriaRealm": "Hysteria Realm",
+  "enableRealmServer": "Enable Realm server",
+  "enableRealmServerDesc": "Run a Hysteria Realm inbound while VX is connected",
+  "configureServerSettingsFirst": "Configure server settings first",
+  "configureRealmSettings": "Configure realm settings below",
+  "enterDeviceName": "Enter a device name",
+  "configureValidRealmUrlFirst": "Configure a valid Realm URL first",
+  "failedInboundToOutbound": "Failed to convert inbound config to outbound config",
+  "failedConvertToUrl": "Failed to convert to URL. {details}",
+  "@failedConvertToUrl": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "realmDeviceRegistered": "Device registered for other clients",
+  "realmUploadFailed": "Upload failed: {error}",
+  "@realmUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registerForOtherDevices": "Register for other devices",
+  "registerForOtherDevicesDesc": "Upload your device name and an encrypted Realm URL so your other VX clients can add this device via Nodes → Add → Realm device. Share the encryption password separately.",
+  "realmDeviceName": "Device name",
+  "realmDeviceNameHint": "My phone",
+  "realmDeviceNameHelper": "Label shown in the picker on your other devices",
+  "uploadToCloud": "Upload to cloud",
+  "realmServerConfiguration": "Server configuration",
+  "realmReadyToRun": "Ready to run",
+  "realmNeedsSetup": "Needs setup",
+  "realmAuth": "Auth",
+  "realmNotSet": "Not set",
+  "realmConfigured": "Configured",
+  "realmRendezvous": "Rendezvous",
+  "realmId": "Realm ID",
+  "realmUrl": "Realm URL",
+  "realmNotConfigured": "Not configured",
+  "realmLocalPort": "Local port",
+  "realmTlsSni": "TLS SNI",
+  "realmObfuscation": "Obfuscation",
+  "salamander": "Salamander",
+  "realmSection": "Realm",
+  "ignoreClientBandwidth": "Ignore Client Bandwidth",
+  "realmUrlHint": "realm://public@realm.hy2.io/random-realm-id",
+  "generateRealmUrl": "Generate Realm URL",
+  "autoConfigureRealmServer": "Auto-configure",
+  "realmAutoConfigured": "Realm server configured",
+  "realmAutoConfigureFailed": "Auto-configuration failed: {error}",
+  "@realmAutoConfigureFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "realmLocalPortHelper": "Local UDP port for realm punch; empty uses random port",
+  "insecureRendezvous": "Insecure rendezvous",
+  "insecureRendezvousDesc": "Skip SNI verification for rendezvous server",
+  "stunServers": "STUN servers",
+  "stunServersHint": "stun.l.google.com:19302",
+  "stunTimeoutSeconds": "STUN timeout (s)",
+  "punchTimeoutSeconds": "Punch timeout (s)",
+  "heartbeatIntervalSeconds": "Heartbeat interval (s)",
+  "ipMode": "IP mode",
+  "portMappingUpnp": "Port mapping (UPnP/NAT-PMP)",
+  "mappingTimeoutSeconds": "Mapping timeout (s)",
+  "mappingLifetimeSeconds": "Mapping lifetime (s)",
+  "addRealmOutbound": "Add Realm Outbound",
+  "realmDevicePicker": "Device",
+  "failedLoadRealmDevices": "Failed to load realm devices: {error}",
+  "@failedLoadRealmDevices": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRealmDevicesFound": "No other devices with Realm configured were found",
+  "invalidRealmUrlForDevice": "Invalid realm URL for selected device",
+  "addedRealmDevice": "Added {name}",
+  "@addedRealmDevice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "realmServer": "Realm server",
+  "realmRegistered": "Registered",
+  "realmRegistering": "Registering…",
+  "realmPeersCount": "{count, plural, =1{1 peer} other{{count} peers}}",
+  "@realmPeersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discoveringPublicAddresses": "Discovering public addresses…",
+  "realmDevice": "Realm device",
+  "realmCloudEncryptionPassword": "Cloud encryption password",
+  "realmCloudEncryptionPasswordHelper": "Other devices need this password to decrypt the uploaded URL. It is never stored on the server.",
+  "enterRealmCloudEncryptionPassword": "Enter a cloud encryption password",
+  "realmDecryptPassword": "Decryption password",
+  "realmDecryptPasswordDesc": "Enter the password shared by the device owner to decrypt its Realm URL.",
+  "realmDecryptFailed": "Wrong password or invalid encrypted Realm URL"
 }

@@ -13,34 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:equatable/equatable.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
-class User extends Equatable {
-  const User({
-    required this.id,
-    required this.email,
-    this.proExpiredAt,
-    required this.pro,
-    required this.level,
-  });
-  final String id;
-  final String email;
-  final DateTime? proExpiredAt;
-  final UserLevel level;
+import 'package:vx/utils/encrypt.dart';
 
-  final bool pro;
+const realmUrlEncryptedPrefix = 'vxrealm1:';
 
-  @override
-  List<Object?> get props => [id, email, proExpiredAt, pro, level];
+bool isEncryptedRealmUrl(String value) =>
+    value.startsWith(realmUrlEncryptedPrefix);
 
-  bool get isProUser {
-    return pro || lifetimePro;
-  }
-
-  bool get lifetimePro =>
-      pro && proExpiredAt == null ||
-      level == UserLevel.max ||
-      level == UserLevel.pro;
+String encryptRealmUrl(String url, String password) {
+  final encrypted = encryptToBase64(
+    Uint8List.fromList(utf8.encode(url)),
+    password,
+  );
+  return '$realmUrlEncryptedPrefix$encrypted';
 }
 
-enum UserLevel { free, pro, max }
+String decryptRealmUrl(String stored, String password) {
+  if (!isEncryptedRealmUrl(stored)) {
+    return stored;
+  }
+  final encryptedBase64 = stored.substring(realmUrlEncryptedPrefix.length);
+  final bytes = decryptFromBase64(encryptedBase64, password);
+  return utf8.decode(bytes);
+}

@@ -146,7 +146,10 @@ class _InboundFormState extends State<InboundForm> with FormDataGetter {
           const Gap(10),
           const TextDivider(text: 'Proxy Protocol'),
           const Gap(10),
-          _ProxyProtocols(key: _protocolsKey, protocols: _protocols),
+          _ProxyProtocols(
+            key: _protocolsKey,
+            protocols: _protocols,
+          ),
           const Gap(10),
           const TextDivider(text: 'Stream'),
           const Gap(10),
@@ -566,7 +569,9 @@ class __ProxyProtocolsState extends State<_ProxyProtocols> with FormDataGetter {
       case ProxyProtocolLabel.socks:
         return SocksServer(config: _selected.$2 as SocksServerConfig);
       case ProxyProtocolLabel.hysteria2:
-        return HysteriaServer(config: _selected.$2 as Hysteria2ServerConfig);
+        return HysteriaServer(
+          config: _selected.$2 as Hysteria2ServerConfig,
+        );
       case ProxyProtocolLabel.anytls:
         return const AnyTlsServer();
       case ProxyProtocolLabel.dokodemo:

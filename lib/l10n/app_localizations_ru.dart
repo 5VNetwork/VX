@@ -613,7 +613,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get matchAll => 'Совпадение всех';
 
   @override
-  String get ruleMatchCondition => 'Если все условия выполнены, правило срабатывает. Если условий нет, правило никогда не сработает.';
+  String get ruleMatchCondition => 'Если любое условие выполнено, правило срабатывает. Если условий нет, правило никогда не сработает.';
+
+  @override
+  String get conditionMatch => 'Если все подусловия выполнены, условие выполнено. Если подусловий нет, условие не выполнено.';
 
   @override
   String get inboundLabel => 'Входящие';
@@ -1433,6 +1436,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tunDns6Hint => 'например fc20::2';
 
   @override
+  String get tunRoutes4 => 'Маршруты TUN IPv4';
+
+  @override
+  String get tunRoutes6 => 'Маршруты TUN IPv6';
+
+  @override
+  String get tunRoutes4Hint => 'например 0.0.0.0/0 (через запятую)';
+
+  @override
+  String get tunRoutes6Hint => 'например ::/0 (через запятую)';
+
+  @override
   String get tunMtu => 'ТУН МТУ';
 
   @override
@@ -1625,6 +1640,28 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String enabledSubconditions(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return 'Включенные подусловия: $numberString';
+  }
+
+  @override
+  String conditionsCount(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$numberString условий';
+  }
+
+  @override
   String get showSelector => 'Показать селектор';
 
   @override
@@ -1712,6 +1749,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get alwaysOnDesc => 'Пока вы не нажимали кнопку «Отключиться», всегда старайтесь оставаться подключенными, когда приложение запущено.';
+
+  @override
+  String get systemManagedVpnNotice => 'Это VPN-подключение управляется Android. Чтобы подключиться или отключиться, перейдите в Настройки > Сеть и интернет > VPN.';
+
+  @override
+  String get openVpnSettings => 'Открыть настройки VPN';
 
   @override
   String get checkAndUpdate => 'Проверить и обновить';
@@ -2512,7 +2555,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fallback => 'Отступать';
 
   @override
-  String get fallbackDesc => 'Если обработчик, выбранный для этого правила, не сработал, используйте следующие резервные варианты. Каждый резервный вариант имеет список условий; он будет использоваться только в том случае, если все условия верны.';
+  String get fallbackDesc => 'Если обработчик, выбранный для этого правила, не сработал, используйте следующие резервные варианты. Каждый резервный вариант имеет список условий; он будет использоваться только в том случае, если любое условие верно.';
 
   @override
   String get rewriteIpToDomain => 'Переписать IP-адрес на домен';
@@ -2727,4 +2770,228 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cnExcludeGfwDomains => 'CN Domains Exclude GFW';
+
+  @override
+  String get hysteriaRealm => 'Hysteria Realm';
+
+  @override
+  String get enableRealmServer => 'Включить Realm-сервер';
+
+  @override
+  String get enableRealmServerDesc => 'Запускать входящий Hysteria Realm, пока VX подключён';
+
+  @override
+  String get configureServerSettingsFirst => 'Сначала настройте параметры сервера';
+
+  @override
+  String get configureRealmSettings => 'Настройте параметры Realm ниже';
+
+  @override
+  String get enterDeviceName => 'Введите имя устройства';
+
+  @override
+  String get configureValidRealmUrlFirst => 'Сначала настройте корректный Realm URL';
+
+  @override
+  String get failedInboundToOutbound => 'Не удалось преобразовать входящую конфигурацию в исходящую';
+
+  @override
+  String failedConvertToUrl(String details) {
+    return 'Не удалось преобразовать в URL. $details';
+  }
+
+  @override
+  String get realmDeviceRegistered => 'Устройство зарегистрировано для других клиентов';
+
+  @override
+  String realmUploadFailed(String error) {
+    return 'Ошибка загрузки: $error';
+  }
+
+  @override
+  String get registerForOtherDevices => 'Регистрация для других устройств';
+
+  @override
+  String get registerForOtherDevicesDesc => 'Загрузите имя устройства и зашифрованный Realm URL, чтобы другие клиенты VX могли добавить это устройство через Узлы → Добавить → Realm-устройство. Передайте пароль шифрования отдельно.';
+
+  @override
+  String get realmDeviceName => 'Имя устройства';
+
+  @override
+  String get realmDeviceNameHint => 'Мой телефон';
+
+  @override
+  String get realmDeviceNameHelper => 'Метка, отображаемая в списке на других устройствах';
+
+  @override
+  String get uploadToCloud => 'Загрузить в облако';
+
+  @override
+  String get realmServerConfiguration => 'Конфигурация сервера';
+
+  @override
+  String get realmReadyToRun => 'Готов к работе';
+
+  @override
+  String get realmNeedsSetup => 'Требуется настройка';
+
+  @override
+  String get realmAuth => 'Аутентификация';
+
+  @override
+  String get realmNotSet => 'Не задано';
+
+  @override
+  String get realmConfigured => 'Настроено';
+
+  @override
+  String get realmRendezvous => 'Rendezvous';
+
+  @override
+  String get realmId => 'Realm ID';
+
+  @override
+  String get realmUrl => 'Realm URL';
+
+  @override
+  String get realmNotConfigured => 'Не настроено';
+
+  @override
+  String get realmLocalPort => 'Локальный порт';
+
+  @override
+  String get realmTlsSni => 'TLS SNI';
+
+  @override
+  String get realmObfuscation => 'Обфускация';
+
+  @override
+  String get salamander => 'Salamander';
+
+  @override
+  String get realmSection => 'Realm';
+
+  @override
+  String get ignoreClientBandwidth => 'Игнорировать пропускную способность клиента';
+
+  @override
+  String get realmUrlHint => 'realm://public@realm.hy2.io/random-realm-id';
+
+  @override
+  String get generateRealmUrl => 'Сгенерировать Realm URL';
+
+  @override
+  String get autoConfigureRealmServer => 'Автонастройка';
+
+  @override
+  String get realmAutoConfigured => 'Realm-сервер настроен';
+
+  @override
+  String realmAutoConfigureFailed(String error) {
+    return 'Ошибка автонастройки: $error';
+  }
+
+  @override
+  String get realmLocalPortHelper => 'Локальный UDP-порт для realm punch; пусто — случайный порт';
+
+  @override
+  String get insecureRendezvous => 'Небезопасный rendezvous';
+
+  @override
+  String get insecureRendezvousDesc => 'Пропускать проверку SNI для rendezvous-сервера';
+
+  @override
+  String get stunServers => 'STUN-серверы';
+
+  @override
+  String get stunServersHint => 'stun.l.google.com:19302';
+
+  @override
+  String get stunTimeoutSeconds => 'Таймаут STUN (с)';
+
+  @override
+  String get punchTimeoutSeconds => 'Таймаут punch (с)';
+
+  @override
+  String get heartbeatIntervalSeconds => 'Интервал heartbeat (с)';
+
+  @override
+  String get ipMode => 'Режим IP';
+
+  @override
+  String get portMappingUpnp => 'Проброс портов (UPnP/NAT-PMP)';
+
+  @override
+  String get mappingTimeoutSeconds => 'Таймаут маппинга (с)';
+
+  @override
+  String get mappingLifetimeSeconds => 'Время жизни маппинга (с)';
+
+  @override
+  String get addRealmOutbound => 'Добавить Realm-исходящий';
+
+  @override
+  String get realmDevicePicker => 'Устройство';
+
+  @override
+  String failedLoadRealmDevices(String error) {
+    return 'Не удалось загрузить Realm-устройства: $error';
+  }
+
+  @override
+  String get noRealmDevicesFound => 'Другие устройства с настроенным Realm не найдены';
+
+  @override
+  String get invalidRealmUrlForDevice => 'Недействительный Realm URL для выбранного устройства';
+
+  @override
+  String addedRealmDevice(String name) {
+    return 'Добавлено: $name';
+  }
+
+  @override
+  String get realmServer => 'Realm-сервер';
+
+  @override
+  String get realmRegistered => 'Зарегистрирован';
+
+  @override
+  String get realmRegistering => 'Регистрация…';
+
+  @override
+  String realmPeersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count peers',
+      many: '$count peers',
+      few: '$count peer',
+      one: '1 peer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get discoveringPublicAddresses => 'Определение публичных адресов…';
+
+  @override
+  String get realmDevice => 'Realm-устройство';
+
+  @override
+  String get realmCloudEncryptionPassword => 'Пароль шифрования для облака';
+
+  @override
+  String get realmCloudEncryptionPasswordHelper => 'Другим устройствам нужен этот пароль для расшифровки загруженного URL. Он не хранится на сервере.';
+
+  @override
+  String get enterRealmCloudEncryptionPassword => 'Введите пароль шифрования для облака';
+
+  @override
+  String get realmDecryptPassword => 'Пароль расшифровки';
+
+  @override
+  String get realmDecryptPasswordDesc => 'Введите пароль, переданный владельцем устройства, чтобы расшифровать Realm URL.';
+
+  @override
+  String get realmDecryptFailed => 'Неверный пароль или недействительный зашифрованный Realm URL';
 }

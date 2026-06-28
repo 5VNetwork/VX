@@ -50,6 +50,7 @@ import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/routing/selector_widget.dart';
 import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/common/common.dart';
+import 'package:vx/data/realm_server_config.dart';
 import 'package:vx/data/database_provider.dart';
 import 'package:vx/main.dart';
 import 'package:vx/pref_helper.dart';
@@ -282,13 +283,13 @@ class XConfigHelper {
     }
     final mtu = _persistentStateRepo.tunMtu;
 
-    if (Platform.isWindows) {
-      try {
-        await makeWinTunAvailable(_downloader);
-      } catch (e) {
-        throw ConfigException('Wintun.dll download failed: $e');
-      }
-    }
+    // if (Platform.isWindows) {
+    //   try {
+    //     await makeWinTunAvailable(_downloader);
+    //   } catch (e) {
+    //     throw ConfigException('Wintun.dll download failed: $e');
+    //   }
+    // }
 
     final List<String> blackListApps = [];
     if (Platform.isAndroid) {
@@ -338,10 +339,10 @@ class XConfigHelper {
         mtu: mtu,
         dns4: [_persistentStateRepo.tunDns4],
         cidr4: _persistentStateRepo.tunCidr4,
-        routes4: ['0.0.0.0/0'],
+        routes4: _persistentStateRepo.tunRoutes4List,
         cidr6: _persistentStateRepo.tunCidr6,
         dns6: [_persistentStateRepo.tunDns6],
-        routes6: ['::/0'],
+        routes6: _persistentStateRepo.tunRoutes6List,
         path: await getWintunDir(),
         blackListApps: blackListApps,
       ),
@@ -389,6 +390,15 @@ class XConfigHelper {
           ],
         ),
       ]);
+    }
+    final realmInbound = buildRealmServerInbound(
+      loadLocalRealmServerConfig(
+        _persistentStateRepo,
+        _persistentStateRepo.uniqueDeviceId,
+      ),
+    );
+    if (realmInbound != null) {
+      inboundConfig.handlers.add(realmInbound);
     }
 
     return inboundConfig;

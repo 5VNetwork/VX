@@ -213,7 +213,8 @@
   "pleaseEnterRuleName": "Пожалуйста, введите название правила.",
   "ruleName": "Название правила соответствия",
   "matchAll": "Совпадение всех",
-  "ruleMatchCondition": "Если все условия выполнены, правило срабатывает. Если условий нет, правило никогда не сработает.",
+  "ruleMatchCondition": "Если любое условие выполнено, правило срабатывает. Если условий нет, правило никогда не сработает.",
+  "conditionMatch": "Если все подусловия выполнены, условие выполнено. Если подусловий нет, условие не выполнено.",
   "inboundLabel": "Входящие",
   "domainSet": "Набор доменов",
   "appSet": "Набор приложений",
@@ -589,6 +590,10 @@
   "tunDns6": "TU DNS IPv6",
   "tunDns4Hint": "например 172.23.27.2",
   "tunDns6Hint": "например fc20::2",
+  "tunRoutes4": "Маршруты TUN IPv4",
+  "tunRoutes6": "Маршруты TUN IPv6",
+  "tunRoutes4Hint": "например 0.0.0.0/0 (через запятую)",
+  "tunRoutes6Hint": "например ::/0 (через запятую)",
   "tunMtu": "ТУН МТУ",
   "tunMtuHint": "Пусто = значение по умолчанию для платформы",
   "failedToCreateAllFirstLaunch": "Не удалось создать таблицы базы данных: {value}",
@@ -690,6 +695,24 @@
       }
     }
   },
+  "enabledSubconditions": "Включенные подусловия: {number}",
+  "@enabledSubconditions": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "conditionsCount": "{number} условий",
+  "@conditionsCount": {
+    "placeholders": {
+      "number": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
   "showSelector": "Показать селектор",
   "hideSelector": "Скрыть селектор",
   "showHandler": "Хендлер выставки",
@@ -726,6 +749,8 @@
   "startOnBootDesc": "Автоматический запуск VX при загрузке системы.",
   "alwaysOn": "Всегда включено",
   "alwaysOnDesc": "Пока вы не нажимали кнопку «Отключиться», всегда старайтесь оставаться подключенными, когда приложение запущено.",
+  "systemManagedVpnNotice": "Это VPN-подключение управляется Android. Чтобы подключиться или отключиться, перейдите в Настройки > Сеть и интернет > VPN.",
+  "openVpnSettings": "Открыть настройки VPN",
   "checkAndUpdate": "Проверить и обновить",
   "noNewVersion": "Нет новых версий",
   "enableSystemExtension": "Включите VX SystemExtension, перейдя в «Системные настройки» -> «Общие» -> «Элементы авторизации и расширения» -> «Сетевые расширения».",
@@ -1018,7 +1043,7 @@
   "addDnsRecord": "Добавить запись DNS",
   "internalDns": "Внутренние DNS-серверы",
   "fallback": "Отступать",
-  "fallbackDesc": "Если обработчик, выбранный для этого правила, не сработал, используйте следующие резервные варианты. Каждый резервный вариант имеет список условий; он будет использоваться только в том случае, если все условия верны.",
+  "fallbackDesc": "Если обработчик, выбранный для этого правила, не сработал, используйте следующие резервные варианты. Каждый резервный вариант имеет список условий; он будет использоваться только в том случае, если любое условие верно.",
   "rewriteIpToDomain": "Переписать IP-адрес на домен",
   "rewriteIpToDomainDesc": "Если адрес запроса — IP-адрес, и перехвачен домен, то используйте перехваченный домен в качестве адреса запроса. Это мера по борьбе с DNS-загрязнением.",
   "resultIpSet": "Результат: Набор IP-адресов",
@@ -1099,5 +1124,80 @@
       }
     }
   },
-  "resetSubscriptionLinkDesc": "После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку."
+  "resetSubscriptionLinkDesc": "После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку.",
+  "hysteriaRealm": "Hysteria Realm",
+  "enableRealmServer": "Включить Realm-сервер",
+  "enableRealmServerDesc": "Запускать входящий Hysteria Realm, пока VX подключён",
+  "configureServerSettingsFirst": "Сначала настройте параметры сервера",
+  "configureRealmSettings": "Настройте параметры Realm ниже",
+  "enterDeviceName": "Введите имя устройства",
+  "configureValidRealmUrlFirst": "Сначала настройте корректный Realm URL",
+  "failedInboundToOutbound": "Не удалось преобразовать входящую конфигурацию в исходящую",
+  "failedConvertToUrl": "Не удалось преобразовать в URL. {details}",
+  "realmDeviceRegistered": "Устройство зарегистрировано для других клиентов",
+  "realmUploadFailed": "Ошибка загрузки: {error}",
+  "registerForOtherDevices": "Регистрация для других устройств",
+  "registerForOtherDevicesDesc": "Загрузите имя устройства и зашифрованный Realm URL, чтобы другие клиенты VX могли добавить это устройство через Узлы → Добавить → Realm-устройство. Передайте пароль шифрования отдельно.",
+  "realmDeviceName": "Имя устройства",
+  "realmDeviceNameHint": "Мой телефон",
+  "realmDeviceNameHelper": "Метка, отображаемая в списке на других устройствах",
+  "uploadToCloud": "Загрузить в облако",
+  "realmServerConfiguration": "Конфигурация сервера",
+  "realmReadyToRun": "Готов к работе",
+  "realmNeedsSetup": "Требуется настройка",
+  "realmAuth": "Аутентификация",
+  "realmNotSet": "Не задано",
+  "realmConfigured": "Настроено",
+  "realmRendezvous": "Rendezvous",
+  "realmId": "Realm ID",
+  "realmUrl": "Realm URL",
+  "realmNotConfigured": "Не настроено",
+  "realmLocalPort": "Локальный порт",
+  "realmTlsSni": "TLS SNI",
+  "realmObfuscation": "Обфускация",
+  "salamander": "Salamander",
+  "realmSection": "Realm",
+  "ignoreClientBandwidth": "Игнорировать пропускную способность клиента",
+  "realmUrlHint": "realm://public@realm.hy2.io/random-realm-id",
+  "generateRealmUrl": "Сгенерировать Realm URL",
+  "autoConfigureRealmServer": "Автонастройка",
+  "realmAutoConfigured": "Realm-сервер настроен",
+  "realmAutoConfigureFailed": "Ошибка автонастройки: {error}",
+  "@realmAutoConfigureFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "realmLocalPortHelper": "Локальный UDP-порт для realm punch; пусто — случайный порт",
+  "insecureRendezvous": "Небезопасный rendezvous",
+  "insecureRendezvousDesc": "Пропускать проверку SNI для rendezvous-сервера",
+  "stunServers": "STUN-серверы",
+  "stunServersHint": "stun.l.google.com:19302",
+  "stunTimeoutSeconds": "Таймаут STUN (с)",
+  "punchTimeoutSeconds": "Таймаут punch (с)",
+  "heartbeatIntervalSeconds": "Интервал heartbeat (с)",
+  "ipMode": "Режим IP",
+  "portMappingUpnp": "Проброс портов (UPnP/NAT-PMP)",
+  "mappingTimeoutSeconds": "Таймаут маппинга (с)",
+  "mappingLifetimeSeconds": "Время жизни маппинга (с)",
+  "addRealmOutbound": "Добавить Realm-исходящий",
+  "realmDevicePicker": "Устройство",
+  "failedLoadRealmDevices": "Не удалось загрузить Realm-устройства: {error}",
+  "noRealmDevicesFound": "Другие устройства с настроенным Realm не найдены",
+  "invalidRealmUrlForDevice": "Недействительный Realm URL для выбранного устройства",
+  "addedRealmDevice": "Добавлено: {name}",
+  "realmServer": "Realm-сервер",
+  "realmRegistered": "Зарегистрирован",
+  "realmRegistering": "Регистрация…",
+  "realmPeersCount": "{count, plural, =1{1 peer} few{{count} peer} many{{count} peers} other{{count} peers}}",
+  "discoveringPublicAddresses": "Определение публичных адресов…",
+  "realmDevice": "Realm-устройство",
+  "realmCloudEncryptionPassword": "Пароль шифрования для облака",
+  "realmCloudEncryptionPasswordHelper": "Другим устройствам нужен этот пароль для расшифровки загруженного URL. Он не хранится на сервере.",
+  "enterRealmCloudEncryptionPassword": "Введите пароль шифрования для облака",
+  "realmDecryptPassword": "Пароль расшифровки",
+  "realmDecryptPasswordDesc": "Введите пароль, переданный владельцем устройства, чтобы расшифровать Realm URL.",
+  "realmDecryptFailed": "Неверный пароль или недействительный зашифрованный Realm URL"
 }

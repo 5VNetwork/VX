@@ -709,6 +709,46 @@ extension PrefHelperExtension on SharedPreferences {
     }
   }
 
+  /// TUN IPv4 routes, comma-separated (e.g. 0.0.0.0/0). Null or empty = use default.
+  String get tunRoutes4 {
+    final v = getString('tunRoutes4');
+    return (v == null || v.trim().isEmpty) ? '0.0.0.0/0' : v;
+  }
+
+  List<String> get tunRoutes4List => tunRoutes4
+      .split(',')
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
+
+  void setTunRoutes4(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      remove('tunRoutes4');
+    } else {
+      setString('tunRoutes4', value.trim());
+    }
+  }
+
+  /// TUN IPv6 routes, comma-separated (e.g. ::/0). Null or empty = use default.
+  String get tunRoutes6 {
+    final v = getString('tunRoutes6');
+    return (v == null || v.trim().isEmpty) ? '::/0' : v;
+  }
+
+  List<String> get tunRoutes6List => tunRoutes6
+      .split(',')
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
+
+  void setTunRoutes6(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      remove('tunRoutes6');
+    } else {
+      setString('tunRoutes6', value.trim());
+    }
+  }
+
   /// TUN device MTU. Null = use platform default.
   int get tunMtu {
     final v = getInt('tunMtu');
@@ -895,6 +935,37 @@ extension PrefHelperExtension on SharedPreferences {
     } else {
       setString('fcmToken', token);
     }
+  }
+
+  String? get realmDeviceName => getString('realmDeviceName');
+
+  void setRealmDeviceName(String name) {
+    setString('realmDeviceName', name);
+  }
+
+  String? get realmDeviceRealmUrl => getString('realmDeviceRealmUrl');
+
+  void setRealmDeviceRealmUrl(String url) {
+    setString('realmDeviceRealmUrl', url);
+  }
+
+  bool get realmServerEnabled => getBool('realmServerEnabled') ?? false;
+
+  void setRealmServerEnabled(bool enabled) {
+    setBool('realmServerEnabled', enabled);
+  }
+
+  String? get realmServerAuth => getString('realmServerAuth');
+
+  void setRealmServerAuth(String auth) {
+    setString('realmServerAuth', auth);
+  }
+
+  String? get realmServerHysteriaConfigBase64 =>
+      getString('realmServerHysteriaConfigBase64');
+
+  void setRealmServerHysteriaConfigBase64(String value) {
+    setString('realmServerHysteriaConfigBase64', value);
   }
 
   bool get autoBackup {

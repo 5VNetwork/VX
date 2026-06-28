@@ -706,20 +706,7 @@ const ruleNameRuBlockAllProxyIp = 'RU-Block(All)模式代理IP';
 extension ConditionExtension on Condition {
   List<Widget> conditionChildren(BuildContext context) {
     final ret = <Widget>[];
-    if (matchAll) {
-      ret.add(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              AppLocalizations.of(context)!.matchAll,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        ),
-      );
-    }
+
     if (inboundTags.isNotEmpty) {
       ret.add(
         Padding(
@@ -895,21 +882,25 @@ extension ConditionExtension on Condition {
 }
 
 extension RuleConfigExtension on RuleConfig {
-  Condition get _displayCondition {
-    if (hasCondition()) {
-      return condition;
+  List<Condition> get _displayConditions {
+    if (conditions.isNotEmpty) {
+      return conditions;
     }
-    return Condition(
-      inboundTags: inboundTags,
-      fakeIp: fakeIp,
-      domainTags: domainTags,
-      geoDomains: geoDomains,
-      appTags: appTags,
-      appIds: appIds,
-      dstIpTags: dstIpTags,
-      allTags: allTags,
-      matchAll: matchAll,
-    );
+    if (hasCondition()) {
+      return [condition];
+    }
+    return [
+      Condition(
+        inboundTags: inboundTags,
+        fakeIp: fakeIp,
+        domainTags: domainTags,
+        geoDomains: geoDomains,
+        appTags: appTags,
+        appIds: appIds,
+        dstIpTags: dstIpTags,
+        allTags: allTags,
+      ),
+    ];
   }
 
   // String localizedName(BuildContext context) {
@@ -959,7 +950,39 @@ extension RuleConfigExtension on RuleConfig {
 
   List<Widget> children(BuildContext context) {
     final ret = <Widget>[const Gap(10)];
-    ret.addAll(_displayCondition.conditionChildren(context));
+    final l10n = AppLocalizations.of(context)!;
+    if (matchAll) {
+      ret.add(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              l10n.matchAll,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+        ),
+      );
+    } else {
+      final conditions = _displayConditions;
+      if (conditions.length > 1) {
+        ret.add(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                l10n.conditionsCount(conditions.length),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ),
+          ),
+        );
+      } else if (conditions.isNotEmpty) {
+        ret.addAll(conditions.first.conditionChildren(context));
+      }
+    }
     if (fallbacks.isNotEmpty) {
       ret.add(
         Padding(

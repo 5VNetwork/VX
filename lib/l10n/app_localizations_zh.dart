@@ -599,7 +599,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get matchAll => '匹配所有';
 
   @override
-  String get ruleMatchCondition => '当所有条件成立时，规则匹配。如果条件数量为零，规则永远不会匹配。';
+  String get ruleMatchCondition => '当任一条件成立时，规则匹配。如果条件数量为零，规则不会匹配。';
+
+  @override
+  String get conditionMatch => '当所有子条件成立时，该条件成立。如果子条件数量为零，该条件不成立。';
 
   @override
   String get inboundLabel => '入站';
@@ -1383,6 +1386,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tunDns6Hint => '例如 fc20::2（多个用逗号分隔）';
 
   @override
+  String get tunRoutes4 => 'TUN IPv4 路由';
+
+  @override
+  String get tunRoutes6 => 'TUN IPv6 路由';
+
+  @override
+  String get tunRoutes4Hint => '例如 0.0.0.0/0（多个用逗号分隔）';
+
+  @override
+  String get tunRoutes6Hint => '例如 ::/0（多个用逗号分隔）';
+
+  @override
   String get tunMtu => 'TUN MTU';
 
   @override
@@ -1575,6 +1590,28 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String enabledSubconditions(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return '已启用的子条件: $numberString';
+  }
+
+  @override
+  String conditionsCount(num number) {
+    final intl.NumberFormat numberNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$numberString 个条件';
+  }
+
+  @override
   String get showSelector => '显示选择器';
 
   @override
@@ -1662,6 +1699,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get alwaysOnDesc => '在点击“连接”后，只要不点击“断开连接”，会一直保持连接状态。';
+
+  @override
+  String get systemManagedVpnNotice => '此 VPN 连接由 Android 系统管理。如需连接或断开，请前往 设置 > 网络和互联网 > VPN。';
+
+  @override
+  String get openVpnSettings => '打开 VPN 设置';
 
   @override
   String get checkAndUpdate => '检测并更新';
@@ -2460,7 +2503,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fallback => '回退';
 
   @override
-  String get fallbackDesc => '如果此规则所使用的节点失败，使用以下回退。每个回退都有一些条件，只有当所有条件都成立时，回退才会被使用。';
+  String get fallbackDesc => '如果此规则所使用的节点失败，使用以下回退。每个回退都有一些条件，只有当回退的任意一个条件成立时，回退才会被使用。';
 
   @override
   String get rewriteIpToDomain => '将IP重写为域名';
@@ -2673,4 +2716,225 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cnExcludeGfwDomains => 'CN域名排除GFW';
+
+  @override
+  String get hysteriaRealm => 'Hysteria Realm';
+
+  @override
+  String get enableRealmServer => '启用 Realm 服务器';
+
+  @override
+  String get enableRealmServerDesc => '在 VX 连接时运行 Hysteria Realm 入站';
+
+  @override
+  String get configureServerSettingsFirst => '请先配置服务器设置';
+
+  @override
+  String get configureRealmSettings => '请在下方配置 Realm 设置';
+
+  @override
+  String get enterDeviceName => '请输入设备名称';
+
+  @override
+  String get configureValidRealmUrlFirst => '请先配置有效的 Realm URL';
+
+  @override
+  String get failedInboundToOutbound => '入站配置转换为出站配置失败';
+
+  @override
+  String failedConvertToUrl(String details) {
+    return '转换为 URL 失败。$details';
+  }
+
+  @override
+  String get realmDeviceRegistered => '设备已注册，可供其他客户端使用';
+
+  @override
+  String realmUploadFailed(String error) {
+    return '上传失败：$error';
+  }
+
+  @override
+  String get registerForOtherDevices => '注册供其他设备使用';
+
+  @override
+  String get registerForOtherDevicesDesc => '上传设备名称和加密的 Realm URL，以便其他 VX 客户端通过 节点 → 添加 → Realm 设备 添加此设备。请单独分享加密密码。';
+
+  @override
+  String get realmDeviceName => '设备名称';
+
+  @override
+  String get realmDeviceNameHint => '我的手机';
+
+  @override
+  String get realmDeviceNameHelper => '在其他设备的选择器中显示的名称';
+
+  @override
+  String get uploadToCloud => '上传到云端';
+
+  @override
+  String get realmServerConfiguration => '服务器配置';
+
+  @override
+  String get realmReadyToRun => '可以运行';
+
+  @override
+  String get realmNeedsSetup => '需要配置';
+
+  @override
+  String get realmAuth => '认证';
+
+  @override
+  String get realmNotSet => '未设置';
+
+  @override
+  String get realmConfigured => '已配置';
+
+  @override
+  String get realmRendezvous => '会合服务器';
+
+  @override
+  String get realmId => 'Realm ID';
+
+  @override
+  String get realmUrl => 'Realm URL';
+
+  @override
+  String get realmNotConfigured => '未配置';
+
+  @override
+  String get realmLocalPort => '本地端口';
+
+  @override
+  String get realmTlsSni => 'TLS SNI';
+
+  @override
+  String get realmObfuscation => '混淆';
+
+  @override
+  String get salamander => 'Salamander';
+
+  @override
+  String get realmSection => 'Realm';
+
+  @override
+  String get ignoreClientBandwidth => '忽略客户端带宽';
+
+  @override
+  String get realmUrlHint => 'realm://public@realm.hy2.io/random-realm-id';
+
+  @override
+  String get generateRealmUrl => '生成 Realm URL';
+
+  @override
+  String get autoConfigureRealmServer => '自动配置';
+
+  @override
+  String get realmAutoConfigured => 'Realm 服务器已配置';
+
+  @override
+  String realmAutoConfigureFailed(String error) {
+    return '自动配置失败：$error';
+  }
+
+  @override
+  String get realmLocalPortHelper => 'Realm 打洞的本地 UDP 端口；留空则使用随机端口';
+
+  @override
+  String get insecureRendezvous => '不安全的会合连接';
+
+  @override
+  String get insecureRendezvousDesc => '跳过会合服务器的 SNI 验证';
+
+  @override
+  String get stunServers => 'STUN 服务器';
+
+  @override
+  String get stunServersHint => 'stun.l.google.com:19302';
+
+  @override
+  String get stunTimeoutSeconds => 'STUN 超时（秒）';
+
+  @override
+  String get punchTimeoutSeconds => '打洞超时（秒）';
+
+  @override
+  String get heartbeatIntervalSeconds => '心跳间隔（秒）';
+
+  @override
+  String get ipMode => 'IP 模式';
+
+  @override
+  String get portMappingUpnp => '端口映射（UPnP/NAT-PMP）';
+
+  @override
+  String get mappingTimeoutSeconds => '映射超时（秒）';
+
+  @override
+  String get mappingLifetimeSeconds => '映射生命周期（秒）';
+
+  @override
+  String get addRealmOutbound => '添加 Realm 出站';
+
+  @override
+  String get realmDevicePicker => '设备';
+
+  @override
+  String failedLoadRealmDevices(String error) {
+    return '加载 Realm 设备失败：$error';
+  }
+
+  @override
+  String get noRealmDevicesFound => '未找到其他已配置 Realm 的设备';
+
+  @override
+  String get invalidRealmUrlForDevice => '所选设备的 Realm URL 无效';
+
+  @override
+  String addedRealmDevice(String name) {
+    return '已添加 $name';
+  }
+
+  @override
+  String get realmServer => 'Realm 服务器';
+
+  @override
+  String get realmRegistered => '已注册';
+
+  @override
+  String get realmRegistering => '注册中…';
+
+  @override
+  String realmPeersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个对端',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get discoveringPublicAddresses => '正在发现公网地址…';
+
+  @override
+  String get realmDevice => 'Realm 设备';
+
+  @override
+  String get realmCloudEncryptionPassword => '云端加密密码';
+
+  @override
+  String get realmCloudEncryptionPasswordHelper => '其他设备需要此密码才能解密上传的 URL。密码不会存储在服务器上。';
+
+  @override
+  String get enterRealmCloudEncryptionPassword => '请输入云端加密密码';
+
+  @override
+  String get realmDecryptPassword => '解密密码';
+
+  @override
+  String get realmDecryptPasswordDesc => '输入设备所有者分享的密码以解密 Realm URL。';
+
+  @override
+  String get realmDecryptFailed => '密码错误或加密 Realm URL 无效';
 }

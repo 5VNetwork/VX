@@ -462,7 +462,8 @@ class OutboundTableState extends State<OutboundTable> {
                                                               selectedAs4:
                                                                   r.$1 != 0 &&
                                                                   startCloseCubit
-                                                                          .state ==
+                                                                          .state
+                                                                          .status ==
                                                                       XStatus
                                                                           .connected &&
                                                                   xstate.proxySelectorMode ==
@@ -523,7 +524,8 @@ class OutboundTableState extends State<OutboundTable> {
                                                         final selectedInAutoBestMode =
                                                             (r.$1 != 0 &&
                                                             startCloseCubit
-                                                                    .state ==
+                                                                    .state
+                                                                    .status ==
                                                                 XStatus
                                                                     .connected &&
                                                             xstate.proxySelectorMode ==

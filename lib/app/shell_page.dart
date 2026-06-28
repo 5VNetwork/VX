@@ -344,9 +344,16 @@ class _ShellPageState extends State<ShellPage> {
                   )
                   .toList(),
             ),
-            floatingActionButton: const StartCloseButton(
-              size: StartCloseButtonSize.middle,
-              floating: true,
+            floatingActionButton: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (Platform.isAndroid) const SystemManagedVpnNotice(),
+                const StartCloseButton(
+                  size: StartCloseButtonSize.middle,
+                  floating: true,
+                ),
+              ],
             ),
             body: Platform.isWindows
                 ? Column(

@@ -2049,7 +2049,7 @@ packages:
     source: path
     version: "0.0.1"
   tm_android:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../tm-plugin/tm_android"
       relative: true

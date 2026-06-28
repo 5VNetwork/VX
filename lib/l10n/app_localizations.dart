@@ -1240,8 +1240,14 @@ abstract class AppLocalizations {
   /// No description provided for @ruleMatchCondition.
   ///
   /// In en, this message translates to:
-  /// **'When all conditions are met, the rule matches. If there are zero conditions, the rule will never match.'**
+  /// **'When any condition is true, the rule matches. If there is no condition, the rule will never match.'**
   String get ruleMatchCondition;
+
+  /// No description provided for @conditionMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'When all subconditions are true, the condition is true. If there are zero subconditions, the condition is false.'**
+  String get conditionMatch;
 
   /// No description provided for @inboundLabel.
   ///
@@ -2677,6 +2683,30 @@ abstract class AppLocalizations {
   /// **'e.g. fc20::2'**
   String get tunDns6Hint;
 
+  /// No description provided for @tunRoutes4.
+  ///
+  /// In en, this message translates to:
+  /// **'TUN IPv4 routes'**
+  String get tunRoutes4;
+
+  /// No description provided for @tunRoutes6.
+  ///
+  /// In en, this message translates to:
+  /// **'TUN IPv6 routes'**
+  String get tunRoutes6;
+
+  /// No description provided for @tunRoutes4Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 0.0.0.0/0 (comma-separated)'**
+  String get tunRoutes4Hint;
+
+  /// No description provided for @tunRoutes6Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ::/0 (comma-separated)'**
+  String get tunRoutes6Hint;
+
   /// No description provided for @tunMtu.
   ///
   /// In en, this message translates to:
@@ -3025,6 +3055,18 @@ abstract class AppLocalizations {
   /// **'Enabled conditions: {number}'**
   String enabledConditions(num number);
 
+  /// No description provided for @enabledSubconditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled subconditions: {number}'**
+  String enabledSubconditions(num number);
+
+  /// No description provided for @conditionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{number} conditions'**
+  String conditionsCount(num number);
+
   /// No description provided for @showSelector.
   ///
   /// In en, this message translates to:
@@ -3198,6 +3240,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'As long as you did not click disconnect, always try to be connected when the app is running'**
   String get alwaysOnDesc;
+
+  /// No description provided for @systemManagedVpnNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This VPN connection is managed by Android. To connect or disconnect, go to Settings > Network & Internet > VPN.'**
+  String get systemManagedVpnNotice;
+
+  /// No description provided for @openVpnSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open VPN Settings'**
+  String get openVpnSettings;
 
   /// No description provided for @checkAndUpdate.
   ///
@@ -4762,7 +4816,7 @@ abstract class AppLocalizations {
   /// No description provided for @fallbackDesc.
   ///
   /// In en, this message translates to:
-  /// **'If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if all conditions are true.'**
+  /// **'If the handler picked for this rule failed, use the following fallbacks. Each fallback has a list of conditions, the fallback will be used only if any condition is true.'**
   String get fallbackDesc;
 
   /// No description provided for @rewriteIpToDomain.
@@ -5160,6 +5214,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'CN Domains Exclude GFW'**
   String get cnExcludeGfwDomains;
+
+  /// No description provided for @hysteriaRealm.
+  ///
+  /// In en, this message translates to:
+  /// **'Hysteria Realm'**
+  String get hysteriaRealm;
+
+  /// No description provided for @enableRealmServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Realm server'**
+  String get enableRealmServer;
+
+  /// No description provided for @enableRealmServerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Run a Hysteria Realm inbound while VX is connected'**
+  String get enableRealmServerDesc;
+
+  /// No description provided for @configureServerSettingsFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure server settings first'**
+  String get configureServerSettingsFirst;
+
+  /// No description provided for @configureRealmSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure realm settings below'**
+  String get configureRealmSettings;
+
+  /// No description provided for @enterDeviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a device name'**
+  String get enterDeviceName;
+
+  /// No description provided for @configureValidRealmUrlFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure a valid Realm URL first'**
+  String get configureValidRealmUrlFirst;
+
+  /// No description provided for @failedInboundToOutbound.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to convert inbound config to outbound config'**
+  String get failedInboundToOutbound;
+
+  /// No description provided for @failedConvertToUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to convert to URL. {details}'**
+  String failedConvertToUrl(String details);
+
+  /// No description provided for @realmDeviceRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Device registered for other clients'**
+  String get realmDeviceRegistered;
+
+  /// No description provided for @realmUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed: {error}'**
+  String realmUploadFailed(String error);
+
+  /// No description provided for @registerForOtherDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Register for other devices'**
+  String get registerForOtherDevices;
+
+  /// No description provided for @registerForOtherDevicesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload your device name and an encrypted Realm URL so your other VX clients can add this device via Nodes → Add → Realm device. Share the encryption password separately.'**
+  String get registerForOtherDevicesDesc;
+
+  /// No description provided for @realmDeviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device name'**
+  String get realmDeviceName;
+
+  /// No description provided for @realmDeviceNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'My phone'**
+  String get realmDeviceNameHint;
+
+  /// No description provided for @realmDeviceNameHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Label shown in the picker on your other devices'**
+  String get realmDeviceNameHelper;
+
+  /// No description provided for @uploadToCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload to cloud'**
+  String get uploadToCloud;
+
+  /// No description provided for @realmServerConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Server configuration'**
+  String get realmServerConfiguration;
+
+  /// No description provided for @realmReadyToRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to run'**
+  String get realmReadyToRun;
+
+  /// No description provided for @realmNeedsSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs setup'**
+  String get realmNeedsSetup;
+
+  /// No description provided for @realmAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Auth'**
+  String get realmAuth;
+
+  /// No description provided for @realmNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get realmNotSet;
+
+  /// No description provided for @realmConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured'**
+  String get realmConfigured;
+
+  /// No description provided for @realmRendezvous.
+  ///
+  /// In en, this message translates to:
+  /// **'Rendezvous'**
+  String get realmRendezvous;
+
+  /// No description provided for @realmId.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm ID'**
+  String get realmId;
+
+  /// No description provided for @realmUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm URL'**
+  String get realmUrl;
+
+  /// No description provided for @realmNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured'**
+  String get realmNotConfigured;
+
+  /// No description provided for @realmLocalPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Local port'**
+  String get realmLocalPort;
+
+  /// No description provided for @realmTlsSni.
+  ///
+  /// In en, this message translates to:
+  /// **'TLS SNI'**
+  String get realmTlsSni;
+
+  /// No description provided for @realmObfuscation.
+  ///
+  /// In en, this message translates to:
+  /// **'Obfuscation'**
+  String get realmObfuscation;
+
+  /// No description provided for @salamander.
+  ///
+  /// In en, this message translates to:
+  /// **'Salamander'**
+  String get salamander;
+
+  /// No description provided for @realmSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm'**
+  String get realmSection;
+
+  /// No description provided for @ignoreClientBandwidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore Client Bandwidth'**
+  String get ignoreClientBandwidth;
+
+  /// No description provided for @realmUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'realm://public@realm.hy2.io/random-realm-id'**
+  String get realmUrlHint;
+
+  /// No description provided for @generateRealmUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Realm URL'**
+  String get generateRealmUrl;
+
+  /// No description provided for @autoConfigureRealmServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-configure'**
+  String get autoConfigureRealmServer;
+
+  /// No description provided for @realmAutoConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm server configured'**
+  String get realmAutoConfigured;
+
+  /// No description provided for @realmAutoConfigureFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-configuration failed: {error}'**
+  String realmAutoConfigureFailed(String error);
+
+  /// No description provided for @realmLocalPortHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Local UDP port for realm punch; empty uses random port'**
+  String get realmLocalPortHelper;
+
+  /// No description provided for @insecureRendezvous.
+  ///
+  /// In en, this message translates to:
+  /// **'Insecure rendezvous'**
+  String get insecureRendezvous;
+
+  /// No description provided for @insecureRendezvousDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip SNI verification for rendezvous server'**
+  String get insecureRendezvousDesc;
+
+  /// No description provided for @stunServers.
+  ///
+  /// In en, this message translates to:
+  /// **'STUN servers'**
+  String get stunServers;
+
+  /// No description provided for @stunServersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'stun.l.google.com:19302'**
+  String get stunServersHint;
+
+  /// No description provided for @stunTimeoutSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'STUN timeout (s)'**
+  String get stunTimeoutSeconds;
+
+  /// No description provided for @punchTimeoutSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Punch timeout (s)'**
+  String get punchTimeoutSeconds;
+
+  /// No description provided for @heartbeatIntervalSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Heartbeat interval (s)'**
+  String get heartbeatIntervalSeconds;
+
+  /// No description provided for @ipMode.
+  ///
+  /// In en, this message translates to:
+  /// **'IP mode'**
+  String get ipMode;
+
+  /// No description provided for @portMappingUpnp.
+  ///
+  /// In en, this message translates to:
+  /// **'Port mapping (UPnP/NAT-PMP)'**
+  String get portMappingUpnp;
+
+  /// No description provided for @mappingTimeoutSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapping timeout (s)'**
+  String get mappingTimeoutSeconds;
+
+  /// No description provided for @mappingLifetimeSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapping lifetime (s)'**
+  String get mappingLifetimeSeconds;
+
+  /// No description provided for @addRealmOutbound.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Realm Outbound'**
+  String get addRealmOutbound;
+
+  /// No description provided for @realmDevicePicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get realmDevicePicker;
+
+  /// No description provided for @failedLoadRealmDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load realm devices: {error}'**
+  String failedLoadRealmDevices(String error);
+
+  /// No description provided for @noRealmDevicesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No other devices with Realm configured were found'**
+  String get noRealmDevicesFound;
+
+  /// No description provided for @invalidRealmUrlForDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid realm URL for selected device'**
+  String get invalidRealmUrlForDevice;
+
+  /// No description provided for @addedRealmDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {name}'**
+  String addedRealmDevice(String name);
+
+  /// No description provided for @realmServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm server'**
+  String get realmServer;
+
+  /// No description provided for @realmRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered'**
+  String get realmRegistered;
+
+  /// No description provided for @realmRegistering.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering…'**
+  String get realmRegistering;
+
+  /// No description provided for @realmPeersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 peer} other{{count} peers}}'**
+  String realmPeersCount(int count);
+
+  /// No description provided for @discoveringPublicAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovering public addresses…'**
+  String get discoveringPublicAddresses;
+
+  /// No description provided for @realmDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm device'**
+  String get realmDevice;
+
+  /// No description provided for @realmCloudEncryptionPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud encryption password'**
+  String get realmCloudEncryptionPassword;
+
+  /// No description provided for @realmCloudEncryptionPasswordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Other devices need this password to decrypt the uploaded URL. It is never stored on the server.'**
+  String get realmCloudEncryptionPasswordHelper;
+
+  /// No description provided for @enterRealmCloudEncryptionPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a cloud encryption password'**
+  String get enterRealmCloudEncryptionPassword;
+
+  /// No description provided for @realmDecryptPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Decryption password'**
+  String get realmDecryptPassword;
+
+  /// No description provided for @realmDecryptPasswordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password shared by the device owner to decrypt its Realm URL.'**
+  String get realmDecryptPasswordDesc;
+
+  /// No description provided for @realmDecryptFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password or invalid encrypted Realm URL'**
+  String get realmDecryptFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

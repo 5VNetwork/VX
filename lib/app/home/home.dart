@@ -49,6 +49,7 @@ import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/routing/selector_being_used.dart';
 import 'package:vx/app/routing/selector_widget.dart';
 import 'package:vx/app/blocs/proxy_selector/proxy_selector_bloc.dart';
+import 'package:vx/app/start_close_button.dart';
 import 'package:vx/app/x_controller.dart';
 import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/common/circuler_buffer.dart';
@@ -79,6 +80,7 @@ part 'home_customize.dart';
 part 'home_standard.dart';
 part 'home_edit.dart';
 part 'subscription.dart';
+part 'realm_server_card.dart';
 
 class HomePageCubit extends Cubit<bool> {
   HomePageCubit(this._prefs) : super(_prefs.useCustomizableHomePage);
@@ -116,7 +118,8 @@ enum HomeWidgetId {
   proxySelector('proxySelector'),
   inbound('inbound'),
   subscription('subscription'),
-  nodes('nodes');
+  nodes('nodes'),
+  realmServer('realmServer');
 
   const HomeWidgetId(this.id);
   final String id;
@@ -151,6 +154,8 @@ enum HomeWidgetId {
         return l10n.subscription;
       case HomeWidgetId.nodes:
         return l10n.homeWidgetNodes;
+      case HomeWidgetId.realmServer:
+        return l10n.realmServer;
     }
   }
 
@@ -181,6 +186,15 @@ enum HomeWidgetId {
         return const _Subscription();
       case HomeWidgetId.nodes:
         return const Nodes();
+      case HomeWidgetId.realmServer:
+        return BlocBuilder<StartCloseCubit, StartCloseState>(
+          builder: (ctx, startCloseState) {
+            if (startCloseState.status == XStatus.connected) {
+              return const _RealmServerCard();
+            }
+            return const SizedBox.shrink();
+          },
+        );
     }
   }
 }

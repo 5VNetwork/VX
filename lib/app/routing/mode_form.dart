@@ -56,16 +56,157 @@ class RouteRuleForm extends StatefulWidget {
   State<RouteRuleForm> createState() => _RouteRuleFormState();
 }
 
-enum Condition { fake, network, inbound, domain, ip, app, all }
+enum ConditionSection {
+  fake,
+  hasNoDomain,
+  ipv6,
+  network,
+  inbound,
+  domain,
+  ip,
+  srcIp,
+  app,
+  all,
+  port,
+  protocol,
+}
+
+bool conditionIsEmpty(Condition c) {
+  return c.inboundTags.isEmpty &&
+      !c.fakeIp &&
+      !c.hasNoDomain &&
+      !c.ipv6 &&
+      c.domainTags.isEmpty &&
+      c.geoDomains.isEmpty &&
+      c.dstCidrs.isEmpty &&
+      c.dstIpTags.isEmpty &&
+      c.srcCidrs.isEmpty &&
+      c.srcIpTags.isEmpty &&
+      c.appIds.isEmpty &&
+      c.appTags.isEmpty &&
+      c.allTags.isEmpty &&
+      c.networks.isEmpty &&
+      !c.resolveDomain &&
+      !c.resolveSoftRewrite &&
+      !c.resolveSoftNoRewrite &&
+      !c.skipSniff &&
+      c.usernames.isEmpty &&
+      c.srcPortRanges.isEmpty &&
+      c.dstPortRanges.isEmpty &&
+      c.protocols.isEmpty;
+}
+
+void clearLegacyRuleConditionFields(RuleConfig rule) {
+  rule
+    ..clearCondition()
+    ..srcCidrs.clear()
+    ..srcIpTags.clear()
+    ..dstCidrs.clear()
+    ..dstIpTags.clear()
+    ..resolveDomain = false
+    ..resolveSoftRewrite = false
+    ..resolveSoftNoRewrite = false
+    ..geoDomains.clear()
+    ..domainTags.clear()
+    ..skipSniff = false
+    ..usernames.clear()
+    ..inboundTags.clear()
+    ..networks.clear()
+    ..srcPortRanges.clear()
+    ..dstPortRanges.clear()
+    ..appIds.clear()
+    ..ipv6 = false
+    ..fakeIp = false
+    ..matchAll = false
+    ..appTags.clear()
+    ..allTags.clear()
+    ..protocols.clear();
+}
+
+List<Condition> loadConditionsFromRuleConfig(RuleConfig rule) {
+  if (rule.conditions.isNotEmpty) {
+    return rule.conditions.map((c) => c.clone()).toList();
+  }
+  if (rule.hasCondition()) {
+    return [rule.condition.clone()];
+  }
+  return [
+    Condition(
+      inboundTags: rule.inboundTags,
+      fakeIp: rule.fakeIp,
+      domainTags: rule.domainTags,
+      geoDomains: rule.geoDomains,
+      appTags: rule.appTags,
+      appIds: rule.appIds,
+      dstCidrs: rule.dstCidrs,
+      dstIpTags: rule.dstIpTags,
+      allTags: rule.allTags,
+      networks: rule.networks,
+      skipSniff: rule.skipSniff,
+      resolveDomain: rule.resolveDomain,
+      resolveSoftRewrite: rule.resolveSoftRewrite,
+      resolveSoftNoRewrite: rule.resolveSoftNoRewrite,
+      srcCidrs: rule.srcCidrs,
+      srcIpTags: rule.srcIpTags,
+      srcPortRanges: rule.srcPortRanges,
+      dstPortRanges: rule.dstPortRanges,
+      usernames: rule.usernames,
+      protocols: rule.protocols,
+      ipv6: rule.ipv6,
+    ),
+  ];
+}
+
+void clearLegacyFallbackConditionFields(RuleConfig_Fallback fallback) {
+  fallback
+    ..clearCondition()
+    ..dstIpTags.clear()
+    ..domainTags.clear();
+}
+
+List<Condition> loadConditionsFromFallback(RuleConfig_Fallback fallback) {
+  if (fallback.conditions.isNotEmpty) {
+    return fallback.conditions.map((c) => c.clone()).toList();
+  }
+  if (fallback.hasCondition()) {
+    return [fallback.condition.clone()];
+  }
+  return [
+    Condition(domainTags: fallback.domainTags, dstIpTags: fallback.dstIpTags),
+  ];
+}
+
+void updateConditionNontrivial(
+  Condition condition,
+  Map<ConditionSection, bool> nontrivial,
+) {
+  nontrivial[ConditionSection.inbound] = condition.inboundTags.isNotEmpty;
+  nontrivial[ConditionSection.domain] =
+      condition.geoDomains.isNotEmpty ||
+      condition.domainTags.isNotEmpty ||
+      condition.skipSniff;
+  nontrivial[ConditionSection.ip] =
+      condition.dstCidrs.isNotEmpty || condition.dstIpTags.isNotEmpty;
+  nontrivial[ConditionSection.srcIp] =
+      condition.srcCidrs.isNotEmpty || condition.srcIpTags.isNotEmpty;
+  nontrivial[ConditionSection.ipv6] = condition.ipv6;
+  nontrivial[ConditionSection.hasNoDomain] = condition.hasNoDomain;
+  nontrivial[ConditionSection.app] =
+      condition.appIds.isNotEmpty || condition.appTags.isNotEmpty;
+  nontrivial[ConditionSection.fake] = condition.fakeIp;
+  nontrivial[ConditionSection.all] = condition.allTags.isNotEmpty;
+  nontrivial[ConditionSection.network] = condition.networks.isNotEmpty;
+  nontrivial[ConditionSection.port] =
+      condition.srcPortRanges.isNotEmpty || condition.dstPortRanges.isNotEmpty;
+  nontrivial[ConditionSection.protocol] = condition.protocols.isNotEmpty;
+}
 
 class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ruleConfig = RuleConfig();
-  final List<bool> _isExpanded = List.filled(5, false);
-  final Map<Condition, bool> _nontrivial = Map.fromEntries(
-    Condition.values.map((e) => MapEntry(e, false)),
-  );
+  List<Condition> _conditions = [Condition()];
+  bool _matchAll = false;
   OutboundType _outboundType = OutboundType.node;
 
   List<OutboundHandler>? _outboundHandlers;
@@ -112,6 +253,15 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
         }
       }
       _ruleConfig.ruleName = _nameController.text;
+      clearLegacyRuleConditionFields(_ruleConfig);
+      _ruleConfig.conditions.clear();
+      if (_matchAll) {
+        _ruleConfig.matchAll = true;
+      } else {
+        _ruleConfig.conditions.addAll(
+          _conditions.where((c) => !conditionIsEmpty(c)),
+        );
+      }
       return _ruleConfig;
     }
     return null;
@@ -123,6 +273,11 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
     if (widget.ruleConfig != null) {
       _nameController.text = widget.ruleConfig!.ruleName;
       _ruleConfig.mergeFromMessage(widget.ruleConfig!);
+      _conditions = loadConditionsFromRuleConfig(widget.ruleConfig!);
+      _matchAll = widget.ruleConfig!.matchAll;
+      if (_matchAll) {
+        _conditions = [Condition()];
+      }
       if (_ruleConfig.selectorTag.isNotEmpty) {
         _outboundType = OutboundType.selector;
         if (_ruleConfig.selectorTag == defaultProxySelectorTag) {
@@ -136,7 +291,6 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
         _outboundType = OutboundType.block;
       }
     }
-    _updateNontrivial();
     context.read<OutboundRepo>().getAllHandlers().then((l) {
       _outboundHandlers = l;
       if (_outboundType == OutboundType.node) {
@@ -165,20 +319,16 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
         });
   }
 
-  void _updateNontrivial() {
-    _nontrivial[Condition.inbound] =
-        _ruleConfig.inboundTags.isNotEmpty ||
-        _ruleConfig.inboundTags.isNotEmpty;
-    _nontrivial[Condition.domain] =
-        _ruleConfig.geoDomains.isNotEmpty || _ruleConfig.domainTags.isNotEmpty;
-    _nontrivial[Condition.ip] =
-        _ruleConfig.dstCidrs.isNotEmpty || _ruleConfig.dstIpTags.isNotEmpty;
-    _nontrivial[Condition.app] =
-        _ruleConfig.appIds.isNotEmpty || _ruleConfig.appTags.isNotEmpty;
-    _nontrivial[Condition.fake] = _ruleConfig.fakeIp;
-    _nontrivial[Condition.all] = _ruleConfig.allTags.isNotEmpty;
-    _nontrivial[Condition.network] = _ruleConfig.networks.isNotEmpty;
-    setState(() {});
+  void _addCondition() {
+    setState(() {
+      _conditions.add(Condition());
+    });
+  }
+
+  void _removeCondition(int index) {
+    setState(() {
+      _conditions.removeAt(index);
+    });
   }
 
   @override
@@ -316,22 +466,17 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
                   Text(AppLocalizations.of(context)!.matchAll),
                   const Gap(5),
                   Switch(
-                    value: _ruleConfig.matchAll,
+                    value: _matchAll,
                     onChanged: (value) {
                       setState(() {
-                        _ruleConfig.matchAll = value;
-                        if (_ruleConfig.matchAll) {
-                          _ruleConfig.clear();
-                          _ruleConfig.matchAll = true;
-                          _updateNontrivial();
-                        }
+                        _matchAll = value;
                       });
                     },
                   ),
                 ],
               ),
               const Gap(10),
-              if (!_ruleConfig.matchAll)
+              if (!_matchAll)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -343,266 +488,23 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const Gap(5),
-                    Text(
-                      AppLocalizations.of(context)!.enabledConditions(
-                        _nontrivial.values.where((e) => e).length,
-                      ),
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    if (_nontrivial[Condition.domain]! &&
-                        _nontrivial[Condition.ip]!)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5.0),
-                        child: Text(
-                          AppLocalizations.of(context)!.conditaionWarn1,
-                          style: Theme.of(context).textTheme.labelMedium!
-                              .copyWith(color: Colors.deepOrange),
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
-                      child: Row(
-                        children: [
-                          const Text('Fake IP'),
-                          const Gap(3),
-                          Checkbox(
-                            value: _ruleConfig.fakeIp,
-                            onChanged: (value) {
-                              setState(() {
-                                _ruleConfig.fakeIp = value ?? false;
-                                _nontrivial[Condition.fake] = value ?? false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Gap(5),
-                    Row(
-                      children: [
-                        const Text('Network'),
-                        const Gap(10),
-                        FilterChip(
-                          label: const Text('TCP'),
-                          selected: _ruleConfig.networks.contains(Network.TCP),
-                          onSelected: (value) {
-                            setState(() {
-                              value
-                                  ? _ruleConfig.networks.add(Network.TCP)
-                                  : _ruleConfig.networks.remove(Network.TCP);
-                              _nontrivial[Condition.network] =
-                                  _ruleConfig.networks.isNotEmpty;
-                            });
-                          },
-                        ),
-                        const Gap(10),
-                        FilterChip(
-                          label: const Text('UDP'),
-                          selected: _ruleConfig.networks.contains(Network.UDP),
-                          onSelected: (value) {
-                            setState(() {
-                              value
-                                  ? _ruleConfig.networks.add(Network.UDP)
-                                  : _ruleConfig.networks.remove(Network.UDP);
-                              _nontrivial[Condition.network] =
-                                  _ruleConfig.networks.isNotEmpty;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
                     const Gap(10),
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ExpansionPanelList(
-                        expansionCallback: (panelIndex, isExpanded) {
-                          setState(() {
-                            _isExpanded[panelIndex] = !_isExpanded[panelIndex];
-                          });
-                        },
-                        elevation: 0,
-                        materialGapSize: 1,
-                        expandedHeaderPadding: const EdgeInsets.all(0),
-                        children: [
-                          ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerLow,
-                            headerBuilder: (context, isExpanded) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.inbound,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color:
-                                              _nontrivial[Condition.inbound] ??
-                                                  false
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : null,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            isExpanded: _isExpanded[0],
-                            body: InboundCondition(
-                              rule: _ruleConfig,
-                              onChanged: _updateNontrivial,
-                            ),
-                          ),
-                          ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerLow,
-                            headerBuilder: (context, isExpanded) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.domain,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color: _nontrivial[Condition.domain]!
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : null,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            isExpanded: _isExpanded[1],
-                            body: DomainCondition(
-                              rule: _ruleConfig,
-                              onChanged: _updateNontrivial,
-                            ),
-                          ),
-                          ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerLow,
-                            headerBuilder: (context, isExpanded) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Text(
-                                    'IP',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color: _nontrivial[Condition.ip]!
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : null,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            isExpanded: _isExpanded[2],
-                            body: IPCondition(
-                              rule: _ruleConfig,
-                              onChanged: _updateNontrivial,
-                            ),
-                          ),
-                          ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerLow,
-                            headerBuilder: (context, isExpanded) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.app,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color: _nontrivial[Condition.app]!
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : null,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            isExpanded: _isExpanded[3],
-                            body: AppCondition(
-                              rule: _ruleConfig,
-                              onChanged: _updateNontrivial,
-                            ),
-                          ),
-                          ExpansionPanel(
-                            canTapOnHeader: true,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerLow,
-                            headerBuilder: (context, isExpanded) {
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                  ),
-                                  child: Text(
-                                    '${AppLocalizations.of(context)!.domain}/IP/${AppLocalizations.of(context)!.app}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color: _nontrivial[Condition.all]!
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.primary
-                                              : null,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            isExpanded: _isExpanded[4],
-                            body: AllCondition(
-                              rule: _ruleConfig,
-                              onChanged: _updateNontrivial,
-                            ),
-                          ),
-                        ],
+                    ...List.generate(_conditions.length, (index) {
+                      return _RouteConditionEditor(
+                        key: ObjectKey(_conditions[index]),
+                        condition: _conditions[index],
+                        index: index,
+                        canDelete: _conditions.length > 1,
+                        onDelete: () => _removeCondition(index),
+                      );
+                    }),
+                    const Gap(5),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: OutlinedButton.icon(
+                        onPressed: _addCondition,
+                        icon: const Icon(Icons.add_rounded),
+                        label: Text(AppLocalizations.of(context)!.condition),
                       ),
                     ),
                   ],
@@ -612,6 +514,442 @@ class _RouteRuleFormState extends State<RouteRuleForm> with FormDataGetter {
                 rule: _ruleConfig,
                 selectors: _selectors,
                 outboundHandlers: _outboundHandlers,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RouteConditionEditor extends StatefulWidget {
+  const _RouteConditionEditor({
+    super.key,
+    required this.condition,
+    required this.index,
+    required this.canDelete,
+    required this.onDelete,
+    this.onChanged,
+  });
+
+  final Condition condition;
+  final int index;
+  final bool canDelete;
+  final VoidCallback onDelete;
+  final VoidCallback? onChanged;
+
+  @override
+  State<_RouteConditionEditor> createState() => _RouteConditionEditorState();
+}
+
+class _RouteConditionEditorState extends State<_RouteConditionEditor> {
+  late final Map<ConditionSection, bool> _nontrivial = Map.fromEntries(
+    ConditionSection.values.map((e) => MapEntry(e, false)),
+  );
+  final List<bool> _isExpanded = List.filled(8, false);
+
+  @override
+  void initState() {
+    super.initState();
+    updateConditionNontrivial(widget.condition, _nontrivial);
+  }
+
+  void _onChanged() {
+    updateConditionNontrivial(widget.condition, _nontrivial);
+    setState(() {});
+    widget.onChanged?.call();
+  }
+
+  void _toggleExpanded(int panelIndex) {
+    setState(() {
+      _isExpanded[panelIndex] = !_isExpanded[panelIndex];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final condition = widget.condition;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${l10n.condition} ${widget.index + 1}',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  if (widget.canDelete)
+                    IconButton(
+                      onPressed: widget.onDelete,
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: l10n.delete,
+                    ),
+                ],
+              ),
+              const Gap(5),
+              Text(
+                l10n.conditionMatch,
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const Gap(5),
+              Text(
+                l10n.enabledSubconditions(
+                  _nontrivial.values.where((e) => e).length,
+                ),
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (_nontrivial[ConditionSection.domain]! &&
+                  _nontrivial[ConditionSection.ip]!)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    l10n.conditaionWarn1,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelMedium!.copyWith(color: Colors.deepOrange),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Fake IP'),
+                        const Gap(3),
+                        Checkbox(
+                          value: condition.fakeIp,
+                          onChanged: (value) {
+                            condition.fakeIp = value ?? false;
+                            _onChanged();
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l10n.hasNoDomain),
+                        const Gap(3),
+                        Checkbox(
+                          value: condition.hasNoDomain,
+                          onChanged: (value) {
+                            condition.hasNoDomain = value ?? false;
+                            _onChanged();
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('IPv6'),
+                        const Gap(3),
+                        Checkbox(
+                          value: condition.ipv6,
+                          onChanged: (value) {
+                            condition.ipv6 = value ?? false;
+                            _onChanged();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Gap(5),
+              Row(
+                children: [
+                  const Text('Network'),
+                  const Gap(10),
+                  FilterChip(
+                    label: const Text('TCP'),
+                    selected: condition.networks.contains(Network.TCP),
+                    onSelected: (value) {
+                      value
+                          ? condition.networks.add(Network.TCP)
+                          : condition.networks.remove(Network.TCP);
+                      _onChanged();
+                    },
+                  ),
+                  const Gap(10),
+                  FilterChip(
+                    label: const Text('UDP'),
+                    selected: condition.networks.contains(Network.UDP),
+                    onSelected: (value) {
+                      value
+                          ? condition.networks.add(Network.UDP)
+                          : condition.networks.remove(Network.UDP);
+                      _onChanged();
+                    },
+                  ),
+                ],
+              ),
+              const Gap(10),
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ExpansionPanelList(
+                  expansionCallback: (panelIndex, _) {
+                    _toggleExpanded(panelIndex);
+                  },
+                  elevation: 0,
+                  materialGapSize: 1,
+                  expandedHeaderPadding: const EdgeInsets.all(0),
+                  children: [
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.inbound,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color:
+                                        _nontrivial[ConditionSection.inbound]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[0],
+                      body: InboundCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.domain,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.domain]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[1],
+                      body: DomainCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.dstIpSet,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.ip]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[2],
+                      body: IPCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              '${l10n.source} IP',
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.srcIp]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[3],
+                      body: SrcIPCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.app,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.app]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[4],
+                      body: AppCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              '${l10n.domain}/IP/${l10n.app}',
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.all]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[5],
+                      body: AllCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.port,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color: _nontrivial[ConditionSection.port]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[6],
+                      body: PortCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                    ExpansionPanel(
+                      canTapOnHeader: true,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      headerBuilder: (context, _) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              l10n.protocol,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    color:
+                                        _nontrivial[ConditionSection.protocol]!
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                                  ),
+                            ),
+                          ),
+                        );
+                      },
+                      isExpanded: _isExpanded[7],
+                      body: ProtocolCondition(
+                        condition: condition,
+                        onChanged: _onChanged,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -657,8 +995,9 @@ class _FallbacksState extends State<_Fallbacks> {
         const Gap(10),
         Column(
           children: [
-            for (final fallback in fallbacks)
+            for (final (index, fallback) in fallbacks.indexed)
               _Fallback(
+                index: index,
                 fallback: fallback,
                 onDelete: () {
                   setState(() {
@@ -691,11 +1030,13 @@ class _FallbacksState extends State<_Fallbacks> {
 class _Fallback extends StatefulWidget {
   _Fallback({
     super.key,
+    required this.index,
     required this.fallback,
     this.selectors,
     this.outboundHandlers,
     required this.onDelete,
   });
+  final int index;
   final RuleConfig_Fallback fallback;
   final List<HandlerSelector>? selectors;
   final List<OutboundHandler>? outboundHandlers;
@@ -706,10 +1047,7 @@ class _Fallback extends StatefulWidget {
 }
 
 class _FallbackState extends State<_Fallback> {
-  final List<bool> _isExpanded = List.filled(2, false);
-  final Map<Condition, bool> _nontrivial = Map.fromEntries(
-    Condition.values.map((e) => MapEntry(e, false)),
-  );
+  List<Condition> _conditions = [Condition()];
 
   @override
   initState() {
@@ -718,13 +1056,35 @@ class _FallbackState extends State<_Fallback> {
         widget.fallback.outboundTag.isEmpty) {
       widget.fallback.selectorTag = defaultProxySelectorTag;
     }
-    _updateNontrivial();
+    _conditions = loadConditionsFromFallback(widget.fallback);
+    if (widget.fallback.matchAll) {
+      _conditions = [Condition()];
+    }
+    _syncFallbackConditions();
   }
 
-  void _updateNontrivial() {
-    _nontrivial[Condition.domain] = widget.fallback.domainTags.isNotEmpty;
-    _nontrivial[Condition.ip] = widget.fallback.dstIpTags.isNotEmpty;
-    setState(() {});
+  void _syncFallbackConditions() {
+    clearLegacyFallbackConditionFields(widget.fallback);
+    widget.fallback.conditions.clear();
+    if (!widget.fallback.matchAll) {
+      widget.fallback.conditions.addAll(
+        _conditions.where((c) => !conditionIsEmpty(c)),
+      );
+    }
+  }
+
+  void _addCondition() {
+    setState(() {
+      _conditions.add(Condition());
+      _syncFallbackConditions();
+    });
+  }
+
+  void _removeCondition(int index) {
+    setState(() {
+      _conditions.removeAt(index);
+      _syncFallbackConditions();
+    });
   }
 
   OutboundHandler? _getHandlerForFallback(RuleConfig_Fallback fallback) {
@@ -761,6 +1121,11 @@ class _FallbackState extends State<_Fallback> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              '${l10n.fallback} ${widget.index + 1}',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const Gap(8),
             Row(
               children: [
                 ChoiceChip(
@@ -882,10 +1247,9 @@ class _FallbackState extends State<_Fallback> {
                     setState(() {
                       widget.fallback.matchAll = value;
                       if (widget.fallback.matchAll) {
-                        widget.fallback.domainTags.clear();
-                        widget.fallback.dstIpTags.clear();
-                        _updateNontrivial();
+                        _conditions = [Condition()];
                       }
+                      _syncFallbackConditions();
                     });
                   },
                 ),
@@ -903,96 +1267,25 @@ class _FallbackState extends State<_Fallback> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const Gap(10),
+                  ...List.generate(_conditions.length, (index) {
+                    return _RouteConditionEditor(
+                      key: ObjectKey(_conditions[index]),
+                      condition: _conditions[index],
+                      index: index,
+                      canDelete: _conditions.length > 1,
+                      onDelete: () => _removeCondition(index),
+                      onChanged: _syncFallbackConditions,
+                    );
+                  }),
                   const Gap(5),
-                  Text(
-                    AppLocalizations.of(context)!.enabledConditions(
-                      _nontrivial.values.where((e) => e).length,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: _addCondition,
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(AppLocalizations.of(context)!.condition),
                     ),
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const Gap(5),
-                  ExpansionPanelList(
-                    expansionCallback: (panelIndex, isExpanded) {
-                      setState(() {
-                        _isExpanded[panelIndex] = !_isExpanded[panelIndex];
-                      });
-                    },
-                    elevation: 0,
-                    materialGapSize: 1,
-                    expandedHeaderPadding: const EdgeInsets.all(0),
-                    children: [
-                      ExpansionPanel(
-                        canTapOnHeader: true,
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerLow,
-                        headerBuilder: (context, isExpanded) {
-                          return Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!.domain,
-                                style: Theme.of(context).textTheme.titleMedium!
-                                    .copyWith(
-                                      color:
-                                          _nontrivial[Condition.domain] ?? false
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
-                                          : null,
-                                    ),
-                              ),
-                            ),
-                          );
-                        },
-                        isExpanded: _isExpanded[0],
-                        body: _DomainSet(
-                          domainTags: widget.fallback.domainTags,
-                          onChanged: () {
-                            _updateNontrivial();
-                          },
-                        ),
-                      ),
-                      ExpansionPanel(
-                        canTapOnHeader: true,
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerLow,
-                        headerBuilder: (context, isExpanded) {
-                          return Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Text(
-                                'IP',
-                                style: Theme.of(context).textTheme.titleMedium!
-                                    .copyWith(
-                                      color: _nontrivial[Condition.ip]!
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
-                                          : null,
-                                    ),
-                              ),
-                            ),
-                          );
-                        },
-                        isExpanded: _isExpanded[1],
-                        body: IPSet(
-                          dstIpTags: widget.fallback.dstIpTags,
-                          onChanged: () {
-                            _updateNontrivial();
-                          },
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -1366,10 +1659,10 @@ List<Widget> buildWrapChildrenForDomains(
 class InboundCondition extends StatefulWidget {
   const InboundCondition({
     super.key,
-    required this.rule,
+    required this.condition,
     required this.onChanged,
   });
-  final RuleConfig rule;
+  final Condition condition;
   final Function() onChanged;
   @override
   State<InboundCondition> createState() => _InboundConditionState();
@@ -1405,13 +1698,13 @@ class _InboundConditionState extends State<InboundCondition> {
           Wrap(
             runSpacing: 10,
             spacing: 10,
-            children: widget.rule.inboundTags
+            children: widget.condition.inboundTags
                 .map(
                   (e) => WrapChild(
                     shape: chipBorderRadius,
                     text: e,
                     onDelete: () => setState(() {
-                      widget.rule.inboundTags.remove(e);
+                      widget.condition.inboundTags.remove(e);
                       widget.onChanged();
                     }),
                   ),
@@ -1426,7 +1719,7 @@ class _InboundConditionState extends State<InboundCondition> {
                   controller: _inboundController,
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
-                      widget.rule.inboundTags.add(_inboundController.text);
+                      widget.condition.inboundTags.add(_inboundController.text);
                       _inboundController.clear();
                       setState(() {
                         widget.onChanged();
@@ -1446,7 +1739,7 @@ class _InboundConditionState extends State<InboundCondition> {
               IconButton.filledTonal(
                 onPressed: () {
                   if (_inboundController.text.isNotEmpty) {
-                    widget.rule.inboundTags.add(_inboundController.text);
+                    widget.condition.inboundTags.add(_inboundController.text);
                     _inboundController.clear();
                     setState(() {
                       widget.onChanged();
@@ -1470,16 +1763,28 @@ class DomainCondition extends StatefulWidget {
     super.key,
     this.rule,
     this.dnsRule,
+    this.condition,
     required this.onChanged,
   });
   final RuleConfig? rule;
   final DnsRuleConfig? dnsRule;
+  final Condition? condition;
   final Function() onChanged;
   @override
   State<DomainCondition> createState() => _DomainConditionState();
 }
 
 class _DomainConditionState extends State<DomainCondition> {
+  List<Domain> get _geoDomains =>
+      widget.condition?.geoDomains ??
+      widget.rule?.geoDomains ??
+      widget.dnsRule!.domains;
+
+  List<String> get _domainTags =>
+      widget.condition?.domainTags ??
+      widget.rule?.domainTags ??
+      widget.dnsRule!.domainTags;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1502,23 +1807,19 @@ class _DomainConditionState extends State<DomainCondition> {
           Wrap(
             runSpacing: 10,
             spacing: 10,
-            children: buildWrapChildrenForDomains(
-              context,
-              widget.rule?.geoDomains ?? widget.dnsRule!.domains,
-              (domain) {
-                setState(() {
-                  widget.rule?.geoDomains.remove(domain);
-                  widget.dnsRule?.domains.remove(domain);
-                  widget.onChanged();
-                });
-              },
-            ),
+            children: buildWrapChildrenForDomains(context, _geoDomains, (
+              domain,
+            ) {
+              setState(() {
+                _geoDomains.remove(domain);
+                widget.onChanged();
+              });
+            }),
           ),
           const Gap(10),
           DomainCollector(
             onAdd: (p0) {
-              widget.rule?.geoDomains.add(p0);
-              widget.dnsRule?.domains.add(p0);
+              _geoDomains.add(p0);
               setState(() {
                 widget.onChanged();
               });
@@ -1533,16 +1834,16 @@ class _DomainConditionState extends State<DomainCondition> {
           ),
           const Gap(5),
           _DomainSet(
-            domainTags: widget.rule?.domainTags ?? widget.dnsRule!.domainTags,
+            domainTags: _domainTags,
             onChanged: () {
               widget.onChanged();
             },
           ),
-          if (widget.rule != null)
+          if (widget.condition != null || widget.rule != null)
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: CheckboxListTile(
-                value: !widget.rule!.skipSniff,
+                value: !(widget.condition?.skipSniff ?? widget.rule!.skipSniff),
                 title: Text(
                   AppLocalizations.of(context)!.sniffDomainForIpConnection,
                   style: Theme.of(context).textTheme.labelMedium!.copyWith(
@@ -1550,7 +1851,11 @@ class _DomainConditionState extends State<DomainCondition> {
                   ),
                 ),
                 onChanged: (v) {
-                  widget.rule!.skipSniff = !(v ?? false);
+                  if (widget.condition != null) {
+                    widget.condition!.skipSniff = !(v ?? false);
+                  } else {
+                    widget.rule!.skipSniff = !(v ?? false);
+                  }
                   setState(() {
                     widget.onChanged();
                   });
@@ -1564,8 +1869,8 @@ class _DomainConditionState extends State<DomainCondition> {
 }
 
 class IPSet extends StatefulWidget {
-  const IPSet({super.key, required this.dstIpTags, required this.onChanged});
-  final List<String> dstIpTags;
+  const IPSet({super.key, required this.ipTags, required this.onChanged});
+  final List<String> ipTags;
   final Function() onChanged;
 
   @override
@@ -1579,13 +1884,13 @@ class _IPSetState extends State<IPSet> {
       runSpacing: 10,
       spacing: 10,
       children:
-          widget.dstIpTags
+          widget.ipTags
               .map<Widget>(
                 (e) => MenuAnchor(
                   menuChildren: [
                     MenuItemButton(
                       onPressed: () {
-                        widget.dstIpTags.remove(e);
+                        widget.ipTags.remove(e);
                         setState(() {
                           widget.onChanged();
                         });
@@ -1595,7 +1900,7 @@ class _IPSetState extends State<IPSet> {
                   ],
                   builder: (context, controller, child) => GestureDetector(
                     onDoubleTap: () {
-                      widget.dstIpTags.remove(e);
+                      widget.ipTags.remove(e);
                       setState(() {
                         widget.onChanged();
                       });
@@ -1619,7 +1924,7 @@ class _IPSetState extends State<IPSet> {
             ..add(
               IPSetPicker(
                 onChanged: (p0) {
-                  widget.dstIpTags.add(p0);
+                  widget.ipTags.add(p0);
                   setState(() {
                     widget.onChanged();
                   });
@@ -1887,8 +2192,12 @@ class _DomainSetPickerState extends State<DomainSetPicker> {
 }
 
 class IPCondition extends StatefulWidget {
-  const IPCondition({super.key, required this.rule, required this.onChanged});
-  final RuleConfig rule;
+  const IPCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
   final Function() onChanged;
 
   @override
@@ -1935,13 +2244,13 @@ class _IPConditionState extends State<IPCondition> {
           Wrap(
             runSpacing: 10,
             spacing: 10,
-            children: widget.rule.dstCidrs
+            children: widget.condition.dstCidrs
                 .map(
                   (e) => WrapChild(
                     shape: chipBorderRadius,
                     text: e,
                     onDelete: () => setState(() {
-                      widget.rule.dstCidrs.remove(e);
+                      widget.condition.dstCidrs.remove(e);
                       widget.onChanged();
                     }),
                   ),
@@ -1970,7 +2279,7 @@ class _IPConditionState extends State<IPCondition> {
                     if (!isValidCidr(_ipController.text)) {
                       return;
                     }
-                    widget.rule.dstCidrs.add(_ipController.text);
+                    widget.condition.dstCidrs.add(_ipController.text);
                     _ipController.clear();
                     setState(() {
                       widget.onChanged();
@@ -1992,7 +2301,7 @@ class _IPConditionState extends State<IPCondition> {
           ),
           const Gap(5),
           IPSet(
-            dstIpTags: widget.rule.dstIpTags,
+            ipTags: widget.condition.dstIpTags,
             onChanged: () {
               widget.onChanged();
             },
@@ -2000,7 +2309,7 @@ class _IPConditionState extends State<IPCondition> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: CheckboxListTile(
-              value: widget.rule.resolveDomain,
+              value: widget.condition.resolveDomain,
               title: Text(
                 AppLocalizations.of(context)!.resolveDomain,
                 style: Theme.of(context).textTheme.labelMedium!.copyWith(
@@ -2008,12 +2317,339 @@ class _IPConditionState extends State<IPCondition> {
                 ),
               ),
               onChanged: (v) {
-                widget.rule.resolveDomain = v ?? false;
+                widget.condition.resolveDomain = v ?? false;
                 setState(() {
                   widget.onChanged();
                 });
               },
             ),
+          ),
+          CheckboxListTile(
+            value: widget.condition.resolveSoftRewrite,
+            title: Text(
+              'Resolve domain (soft, rewrite)',
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            onChanged: (v) {
+              widget.condition.resolveSoftRewrite = v ?? false;
+              setState(() {
+                widget.onChanged();
+              });
+            },
+          ),
+          CheckboxListTile(
+            value: widget.condition.resolveSoftNoRewrite,
+            title: Text(
+              'Resolve domain (soft, no rewrite)',
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            onChanged: (v) {
+              widget.condition.resolveSoftNoRewrite = v ?? false;
+              setState(() {
+                widget.onChanged();
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SrcIPCondition extends StatefulWidget {
+  const SrcIPCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
+  final Function() onChanged;
+
+  @override
+  State<SrcIPCondition> createState() => _SrcIPConditionState();
+}
+
+class _SrcIPConditionState extends State<SrcIPCondition> {
+  final _ipController = TextEditingController();
+
+  @override
+  void dispose() {
+    _ipController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: 16.0,
+        top: 5.0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${l10n.source} IP',
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const Gap(5),
+          Wrap(
+            runSpacing: 10,
+            spacing: 10,
+            children: widget.condition.srcCidrs
+                .map(
+                  (e) => WrapChild(
+                    shape: chipBorderRadius,
+                    text: e,
+                    onDelete: () => setState(() {
+                      widget.condition.srcCidrs.remove(e);
+                      widget.onChanged();
+                    }),
+                  ),
+                )
+                .toList(),
+          ),
+          const Gap(10),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _ipController,
+                  decoration: InputDecoration(
+                    labelText: '${l10n.source} IP',
+                    hintText: '10.0.0.0/24',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+              ),
+              const Gap(5),
+              IconButton.filledTonal(
+                onPressed: () {
+                  if (_ipController.text.isNotEmpty) {
+                    if (!isValidCidr(_ipController.text)) {
+                      return;
+                    }
+                    widget.condition.srcCidrs.add(_ipController.text);
+                    _ipController.clear();
+                    setState(() {
+                      widget.onChanged();
+                    });
+                  }
+                },
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.all(0),
+                icon: const Icon(Icons.add_rounded, size: 18),
+              ),
+            ],
+          ),
+          const Gap(10),
+          Text(
+            l10n.ipSet,
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const Gap(5),
+          IPSet(
+            ipTags: widget.condition.srcIpTags,
+            onChanged: widget.onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _portRangeLabel(PortRange range) {
+  if (range.from == range.to) {
+    return '${range.from}';
+  }
+  return '${range.from}-${range.to}';
+}
+
+class PortCondition extends StatefulWidget {
+  const PortCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
+  final Function() onChanged;
+
+  @override
+  State<PortCondition> createState() => _PortConditionState();
+}
+
+class _PortConditionState extends State<PortCondition> {
+  final _srcPortController = TextEditingController();
+  final _dstPortController = TextEditingController();
+
+  @override
+  void dispose() {
+    _srcPortController.dispose();
+    _dstPortController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildPortSection({
+    required String label,
+    required List<PortRange> portRanges,
+    required TextEditingController controller,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const Gap(5),
+        Wrap(
+          runSpacing: 10,
+          spacing: 10,
+          children: portRanges
+              .map(
+                (e) => WrapChild(
+                  shape: chipBorderRadius,
+                  text: _portRangeLabel(e),
+                  onDelete: () => setState(() {
+                    portRanges.remove(e);
+                    widget.onChanged();
+                  }),
+                ),
+              )
+              .toList(),
+        ),
+        const Gap(10),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: label,
+                  hintText: l10n.outboundPortHintExample,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ),
+            ),
+            const Gap(5),
+            IconButton.filledTonal(
+              onPressed: () {
+                final parsed = tryParsePorts(controller.text.trim());
+                if (parsed == null || parsed.isEmpty) {
+                  return;
+                }
+                portRanges.addAll(parsed);
+                controller.clear();
+                setState(() {
+                  widget.onChanged();
+                });
+              },
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(0),
+              icon: const Icon(Icons.add_rounded, size: 18),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: 16.0,
+        top: 5.0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildPortSection(
+            label: '${l10n.source} ${l10n.port}',
+            portRanges: widget.condition.srcPortRanges,
+            controller: _srcPortController,
+          ),
+          const Gap(10),
+          _buildPortSection(
+            label: '${l10n.destination} ${l10n.port}',
+            portRanges: widget.condition.dstPortRanges,
+            controller: _dstPortController,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProtocolCondition extends StatelessWidget {
+  const ProtocolCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
+  final Function() onChanged;
+
+  static const _protocols = ['tls', 'http1', 'quic', 'bittorrent'];
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: 16.0,
+        top: 5.0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.protocol,
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const Gap(5),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: _protocols
+                .map(
+                  (protocol) => FilterChip(
+                    label: Text(protocol),
+                    selected: condition.protocols.contains(protocol),
+                    onSelected: (value) {
+                      value
+                          ? condition.protocols.add(protocol)
+                          : condition.protocols.remove(protocol);
+                      onChanged();
+                    },
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -2022,8 +2658,12 @@ class _IPConditionState extends State<IPCondition> {
 }
 
 class AllCondition extends StatefulWidget {
-  const AllCondition({super.key, required this.rule, required this.onChanged});
-  final RuleConfig rule;
+  const AllCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
   final Function() onChanged;
 
   @override
@@ -2073,14 +2713,14 @@ class _AllConditionState extends State<AllCondition> {
           Wrap(
             runSpacing: 10,
             spacing: 10,
-            children: widget.rule.allTags
+            children: widget.condition.allTags
                 .map(
                   (e) => WrapChild(
                     shape: chipBorderRadius,
                     text: e,
                     onDelete: () {
                       setState(() {
-                        widget.rule.allTags.remove(e);
+                        widget.condition.allTags.remove(e);
                         widget.onChanged();
                       });
                     },
@@ -2097,7 +2737,7 @@ class _AllConditionState extends State<AllCondition> {
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
                       setState(() {
-                        widget.rule.allTags.add(_controller.text);
+                        widget.condition.allTags.add(_controller.text);
                         _controller.clear();
                         widget.onChanged();
                       });
@@ -2116,7 +2756,7 @@ class _AllConditionState extends State<AllCondition> {
               IconButton.filledTonal(
                 onPressed: () {
                   setState(() {
-                    widget.rule.allTags.add(_controller.text);
+                    widget.condition.allTags.add(_controller.text);
                     _controller.clear();
                     widget.onChanged();
                   });
@@ -2129,7 +2769,7 @@ class _AllConditionState extends State<AllCondition> {
           ),
           const Gap(5),
           CheckboxListTile(
-            value: widget.rule.resolveDomain,
+            value: widget.condition.resolveDomain,
             title: Text(
               AppLocalizations.of(context)!.resolveDomain,
               style: Theme.of(context).textTheme.labelMedium!.copyWith(
@@ -2137,7 +2777,7 @@ class _AllConditionState extends State<AllCondition> {
               ),
             ),
             onChanged: (v) {
-              widget.rule.resolveDomain = v ?? false;
+              widget.condition.resolveDomain = v ?? false;
               setState(() {
                 widget.onChanged();
               });
@@ -2145,7 +2785,7 @@ class _AllConditionState extends State<AllCondition> {
           ),
           const Gap(5),
           CheckboxListTile(
-            value: !widget.rule.skipSniff,
+            value: !widget.condition.skipSniff,
             title: Text(
               AppLocalizations.of(context)!.sniffDomainForIpConnection,
               style: Theme.of(context).textTheme.labelMedium!.copyWith(
@@ -2153,7 +2793,7 @@ class _AllConditionState extends State<AllCondition> {
               ),
             ),
             onChanged: (v) {
-              widget.rule.skipSniff = !(v ?? false);
+              widget.condition.skipSniff = !(v ?? false);
               setState(() {
                 widget.onChanged();
               });
@@ -2166,8 +2806,12 @@ class _AllConditionState extends State<AllCondition> {
 }
 
 class AppCondition extends StatefulWidget {
-  const AppCondition({super.key, required this.rule, required this.onChanged});
-  final RuleConfig rule;
+  const AppCondition({
+    super.key,
+    required this.condition,
+    required this.onChanged,
+  });
+  final Condition condition;
   final Function() onChanged;
   @override
   State<AppCondition> createState() => _AppConditionState();
@@ -2211,7 +2855,7 @@ class _AppConditionState extends State<AppCondition> {
           ),
           const Gap(5),
           Column(
-            children: widget.rule.appIds
+            children: widget.condition.appIds
                 .map(
                   (e) => ListTile(
                     title: Text(e.value),
@@ -2229,7 +2873,7 @@ class _AppConditionState extends State<AppCondition> {
                     trailing: IconButton(
                       onPressed: () {
                         setState(() {
-                          widget.rule.appIds.remove(e);
+                          widget.condition.appIds.remove(e);
                           widget.onChanged();
                         });
                       },
@@ -2276,7 +2920,9 @@ class _AppConditionState extends State<AppCondition> {
                   ),
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
-                      widget.rule.appIds.add(AppId(value: value, type: _type));
+                      widget.condition.appIds.add(
+                        AppId(value: value, type: _type),
+                      );
                       _appController.clear();
                     }
                     return null;
@@ -2286,7 +2932,7 @@ class _AppConditionState extends State<AppCondition> {
               const Gap(5),
               IconButton.filledTonal(
                 onPressed: () {
-                  widget.rule.appIds.add(
+                  widget.condition.appIds.add(
                     AppId(value: _appController.text, type: _type),
                   );
                   _appController.clear();
@@ -2312,13 +2958,13 @@ class _AppConditionState extends State<AppCondition> {
             runSpacing: 10,
             spacing: 10,
             children:
-                widget.rule.appTags
+                widget.condition.appTags
                     .map<Widget>(
                       (e) => MenuAnchor(
                         menuChildren: [
                           MenuItemButton(
                             onPressed: () {
-                              widget.rule.appTags.remove(e);
+                              widget.condition.appTags.remove(e);
                               setState(() {
                                 widget.onChanged();
                               });
@@ -2329,7 +2975,7 @@ class _AppConditionState extends State<AppCondition> {
                         builder: (context, controller, child) =>
                             GestureDetector(
                               onDoubleTap: () {
-                                widget.rule.appTags.remove(e);
+                                widget.condition.appTags.remove(e);
                                 setState(() {
                                   widget.onChanged();
                                 });
@@ -2362,7 +3008,7 @@ class _AppConditionState extends State<AppCondition> {
                               .map(
                                 (e) => MenuItemButton(
                                   onPressed: () {
-                                    widget.rule.appTags.add(e.name);
+                                    widget.condition.appTags.add(e.name);
                                     setState(() {
                                       widget.onChanged();
                                     });

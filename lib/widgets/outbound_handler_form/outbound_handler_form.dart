@@ -22,6 +22,9 @@ import 'package:gap/gap.dart';
 import 'package:flutter_common/util/net.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vx/auth/auth_bloc.dart';
+import 'package:vx/pref_helper.dart';
 import 'package:tm/protos/vx/common/net/net.pb.dart';
 import 'package:protobuf/well_known_types/google/protobuf/any.pb.dart';
 import 'package:tm/protos/vx/inbound/inbound.pb.dart';
@@ -50,6 +53,8 @@ import 'package:vx/l10n/app_localizations.dart';
 import 'package:tm/protos/vx/transport/transport.pb.dart';
 import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/common/config.dart';
+import 'package:vx/utils/realm.dart';
+import 'package:vx/utils/realm_secret.dart';
 import 'package:vx/common/const.dart';
 import 'package:vx/common/net.dart';
 import 'package:vx/theme.dart';
@@ -77,13 +82,15 @@ import 'package:vx/widgets/add_button.dart';
 import 'package:vx/widgets/delete_menu_anchor.dart';
 import 'package:vx/widgets/form_container.dart';
 import 'package:vx/widgets/form_dialog.dart';
+import 'package:vx/widgets/pro_icon.dart';
+import 'package:vx/widgets/pro_promotion.dart';
 import 'package:vx/widgets/text_divider.dart';
-
 part 'transport.dart';
 part 'transport_header.dart';
 part 'transport_protocol.dart';
 part 'transport_security.dart';
 part 'proxy.dart';
+part 'realm_config.dart';
 part 'inbound_form.dart';
 
 /// Collect some fields of OutboundHandler.

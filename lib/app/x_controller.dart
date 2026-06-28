@@ -57,6 +57,7 @@ import 'package:vx/data/database.dart';
 import 'package:vx/main.dart' hide App;
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/path.dart';
+import 'package:vx/utils/system_managed_vpn.dart';
 import 'package:vx/utils/upload_log.dart';
 import 'package:vx/utils/wintun.dart';
 import 'package:vx/utils/xapi_client.dart';
@@ -135,7 +136,10 @@ class XController implements MessageFlutterApi {
           _logUploadService.performUpload();
         }
       }
-      if (_pref.connect && _pref.alwaysOn && !restarting) {
+      if (_pref.connect &&
+          _pref.alwaysOn &&
+          !restarting &&
+          !isSystemManagedVpn()) {
         start();
       }
     }
@@ -217,6 +221,15 @@ class XController implements MessageFlutterApi {
   ) async {
     final client = await getXClient();
     return client.getStatsStream(GetStatsRequest(interval: interval));
+  }
+
+  Future<ResponseStream<RealmServerStatus>> realmStatusStream(
+    int interval,
+  ) async {
+    final client = await getXClient();
+    return client.getRealmStatusStream(
+      GetRealmStatusStreamRequest(interval: interval),
+    );
   }
 
   Future<void> resetUserLogging(

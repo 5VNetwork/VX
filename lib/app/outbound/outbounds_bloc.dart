@@ -24,7 +24,9 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tm/protos/app/api/api.pb.dart';
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/proxy/wireguard/config.pb.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
+import 'package:tm/protos/vx/transport/headers/wireguard/config.pb.dart';
 import 'package:tm/tm.dart';
 import 'package:vx/app/control.dart';
 import 'package:vx/app/outbound/outbound_page.dart';
@@ -950,18 +952,29 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           } else {
             config = h.config.chain.handlers.first;
           }
+
+          String address = config.address;
           int port = config.port;
-          if (port == 0) {
-            port = config.ports.first.from;
+          if (config.getDisplayProtocol() == "WireGuard") {
+            final wireguardConfig = DeviceConfig();
+            config.protocol.unpackInto(wireguardConfig);
+            address = wireguardConfig.peers.first.endpoint.split(':').first;
+            port =
+                int.tryParse(
+                  wireguardConfig.peers.first.endpoint.split(':').last,
+                ) ??
+                0;
+          } else {
+            if (port == 0) {
+              port = config.ports.first.from;
+            }
           }
 
           late Future<int> f;
           if (Tm.instance.state == TmStatus.connected) {
-            f = _xController.rttTest(config.address, port);
+            f = _xController.rttTest(address, port);
           } else {
-            f = _xApiClient.rtt(
-              RttTestRequest(addr: config.address, port: port),
-            );
+            f = _xApiClient.rtt(RttTestRequest(addr: address, port: port));
           }
 
           return f

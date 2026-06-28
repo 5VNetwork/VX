@@ -157,9 +157,11 @@ class _DnsServersState extends State<DnsServers>
   }
 
   List<DnsServer> _allDnsServersForSelection({String? excludeName}) {
-    return [..._servers, ..._concurrentServers, ..._serialServers]
-        .where((e) => excludeName == null || e.name != excludeName)
-        .toList();
+    return [
+      ..._servers,
+      ..._concurrentServers,
+      ..._serialServers,
+    ].where((e) => excludeName == null || e.name != excludeName).toList();
   }
 
   bool _isReservedName(String name) =>
@@ -299,10 +301,7 @@ class _DnsServersState extends State<DnsServers>
     final k = GlobalKey();
     final config = await showMyAdaptiveDialog<SerialDnsServer?>(
       context,
-      _SerialDnsServerForm(
-        key: k,
-        dnsServers: _allDnsServersForSelection(),
-      ),
+      _SerialDnsServerForm(key: k, dnsServers: _allDnsServersForSelection()),
       title: AppLocalizations.of(context)!.addSerialDnsServer,
       onSave: (BuildContext context) {
         final formData = (k.currentState as FormDataGetter).formData;
@@ -1539,7 +1538,7 @@ class _IpTags extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        IPSet(dstIpTags: dstIpTags, onChanged: onChanged),
+        IPSet(ipTags: dstIpTags, onChanged: onChanged),
       ],
     );
   }

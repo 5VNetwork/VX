@@ -13,34 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:equatable/equatable.dart';
+import 'dart:async';
 
-class User extends Equatable {
-  const User({
-    required this.id,
-    required this.email,
-    this.proExpiredAt,
-    required this.pro,
-    required this.level,
-  });
-  final String id;
-  final String email;
-  final DateTime? proExpiredAt;
-  final UserLevel level;
+import 'package:tm_android/tm_android.dart';
 
-  final bool pro;
+bool isSystemManagedVpn() => TmAndroid.current?.isSystemManagedVpn ?? false;
 
-  @override
-  List<Object?> get props => [id, email, proExpiredAt, pro, level];
+Stream<bool>? systemManagedVpnStream() =>
+    TmAndroid.current?.systemManagedVpnStream;
 
-  bool get isProUser {
-    return pro || lifetimePro;
-  }
-
-  bool get lifetimePro =>
-      pro && proExpiredAt == null ||
-      level == UserLevel.max ||
-      level == UserLevel.pro;
+Future<void> openAndroidVpnSettings() async {
+  await TmAndroid.current?.openVpnSettings();
 }
-
-enum UserLevel { free, pro, max }
