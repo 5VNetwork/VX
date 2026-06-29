@@ -307,7 +307,6 @@ class _HysteriaRealmSettingScreenState
         return;
       }
       setState(() {
-        _enabled = true;
         _authController.text = config.auth;
         _hysteria = config.hysteria.deepCopy();
         _hysteria.tlsConfig = _hysteria.tlsConfig.deepCopy();
