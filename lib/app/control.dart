@@ -273,38 +273,15 @@ class ProxySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<ProxySelectorBloc, ProxySelectorState, (bool?, bool)>(
-      selector: (state) =>
-          (state.showProxySelector, state.proxySelectorEnabled),
+    return BlocSelector<ProxySelectorBloc, ProxySelectorState, bool?>(
+      selector: (state) => (state.showProxySelector),
       builder: (context, t2) {
-        if (t2.$1 ?? false) {
-          if (t2.$2) {
-            return home
+        if (t2 ?? false) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: home
                 ? const ProxySelectorHome()
-                : const DefaultProxySelectorControl();
-          }
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              showProPromotionDialog(context);
-            },
-            child: Stack(
-              children: [
-                Opacity(
-                  opacity: 1,
-                  child: IgnorePointer(
-                    child: home
-                        ? const ProxySelectorHome()
-                        : const DefaultProxySelectorControl(showEdit: false),
-                  ),
-                ),
-                const Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Icon(Icons.stars_rounded, color: XBlue),
-                ),
-              ],
-            ),
+                : const DefaultProxySelectorControl(),
           );
         }
         return const SizedBox.shrink();
@@ -515,6 +492,7 @@ class _DefaultProxySelectorControlState
     );
   }
 }
+
 class ManualModeCard extends StatelessWidget {
   const ManualModeCard({super.key});
 

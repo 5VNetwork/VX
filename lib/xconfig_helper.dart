@@ -150,7 +150,7 @@ class XConfigHelper {
       ),
       dialerFactory: DialerFactoryConfig(
         dialTimeout: _persistentStateRepo.globalDialTimeout,
-        shouldBindDevice: true,
+        shouldBindDevice: _persistentStateRepo.inboundMode == InboundMode.tun,
         resolveDomain: true,
       ),
     );
@@ -499,7 +499,7 @@ class XConfigHelper {
         _databaseProvider.database.dnsRecords,
       )).get().then((value) => value.map((e) => e.dnsRecord).toList()),
       serialDnsServers: [],
-      concurrentDnsServers: []
+      concurrentDnsServers: [],
     );
 
     final customRouteMode = await _databaseProvider

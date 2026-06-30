@@ -19,7 +19,6 @@ class ProxySelectorState extends Equatable {
   const ProxySelectorState({
     this.routeMode,
     this.showProxySelector,
-    this.proxySelectorEnabled = true,
     this.proxySelectorMode = ProxySelectorMode.auto,
     this.manualNodeSetting = const ManualNodeSetting(),
     this.autoNodeSetting,
@@ -27,8 +26,6 @@ class ProxySelectorState extends Equatable {
   // either a RouteMode or a String which is the name of a RouteConfig
   final String? routeMode;
   final bool? showProxySelector;
-  // selector is only enabled for pro users
-  final bool proxySelectorEnabled;
   final ProxySelectorMode proxySelectorMode;
   final ManualNodeSetting manualNodeSetting;
   final SelectorConfig? autoNodeSetting;
@@ -43,7 +40,6 @@ class ProxySelectorState extends Equatable {
     proxySelectorMode,
     manualNodeSetting,
     autoNodeSetting,
-    proxySelectorEnabled,
     showProxySelector,
   ];
 
@@ -59,7 +55,6 @@ class ProxySelectorState extends Equatable {
     return ProxySelectorState(
       routeMode: routeMode ?? this.routeMode,
       showProxySelector: showProxySelector ?? this.showProxySelector,
-      proxySelectorEnabled: proxySelectorEnabled ?? this.proxySelectorEnabled,
       proxySelectorMode: outboundMode ?? proxySelectorMode,
       manualNodeSetting: manualNodeSetting ?? this.manualNodeSetting,
       autoNodeSetting: autoNodeSetting ?? this.autoNodeSetting,

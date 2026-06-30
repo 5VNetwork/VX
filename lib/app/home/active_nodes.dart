@@ -21,17 +21,25 @@ class Nodes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final realtime = context.watch<RealtimeSpeedNotifier>();
-    final mode = context.select<ProxySelectorBloc, ProxySelectorMode>(
-      (b) => b.state.proxySelectorMode,
-    );
-    final manual = mode == ProxySelectorMode.manual;
+    final state = context.watch<ProxySelectorBloc>().state;
+    if (state.showProxySelector == false) {
+      return const SizedBox();
+    }
+
+    final manual = state.proxySelectorMode == ProxySelectorMode.manual;
     if (realtime.nodeInfos.isNotEmpty) {
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 300),
-        child: const ActiveNodes(),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 300),
+          child: const ActiveNodes(),
+        ),
       );
     }
-    if (realtime.nodeInfos.isEmpty && manual) return const CurrentNodes();
+    if (realtime.nodeInfos.isEmpty && manual) return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: const CurrentNodes(),
+    );
     return const SizedBox();
   }
 }
@@ -326,140 +334,147 @@ class _NodesHelperState extends State<NodesHelper> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeCard(
-      title: AppLocalizations.of(context)!.recommendedNodes,
-      icon: Icons.recommend_outlined,
-      child: Expanded(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Segmented control
-            SegmentedButton<NodesHelperSegment>(
-              showSelectedIcon:
-                  AppLocalizations.of(context)!.localeName == 'zh',
-              segments: [
-                ButtonSegment(
-                  value: NodesHelperSegment.fastest,
-                  label: Text(AppLocalizations.of(context)!.speed),
-                  icon: AppLocalizations.of(context)!.localeName != 'zh'
-                      ? null
-                      : const Icon(Icons.speed, size: 16),
-                ),
-                ButtonSegment(
-                  value: NodesHelperSegment.lowestLatency,
-                  label: Text(AppLocalizations.of(context)!.latency),
-                  icon: AppLocalizations.of(context)!.localeName != 'zh'
-                      ? null
-                      : const Icon(Icons.network_check, size: 16),
-                ),
-                ButtonSegment(
-                  value: NodesHelperSegment.recent,
-                  label: Text(AppLocalizations.of(context)!.recent),
-                  icon: AppLocalizations.of(context)!.localeName != 'zh'
-                      ? null
-                      : const Icon(Icons.history, size: 16),
-                ),
-              ],
-              selected: {_selectedSegment},
-              onSelectionChanged: (Set<NodesHelperSegment> set) {
-                setState(() {
-                  _selectedSegment = set.first;
-                  context.read<SharedPreferences>().setNodesHelperSegment(
-                    _selectedSegment,
-                  );
-                  _loadHandlers();
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            // Node list
-            if (_handlers.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: SizedBox(),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const ClampingScrollPhysics(),
-                  separatorBuilder: (context, index) =>
-                      Divider(height: 1, color: Colors.grey.withOpacity(0.1)),
-                  itemCount: context.read<MyLayout>().isCompact
-                      ? min(3, _handlers.length)
-                      : _handlers.length,
-                  itemBuilder: (context, index) {
-                    final manualSelect =
-                        context
-                            .watch<ProxySelectorBloc>()
-                            .state
-                            .proxySelectorMode ==
-                        ProxySelectorMode.manual;
-                    return SizedBox(
-                      // height: 50,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: manualSelect
-                              ? () {
-                                  _switchHandlerAndRefreshRecentIfNeeded(
-                                    index,
-                                    !_handlers[index].selected,
-                                  );
-                                }
-                              : null,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _NodeListItem(
-                                  key: ValueKey(_handlers[index].id),
-                                  handler: _handlers[index],
-                                  testFuture: () async {
-                                    final handler = _handlers[index];
-                                    final (ok, ping, speed) =
-                                        await _testHandler(context, handler);
-                                    if (_selectedSegment ==
-                                            NodesHelperSegment.recent &&
-                                        mounted) {
-                                      final index = _handlers.indexOf(handler);
-                                      if (index != -1) {
-                                        setState(() {
-                                          _handlers[index] = handler.copyWith(
-                                            ok: ok,
-                                            ping: ping,
-                                            speed: speed,
-                                          );
-                                        });
+    if (context.watch<ProxySelectorBloc>().state.showProxySelector == false) {
+      return const SizedBox();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: HomeCard(
+        title: AppLocalizations.of(context)!.recommendedNodes,
+        icon: Icons.recommend_outlined,
+        child: Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Segmented control
+              SegmentedButton<NodesHelperSegment>(
+                showSelectedIcon:
+                    AppLocalizations.of(context)!.localeName == 'zh',
+                segments: [
+                  ButtonSegment(
+                    value: NodesHelperSegment.fastest,
+                    label: Text(AppLocalizations.of(context)!.speed),
+                    icon: AppLocalizations.of(context)!.localeName != 'zh'
+                        ? null
+                        : const Icon(Icons.speed, size: 16),
+                  ),
+                  ButtonSegment(
+                    value: NodesHelperSegment.lowestLatency,
+                    label: Text(AppLocalizations.of(context)!.latency),
+                    icon: AppLocalizations.of(context)!.localeName != 'zh'
+                        ? null
+                        : const Icon(Icons.network_check, size: 16),
+                  ),
+                  ButtonSegment(
+                    value: NodesHelperSegment.recent,
+                    label: Text(AppLocalizations.of(context)!.recent),
+                    icon: AppLocalizations.of(context)!.localeName != 'zh'
+                        ? null
+                        : const Icon(Icons.history, size: 16),
+                  ),
+                ],
+                selected: {_selectedSegment},
+                onSelectionChanged: (Set<NodesHelperSegment> set) {
+                  setState(() {
+                    _selectedSegment = set.first;
+                    context.read<SharedPreferences>().setNodesHelperSegment(
+                      _selectedSegment,
+                    );
+                    _loadHandlers();
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              // Node list
+              if (_handlers.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: SizedBox(),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    separatorBuilder: (context, index) =>
+                        Divider(height: 1, color: Colors.grey.withOpacity(0.1)),
+                    itemCount: context.read<MyLayout>().isCompact
+                        ? min(3, _handlers.length)
+                        : _handlers.length,
+                    itemBuilder: (context, index) {
+                      final manualSelect =
+                          context
+                              .watch<ProxySelectorBloc>()
+                              .state
+                              .proxySelectorMode ==
+                          ProxySelectorMode.manual;
+                      return SizedBox(
+                        // height: 50,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: manualSelect
+                                ? () {
+                                    _switchHandlerAndRefreshRecentIfNeeded(
+                                      index,
+                                      !_handlers[index].selected,
+                                    );
+                                  }
+                                : null,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _NodeListItem(
+                                    key: ValueKey(_handlers[index].id),
+                                    handler: _handlers[index],
+                                    testFuture: () async {
+                                      final handler = _handlers[index];
+                                      final (ok, ping, speed) =
+                                          await _testHandler(context, handler);
+                                      if (_selectedSegment ==
+                                              NodesHelperSegment.recent &&
+                                          mounted) {
+                                        final index = _handlers.indexOf(handler);
+                                        if (index != -1) {
+                                          setState(() {
+                                            _handlers[index] = handler.copyWith(
+                                              ok: ok,
+                                              ping: ping,
+                                              speed: speed,
+                                            );
+                                          });
+                                        }
                                       }
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              if (manualSelect)
-                                Transform.scale(
-                                  scale: 0.8,
-                                  child: Switch(
-                                    value: _handlers[index].selected,
-                                    onChanged: (value) {
-                                      _switchHandlerAndRefreshRecentIfNeeded(
-                                        index,
-                                        value,
-                                      );
                                     },
                                   ),
                                 ),
-                            ],
+                                const SizedBox(width: 4),
+                                if (manualSelect)
+                                  Transform.scale(
+                                    scale: 0.8,
+                                    child: Switch(
+                                      value: _handlers[index].selected,
+                                      onChanged: (value) {
+                                        _switchHandlerAndRefreshRecentIfNeeded(
+                                          index,
+                                          value,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

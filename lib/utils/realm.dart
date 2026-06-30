@@ -16,7 +16,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:uuid/uuid.dart';
 
-const defaultRealmRendezvousHost = 'realm.5vnetwork.com';
+const defaultRealmRendezvousHost = 'realm.leeveck.site';
 const publicRealmRendezvousHost = 'realm.hy2.io';
 const publicRealmRendezvousPassword = 'public';
 
@@ -145,7 +145,9 @@ String buildRealmAddr({
 
   if (params.isEmpty) return base;
   final queryString = params.entries
-      .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+      .map(
+        (e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+      )
       .join('&');
   return '$base?$queryString';
 }

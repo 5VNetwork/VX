@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tm/protos/vx/tun/tun.pb.dart';
+import 'package:vx/app/layout_provider.dart';
 import 'package:vx/app/routing/repo.dart';
 import 'package:vx/app/settings/advanced/system_proxy.dart';
 import 'package:vx/app/x_controller.dart';
@@ -34,46 +35,20 @@ class AdvancedScreen extends StatelessWidget {
   final bool showAppBar;
 
   static void _showTunDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog<void>(
-      context: context,
-      builder: (ctx) {
-        VoidCallback? applyTun;
-        return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: Text(l10n.tunIpv6Settings),
-              content: SingleChildScrollView(
-                child: SizedBox(
-                  width: double.maxFinite,
-                  child: TunSetting(
-                    onRegisterApply: (apply) {
-                      applyTun = apply;
-                      setDialogState(() {});
-                    },
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: applyTun == null
-                      ? null
-                      : () {
-                          applyTun!();
-                          Navigator.of(ctx).pop();
-                        },
-                  child: Text(l10n.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+    final fullScreen = Provider.of<MyLayout>(context, listen: false).isCompact;
+    if (fullScreen) {
+      Navigator.of(context).push(
+        CupertinoPageRoute<void>(
+          builder: (ctx) => const TunSettingScreen(fullScreen: true),
+        ),
+      );
+    } else {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => const TunSettingScreen(fullScreen: false),
+      );
+    }
   }
 
   @override
@@ -119,9 +94,7 @@ class AdvancedScreen extends StatelessWidget {
                 Navigator.of(context).push(
                   CupertinoPageRoute(
                     builder: (ctx) {
-                      return HysteriaRealmSettingScreen(
-                        fullscreen: showAppBar,
-                      );
+                      return HysteriaRealmSettingScreen(fullscreen: showAppBar);
                     },
                   ),
                 );
@@ -330,24 +303,18 @@ class _FallbackSettingState extends State<FallbackSetting> {
   }
 }
 
-/// Widget for TUN-related settings: tun IPv4/IPv6 (tun46Setting),
-/// reject IPv6, and reject QUIC (all map to [TunConfig] fields).
-/// When [onRegisterApply] is non-null (e.g. in a dialog), nothing is written
-/// until the parent invokes the registered callback (typically from a dialog
-/// Save action).
-class TunSetting extends StatefulWidget {
-  const TunSetting({super.key, this.onRegisterApply});
-
-  /// Receives [apply], which persists all fields and restarts the controller.
-  final void Function(VoidCallback apply)? onRegisterApply;
+/// Editor for TUN-related settings (opened from Advanced settings).
+class TunSettingScreen extends StatefulWidget {
+  const TunSettingScreen({super.key, this.fullScreen = true});
+  final bool fullScreen;
 
   @override
-  State<TunSetting> createState() => _TunSettingState();
+  State<TunSettingScreen> createState() => _TunSettingScreenState();
 }
 
-class _TunSettingState extends State<TunSetting> {
-  bool _rejectIpv6 = false;
-  TunConfig_TUN46Setting _tun46Setting = TunConfig_TUN46Setting.DYNAMIC;
+class _TunSettingScreenState extends State<TunSettingScreen> {
+  late bool _rejectIpv6;
+  late TunConfig_TUN46Setting _tun46Setting;
   late final TextEditingController _cidr4Controller;
   late final TextEditingController _cidr6Controller;
   late final TextEditingController _dns4Controller;
@@ -369,12 +336,6 @@ class _TunSettingState extends State<TunSetting> {
     _routes4Controller = TextEditingController(text: pref.tunRoutes4);
     _routes6Controller = TextEditingController(text: pref.tunRoutes6);
     _mtuController = TextEditingController(text: '${pref.tunMtu}');
-    if (widget.onRegisterApply != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        widget.onRegisterApply!(_applyAll);
-      });
-    }
   }
 
   @override
@@ -389,87 +350,29 @@ class _TunSettingState extends State<TunSetting> {
     super.dispose();
   }
 
-  bool get _inDialog => widget.onRegisterApply != null;
-
-  void _applyAll() {
+  void _save() {
     final pref = context.read<SharedPreferences>();
-    pref.setTunCidr4(
-      _cidr4Controller.text.isEmpty ? null : _cidr4Controller.text,
-    );
-    pref.setTunCidr6(
-      _cidr6Controller.text.isEmpty ? null : _cidr6Controller.text,
-    );
-    pref.setTunDns4(_dns4Controller.text.isEmpty ? null : _dns4Controller.text);
-    pref.setTunDns6(_dns6Controller.text.isEmpty ? null : _dns6Controller.text);
-    pref.setTunRoutes4(
-      _routes4Controller.text.isEmpty ? null : _routes4Controller.text,
-    );
-    pref.setTunRoutes6(
-      _routes6Controller.text.isEmpty ? null : _routes6Controller.text,
-    );
+    pref.setTunCidr4(_cidr4Controller.text);
+    pref.setTunCidr6(_cidr6Controller.text);
+    pref.setTunDns4(_dns4Controller.text);
+    pref.setTunDns6(_dns6Controller.text);
+    pref.setTunRoutes4(_routes4Controller.text);
+    pref.setTunRoutes6(_routes6Controller.text);
     final mtuStr = _mtuController.text.trim();
     final mtu = mtuStr.isEmpty ? null : int.tryParse(mtuStr);
     pref.setTunMtu(mtu != null && mtu > 0 ? mtu : null);
     pref.setTun46Setting(_tun46Setting);
     pref.setRejectIpv6(_rejectIpv6);
     context.read<XController>().restart();
+    Navigator.of(context).pop();
   }
 
-  void _saveCidr4(String value) {
-    context.read<SharedPreferences>().setTunCidr4(value.isEmpty ? null : value);
-    context.read<XController>().restart();
-  }
-
-  void _saveCidr6(String value) {
-    context.read<SharedPreferences>().setTunCidr6(value.isEmpty ? null : value);
-    context.read<XController>().restart();
-  }
-
-  void _saveDns4(String value) {
-    context.read<SharedPreferences>().setTunDns4(value.isEmpty ? null : value);
-    context.read<XController>().restart();
-  }
-
-  void _saveDns6(String value) {
-    context.read<SharedPreferences>().setTunDns6(value.isEmpty ? null : value);
-    context.read<XController>().restart();
-  }
-
-  void _saveRoutes4(String value) {
-    context.read<SharedPreferences>().setTunRoutes4(
-      value.isEmpty ? null : value,
-    );
-    context.read<XController>().restart();
-  }
-
-  void _saveRoutes6(String value) {
-    context.read<SharedPreferences>().setTunRoutes6(
-      value.isEmpty ? null : value,
-    );
-    context.read<XController>().restart();
-  }
-
-  void _saveMtu(String value) {
-    final v = value.trim();
-    final parsed = v.isEmpty ? null : int.tryParse(v);
-    context.read<SharedPreferences>().setTunMtu(
-      parsed != null && parsed > 0 ? parsed : null,
-    );
-    context.read<XController>().restart();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildForm(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          l10n.tunIpv6Settings,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const Gap(10),
         DropdownMenu<TunConfig_TUN46Setting>(
           initialSelection: _tun46Setting,
           requestFocusOnTap: false,
@@ -516,10 +419,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveCidr4,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveCidr4(_cidr4Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -531,10 +430,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveCidr6,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveCidr6(_cidr6Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -546,10 +441,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveDns4,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveDns4(_dns4Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -561,10 +452,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveDns6,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveDns6(_dns6Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -576,10 +463,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveRoutes4,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveRoutes4(_routes4Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -591,10 +474,6 @@ class _TunSettingState extends State<TunSetting> {
             isDense: true,
           ),
           textInputAction: TextInputAction.next,
-          onSubmitted: _inDialog ? null : _saveRoutes6,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveRoutes6(_routes6Controller.text),
         ),
         const Gap(10),
         TextField(
@@ -607,13 +486,10 @@ class _TunSettingState extends State<TunSetting> {
           ),
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
-          onSubmitted: _inDialog ? null : _saveMtu,
-          onEditingComplete: _inDialog
-              ? null
-              : () => _saveMtu(_mtuController.text),
         ),
         const Gap(16),
         SwitchListTile(
+          contentPadding: EdgeInsets.zero,
           title: Text(
             l10n.tunRejectIpv6,
             style: Theme.of(context).textTheme.bodyLarge,
@@ -625,89 +501,41 @@ class _TunSettingState extends State<TunSetting> {
             ),
           ),
           value: _rejectIpv6,
-          onChanged: (value) {
-            if (_inDialog) {
-              setState(() => _rejectIpv6 = value);
-            } else {
-              context.read<SharedPreferences>().setRejectIpv6(value);
-              setState(() => _rejectIpv6 = value);
-              context.read<XController>().restart();
-            }
-          },
+          onChanged: (value) => setState(() => _rejectIpv6 = value),
         ),
       ],
     );
   }
-}
-
-class TunIpv6Settings extends StatefulWidget {
-  const TunIpv6Settings({super.key});
-
-  @override
-  State<TunIpv6Settings> createState() => _TunIpv6SettingsState();
-}
-
-class _TunIpv6SettingsState extends State<TunIpv6Settings> {
-  TunConfig_TUN46Setting _tun46Setting = TunConfig_TUN46Setting.DYNAMIC;
-
-  @override
-  void initState() {
-    super.initState();
-    _tun46Setting = context.read<SharedPreferences>().tun46Setting;
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.tunIpv6Settings,
-          style: Theme.of(context).textTheme.bodyLarge,
+    final l10n = AppLocalizations.of(context)!;
+
+    if (widget.fullScreen) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.tunIpv6Settings),
+          actions: [TextButton(onPressed: _save, child: Text(l10n.save))],
         ),
-        const Gap(10),
-        DropdownMenu<TunConfig_TUN46Setting>(
-          initialSelection: _tun46Setting,
-          requestFocusOnTap: false,
-          dropdownMenuEntries: [
-            DropdownMenuEntry(
-              value: TunConfig_TUN46Setting.FOUR_ONLY,
-              label: AppLocalizations.of(context)!.tun46SettingIpv4Only,
-            ),
-            DropdownMenuEntry(
-              value: TunConfig_TUN46Setting.BOTH,
-              label: AppLocalizations.of(context)!.tun46SettingIpv4AndIpv6,
-            ),
-            DropdownMenuEntry(
-              value: TunConfig_TUN46Setting.DYNAMIC,
-              label: AppLocalizations.of(context)!.dependsOnDefaultNic,
-            ),
-          ],
-          onSelected: (value) {
-            context.read<SharedPreferences>().setTun46Setting(
-              value ?? TunConfig_TUN46Setting.DYNAMIC,
-            );
-            setState(() {
-              _tun46Setting = value ?? TunConfig_TUN46Setting.DYNAMIC;
-            });
-            context.read<XController>().restart();
-          },
-        ),
-        const Gap(10),
-        if (_tun46Setting == TunConfig_TUN46Setting.DYNAMIC)
-          Text(
-            AppLocalizations.of(context)!.dependsOnDefaultNicDesc,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          )
-        else if (_tun46Setting == TunConfig_TUN46Setting.FOUR_ONLY)
-          Text(
-            AppLocalizations.of(context)!.tunIpv4Desc,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            children: [_buildForm(context)],
           ),
+        ),
+      );
+    }
+
+    return AlertDialog(
+      scrollable: true,
+      title: Text(l10n.tunIpv6Settings),
+      content: SizedBox(width: 480, child: _buildForm(context)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(onPressed: _save, child: Text(l10n.save)),
       ],
     );
   }

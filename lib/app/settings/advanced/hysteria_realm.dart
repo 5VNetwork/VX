@@ -754,9 +754,11 @@ class _RealmServerConfigDialogState extends State<_RealmServerConfigDialog> {
           title: Text(l10n.realmServerConfiguration),
           actions: [TextButton(onPressed: _save, child: Text(l10n.save))],
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: form,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: form,
+          ),
         ),
       );
     }

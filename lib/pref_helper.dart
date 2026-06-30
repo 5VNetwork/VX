@@ -656,63 +656,47 @@ extension PrefHelperExtension on SharedPreferences {
   /// TUN device IPv4 CIDR (e.g. 172.23.27.1/24). Null or empty = use default.
   String get tunCidr4 {
     final v = getString('tunCidr4');
-    return (v == null || v.trim().isEmpty) ? '172.23.27.1/24' : v;
+    return v ?? '172.23.27.1/24';
   }
 
-  void setTunCidr4(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunCidr4');
-    } else {
-      setString('tunCidr4', value.trim());
-    }
+  void setTunCidr4(String value) {
+    setString('tunCidr4', value.trim());
   }
 
   /// TUN device IPv6 CIDR (e.g. fc20::1/120). Null or empty = use default.
   String get tunCidr6 {
     final v = getString('tunCidr6');
-    return (v == null || v.trim().isEmpty) ? 'fc20::1/120' : v;
+    return v ?? 'fc20::1/120';
   }
 
-  void setTunCidr6(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunCidr6');
-    } else {
-      setString('tunCidr6', value.trim());
-    }
+  void setTunCidr6(String value) {
+    setString('tunCidr6', value.trim());
   }
 
   /// TUN device DNS IPv4 servers, comma-separated (e.g. 172.23.27.2). Null or empty = use default.
   String get tunDns4 {
     final v = getString('tunDns4');
-    return (v == null || v.trim().isEmpty) ? '172.23.27.2' : v;
+    return v ?? '172.23.27.2';
   }
 
-  void setTunDns4(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunDns4');
-    } else {
-      setString('tunDns4', value.trim());
-    }
+  void setTunDns4(String value) {
+    setString('tunDns4', value.trim());
   }
 
   /// TUN device DNS IPv6 servers, comma-separated (e.g. fc20::2). Null or empty = use default.
   String get tunDns6 {
     final v = getString('tunDns6');
-    return (v == null || v.trim().isEmpty) ? 'fc20::2' : v;
+    return v ?? 'fc20::2';
   }
 
-  void setTunDns6(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunDns6');
-    } else {
-      setString('tunDns6', value.trim());
-    }
+  void setTunDns6(String value) {
+    setString('tunDns6', value.trim());
   }
 
   /// TUN IPv4 routes, comma-separated (e.g. 0.0.0.0/0). Null or empty = use default.
   String get tunRoutes4 {
     final v = getString('tunRoutes4');
-    return (v == null || v.trim().isEmpty) ? '0.0.0.0/0' : v;
+    return (v == null) ? '0.0.0.0/0' : v;
   }
 
   List<String> get tunRoutes4List => tunRoutes4
@@ -721,18 +705,14 @@ extension PrefHelperExtension on SharedPreferences {
       .where((s) => s.isNotEmpty)
       .toList();
 
-  void setTunRoutes4(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunRoutes4');
-    } else {
-      setString('tunRoutes4', value.trim());
-    }
+  void setTunRoutes4(String value) {
+    setString('tunRoutes4', value.trim());
   }
 
   /// TUN IPv6 routes, comma-separated (e.g. ::/0). Null or empty = use default.
   String get tunRoutes6 {
     final v = getString('tunRoutes6');
-    return (v == null || v.trim().isEmpty) ? '::/0' : v;
+    return (v == null) ? '::/0' : v;
   }
 
   List<String> get tunRoutes6List => tunRoutes6
@@ -741,12 +721,8 @@ extension PrefHelperExtension on SharedPreferences {
       .where((s) => s.isNotEmpty)
       .toList();
 
-  void setTunRoutes6(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      remove('tunRoutes6');
-    } else {
-      setString('tunRoutes6', value.trim());
-    }
+  void setTunRoutes6(String value) {
+    setString('tunRoutes6', value.trim());
   }
 
   /// TUN device MTU. Null = use platform default.

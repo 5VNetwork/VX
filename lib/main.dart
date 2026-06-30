@@ -318,10 +318,8 @@ void main() async {
         },
       ),
       Provider(
-        create: (ctx) => RealmDeviceService(
-          deviceId: pref.uniqueDeviceId,
-          prefHelper: pref,
-        ),
+        create: (ctx) =>
+            RealmDeviceService(deviceId: pref.uniqueDeviceId, prefHelper: pref),
       ),
       BlocProvider(
         create: (ctx) => StartCloseCubit(
@@ -499,7 +497,6 @@ void main() async {
             pref: pref,
             databaseProvider: ctx.read<DbHelper>(),
             xConfigController: ctx.read<XController>(),
-            pro: true,
           )..add(XBlocInitialEvent());
           return proxySelectorBloc;
         },

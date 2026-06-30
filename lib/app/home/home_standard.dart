@@ -31,45 +31,40 @@ class StandardHomePage extends StatelessWidget {
                   return ListView(
                     children: [
                       if (!hidden.contains(HomeWidgetId.nodes.id))
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: const Nodes(),
-                        ),
+                        const Nodes(),
                       if (mode == ProxySelectorMode.manual &&
                           !hidden.contains(HomeWidgetId.nodesHelper.id))
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 284),
-                            child: const NodesHelper(),
-                          ),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 284),
+                          child: const NodesHelper(),
                         ),
                       if (!hidden.contains(HomeWidgetId.route.id))
-                        const _Route(),
-                      if (!hidden.contains(HomeWidgetId.route.id))
-                        const Gap(10),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: const _Route(),
+                        ),
                       if (!hidden.contains(HomeWidgetId.proxySelector.id))
                         const ProxySelector(home: true),
                       if (desktopPlatforms &&
                           !hidden.contains(HomeWidgetId.inbound.id))
                         const Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: _Inbound(),
                         ),
                       if (!hidden.contains(HomeWidgetId.subscription.id))
                         const Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: _Subscription(),
                         ),
                       if (showRealm &&
                           ctx.watch<StartCloseCubit>().state.status ==
                               XStatus.connected)
                         const Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: _RealmServerCard(),
                         ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(bottom: 10),
                         child: BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             if (state.proUser) {
@@ -96,9 +91,10 @@ class StandardHomePage extends StatelessWidget {
                             child: ListView(
                               children: [
                                 if (!hidden.contains(HomeWidgetId.route.id))
-                                  const _Route(),
-                                if (!hidden.contains(HomeWidgetId.route.id))
-                                  const Gap(10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: const _Route(),
+                                  ),
                                 if (!hidden.contains(
                                   HomeWidgetId.proxySelector.id,
                                 ))
@@ -106,17 +102,14 @@ class StandardHomePage extends StatelessWidget {
                                 if (desktopPlatforms &&
                                     !hidden.contains(HomeWidgetId.inbound.id))
                                   const Padding(
-                                    padding: EdgeInsets.only(top: 8.0),
+                                    padding: EdgeInsets.only(bottom: 10),
                                     child: _Inbound(),
                                   ),
                                 if (!hidden.contains(
                                   HomeWidgetId.subscription.id,
                                 ))
                                   const Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 10,
-                                      bottom: 10,
-                                    ),
+                                    padding: EdgeInsets.only(bottom: 10),
                                     child: _Subscription(),
                                   ),
                                 if (showRealm &&
@@ -151,10 +144,7 @@ class StandardHomePage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (!hidden.contains(HomeWidgetId.nodes.id))
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: const Nodes(),
-                            ),
+                            const Nodes(),
                           if (!hidden.contains(HomeWidgetId.nodesHelper.id))
                             Expanded(
                               child: Align(

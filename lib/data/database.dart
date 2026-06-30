@@ -904,23 +904,20 @@ class AppDatabase extends _$AppDatabase {
             subStrings: selector.config.filter.subStrings,
             countryCodes: selector.config.filter.countryCodes,
             handlerIds:
-                (await (select(
-                          selectorHandlerRelations,
-                        )..where((s) => s.selectorName.equals(selector.name)))
+                (await (select(selectorHandlerRelations)
+                          ..where((s) => s.selectorName.equals(selector.name)))
                         .get())
                     .map((e) => Int64(e.handlerId))
                     .toList(),
             groupTags:
-                (await (select(
-                          selectorHandlerGroupRelations,
-                        )..where((s) => s.selectorName.equals(selector.name)))
+                (await (select(selectorHandlerGroupRelations)
+                          ..where((s) => s.selectorName.equals(selector.name)))
                         .get())
                     .map((e) => e.groupName)
                     .toList(),
             subIds:
-                (await (select(
-                          selectorSubscriptionRelations,
-                        )..where((s) => s.selectorName.equals(selector.name)))
+                (await (select(selectorSubscriptionRelations)
+                          ..where((s) => s.selectorName.equals(selector.name)))
                         .get())
                     .map((e) => Int64(e.subscriptionId))
                     .toList(),
@@ -1327,6 +1324,7 @@ class Subscriptions extends Table with TableMixin {
   // miliseconds
   IntColumn get lastSuccessUpdate => integer()();
   BoolColumn get placeOnTop => boolean().withDefault(const Constant(false))();
+
   /// Merged into each share link line before decode (e.g. vless://...). Format: tx=10&foo=bar
   TextColumn get shareLinkQueryExtra =>
       text().withDefault(const Constant(''))();
@@ -1923,10 +1921,7 @@ Future<void> insertDefaultRouteMode(
                 RouterConfig(rules: mode.displayRouterRules(al: al)),
               ),
               dnsRules: Value(dns.DnsRules(rules: mode.dnsRules(al: al))),
-              internalDnsServers: Value([
-                al.dnsServerDirect,
-                al.dnsServerProxy,
-              ]),
+              internalDnsServers: Value(mode.internalDnsServers(al: al)),
             ),
             mode: InsertMode.insertOrReplace,
           );

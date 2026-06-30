@@ -73,7 +73,10 @@ enum DefaultRouteMode {
   ruBlocked(),
 
   @JsonValue('ru_blocked_all')
-  ruBlockedAll();
+  ruBlockedAll(),
+
+  @JsonValue('realm')
+  direct();
 
   const DefaultRouteMode();
 
@@ -89,6 +92,8 @@ enum DefaultRouteMode {
         return al.ruBlocked;
       case DefaultRouteMode.ruBlockedAll:
         return al.ruBlockedAll;
+      case DefaultRouteMode.direct:
+        return al.direct;
     }
   }
 
@@ -104,6 +109,8 @@ enum DefaultRouteMode {
         return AppLocalizations.of(ctx)!.ruBlockedDesc;
       case DefaultRouteMode.ruBlockedAll:
         return AppLocalizations.of(ctx)!.ruBlockedAllDesc;
+      case DefaultRouteMode.direct:
+        return 'All traffic will go direct';
     }
   }
 
@@ -175,6 +182,8 @@ enum DefaultRouteMode {
         return [...commonRules, ...(getRuBlockSpecificRules(al: al))];
       case DefaultRouteMode.ruBlockedAll:
         return [...commonRules, ...(getRuBlockAllSpecificRules(al: al))];
+      case DefaultRouteMode.direct:
+        return [...(getDirectSpecificRules(al: al))];
     }
   }
 
@@ -193,6 +202,8 @@ enum DefaultRouteMode {
       geositeConfig: GeositeConfig(codes: ['private']),
     );
     switch (this) {
+      case DefaultRouteMode.direct:
+        return [];
       case DefaultRouteMode.black:
         return [
           customDirectSet,
@@ -282,6 +293,8 @@ enum DefaultRouteMode {
       geoIpConfig: GeoIPConfig(codes: ['private']),
     );
     switch (this) {
+      case DefaultRouteMode.direct:
+        return [];
       case DefaultRouteMode.black:
         return [
           AtomicIpSet(
@@ -330,6 +343,8 @@ enum DefaultRouteMode {
 
   List<GreatDomainSet> getGreatDomainSets({required AppLocalizations al}) {
     switch (this) {
+      case DefaultRouteMode.direct:
+        return [];
       case DefaultRouteMode.black:
         return [
           GreatDomainSet(
@@ -417,6 +432,8 @@ enum DefaultRouteMode {
 
   List<GreatIpSet> getGreatIpSets({required AppLocalizations al}) {
     switch (this) {
+      case DefaultRouteMode.direct:
+        return [];
       case DefaultRouteMode.black:
         return [
           GreatIpSet(
@@ -543,6 +560,16 @@ enum DefaultRouteMode {
       directIpGoDirectRule,
       directDomainGoDirectRule, //TODO: This can be deleted
       goProxyRule,
+    ];
+  }
+
+  List<RuleConfig> getDirectSpecificRules({required AppLocalizations al}) {
+    return [
+      RuleConfig(
+        ruleName: al.ruleNameDefaultDirect,
+        outboundTag: directHandlerTag,
+        matchAll: true,
+      ),
     ];
   }
 
@@ -741,11 +768,20 @@ enum DefaultRouteMode {
   }
 
   List<String> internalDnsServers({required AppLocalizations al}) {
-    return [al.dnsServerDirect, al.dnsServerProxy];
+    switch (this) {
+      case DefaultRouteMode.direct:
+        return [al.dnsServerDirect];
+      default:
+        return [al.dnsServerDirect, al.dnsServerProxy];
+    }
   }
 
   List<DnsRuleConfig> dnsRules({required AppLocalizations al}) {
     switch (this) {
+      case DefaultRouteMode.direct:
+        return [
+          DnsRuleConfig(ruleName: al.all, dnsServerName: al.dnsServerDirect),
+        ];
       case DefaultRouteMode.black:
         return [
           DnsRuleConfig(

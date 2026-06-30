@@ -76,7 +76,7 @@ LocalRealmServerConfig loadLocalRealmServerConfig(
       realmAddr:
           pref.realmDeviceRealmUrl ??
           buildRealmAddr(password: realmPassword, realmId: realmId),
-      portMapping: RealmPortMappingConfig(enabled: true),
+      portMapping: RealmPortMappingConfig(enabled: false),
     );
   }
 
@@ -126,7 +126,7 @@ Future<LocalRealmServerConfig> buildProRealmServerConfig({
       realmId: realmSlugFromDeviceId(deviceId),
       host: defaultRealmRendezvousHost,
     ),
-    portMapping: RealmPortMappingConfig(enabled: true),
+    portMapping: RealmPortMappingConfig(enabled: false),
   );
 
   return LocalRealmServerConfig(
@@ -159,7 +159,7 @@ Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
       realmId: realmSlugFromDeviceId(deviceId),
       host: publicRealmRendezvousHost,
     ),
-    portMapping: RealmPortMappingConfig(enabled: true),
+    portMapping: RealmPortMappingConfig(enabled: false),
   );
 
   return LocalRealmServerConfig(enabled: true, auth: auth, hysteria: hysteria);
