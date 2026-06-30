@@ -190,10 +190,7 @@ class CustomizableHomePage extends StatelessWidget {
                               ),
                             );
                           }
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _getWidget(context, item.single, preset),
-                          );
+                          return _getWidget(context, item.single, preset);
                         }),
                         _columnEndBannerAd(context),
                       ],

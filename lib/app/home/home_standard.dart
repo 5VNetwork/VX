@@ -35,7 +35,7 @@ class StandardHomePage extends StatelessWidget {
                       if (mode == ProxySelectorMode.manual &&
                           !hidden.contains(HomeWidgetId.nodesHelper.id))
                         ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 284),
+                          constraints: const BoxConstraints(maxHeight: 294),
                           child: const NodesHelper(),
                         ),
                       if (!hidden.contains(HomeWidgetId.route.id))
