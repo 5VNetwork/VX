@@ -101,7 +101,7 @@ dependencies:
   mobile_scanner: ^7.0.1
   android_package_installer: ^0.0.3
   flutter_local_notifications: ^19.4.0
-  firebase_core: ^4.1.1
+  firebase_core: ^4.6.0
   firebase_messaging: ^16.0.2
   google_api_availability: ^5.0.1
   file_saver: ^0.3.1
