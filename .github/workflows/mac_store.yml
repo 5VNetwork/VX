@@ -30,6 +30,7 @@ jobs:
       - name: create files
         run: |
           touch ../tm-plugin/tm_windows/assets/x.dll
+          touch ../tm-plugin/tm_windows/assets/wintun.dll
           touch ../tm-plugin/tm_windows/assets/vx_service.zip
           touch ../tm-plugin/tm_linux/assets/x.so
           touch ../tm-plugin/tm_linux/assets/x

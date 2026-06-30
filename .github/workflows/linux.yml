@@ -111,6 +111,7 @@ jobs:
       - name: create x.dll in tm_windows
         run: |
           touch ../tm-plugin/tm_windows/assets/x.dll
+          touch ../tm-plugin/tm_windows/assets/wintun.dll
           touch ../tm-plugin/tm_windows/assets/vx_service.zip
           mkdir -p assets/ads
 
@@ -326,6 +327,7 @@ jobs:
       - name: create x.dll in tm_windows
         run: |
           touch ../tm-plugin/tm_windows/assets/x.dll
+          touch ../tm-plugin/tm_windows/assets/wintun.dll
           touch ../tm-plugin/tm_windows/assets/vx_service.zip
           mkdir -p assets/ads
 

@@ -75,6 +75,12 @@ jobs:
           curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geosite.dat"
           mv simplified_geosite.dat assets/geo/simplified_geosite.dat
 
+      - name: Download wintun.dll
+        shell: bash
+        run: |
+          mkdir -p ../tm-plugin/tm_windows/assets
+          curl -fL "https://download.5vnetwork.com/wintun.dll" -o ../tm-plugin/tm_windows/assets/wintun.dll
+
       - name: Download from release
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
