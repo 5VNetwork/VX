@@ -15,6 +15,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -2835,6 +2836,26 @@ class _AppConditionState extends State<AppCondition> {
     super.dispose();
   }
 
+  Future<void> _onPickFromInstalledApps() async {
+    final exactAppIds = widget.condition.appIds
+        .where((e) => e.type == AppId_Type.Exact)
+        .toList();
+    final result = await Navigator.of(context, rootNavigator: true)
+        .push<List<AppId>>(
+          CupertinoPageRoute(
+            builder: (context) =>
+                AddAppIdAndroidScreen(initialAppIds: exactAppIds),
+          ),
+        );
+    if (result != null) {
+      setState(() {
+        widget.condition.appIds.removeWhere((e) => e.type == AppId_Type.Exact);
+        widget.condition.appIds.addAll(result);
+        widget.onChanged();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -2855,6 +2876,7 @@ class _AppConditionState extends State<AppCondition> {
           ),
           const Gap(5),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: widget.condition.appIds
                 .map(
                   (e) => ListTile(
@@ -2884,6 +2906,7 @@ class _AppConditionState extends State<AppCondition> {
                 .toList(),
           ),
           const Gap(10),
+
           DropdownMenu<AppId_Type>(
             width: 120,
             label: Text(AppLocalizations.of(context)!.type),
@@ -2947,6 +2970,15 @@ class _AppConditionState extends State<AppCondition> {
             ],
           ),
           const Gap(10),
+          if (Platform.isAndroid) ...[
+            FilledButton.tonal(
+              onPressed: _onPickFromInstalledApps,
+              child: Text(
+                AppLocalizations.of(context)!.selectFromInstalledApps,
+              ),
+            ),
+            const Gap(10),
+          ],
           Text(
             AppLocalizations.of(context)!.appSet,
             style: Theme.of(context).textTheme.labelMedium!.copyWith(

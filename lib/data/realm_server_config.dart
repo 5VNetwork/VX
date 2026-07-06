@@ -91,7 +91,6 @@ Future<void> saveLocalRealmServerConfig(
   SharedPreferences pref,
   LocalRealmServerConfig config,
 ) async {
-  pref.setRealmServerEnabled(config.enabled);
   pref.setRealmServerAuth(config.auth);
   pref.setRealmServerHysteriaConfigBase64(
     base64Encode(config.hysteria.writeToBuffer()),
@@ -129,11 +128,7 @@ Future<LocalRealmServerConfig> buildProRealmServerConfig({
     portMapping: RealmPortMappingConfig(enabled: false),
   );
 
-  return LocalRealmServerConfig(
-    enabled: true,
-    auth: auth,
-    hysteria: hysteria,
-  );
+  return LocalRealmServerConfig(enabled: false, auth: auth, hysteria: hysteria);
 }
 
 Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
@@ -162,7 +157,7 @@ Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
     portMapping: RealmPortMappingConfig(enabled: false),
   );
 
-  return LocalRealmServerConfig(enabled: true, auth: auth, hysteria: hysteria);
+  return LocalRealmServerConfig(enabled: false, auth: auth, hysteria: hysteria);
 }
 
 ProxyInboundConfig? buildRealmServerInbound(LocalRealmServerConfig config) {

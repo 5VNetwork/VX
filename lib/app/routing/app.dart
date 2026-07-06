@@ -367,8 +367,17 @@ class _AppWidgetState extends State<AppWidget> {
 }
 
 class AddAppIdAndroidScreen extends StatefulWidget {
-  const AddAppIdAndroidScreen({super.key, required this.appSetName});
-  final String appSetName;
+  const AddAppIdAndroidScreen({
+    super.key,
+    this.appSetName,
+    this.initialAppIds = const [],
+  });
+
+  /// When set, selected apps are persisted to this app set via [SetRepo].
+  /// When null, [Navigator.pop] returns the selected [AppId]s.
+  final String? appSetName;
+  final List<AppId> initialAppIds;
+
   @override
   State<AddAppIdAndroidScreen> createState() => _AddAppIdAndroidScreenState();
 }
@@ -380,7 +389,7 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
   late List<AppInfo> _appInfos;
   List<AppInfo> _filteredAppInfos = [];
   bool _loading = true;
-  late SetRepo _setRepo;
+  SetRepo? _setRepo;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _saving = false;
@@ -389,7 +398,9 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _setRepo = Provider.of<SetRepo>(context, listen: false);
+    if (widget.appSetName != null) {
+      _setRepo = Provider.of<SetRepo>(context, listen: false);
+    }
     _searchController.addListener(_onSearchChanged);
     _init();
   }
@@ -427,18 +438,38 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
       true,
       "",
     ))..removeWhere((appInfo) => appInfo.packageName == androidPackageNme);
-    final value = await _setRepo.getApps(widget.appSetName);
-    setState(() {
-      _loading = false;
+    if (widget.appSetName != null) {
+      final value = await _setRepo!.getApps(widget.appSetName!);
       _originalApps = value;
       for (final app in value) {
         _selectedApps[app.appId.value] = (icon: app.icon, name: app.name);
       }
+    } else {
+      for (final appId in widget.initialAppIds) {
+        if (appId.type == AppId_Type.Exact) {
+          _selectedApps[appId.value] = (icon: null, name: null);
+        }
+      }
+    }
+    setState(() {
+      _loading = false;
       _filterApps();
     });
   }
 
   void _save() async {
+    if (widget.appSetName == null) {
+      final result = _selectedApps.keys
+          .map(
+            (packageName) =>
+                AppId(type: AppId_Type.Exact, value: packageName),
+          )
+          .toList();
+      if (context.mounted) {
+        Navigator.of(context).pop(result);
+      }
+      return;
+    }
     setState(() {
       _saving = true;
     });
@@ -464,16 +495,16 @@ class _AddAppIdAndroidScreenState extends State<AddAppIdAndroidScreen> {
               appId: AppId(type: AppId_Type.Exact, value: e.key),
               icon: e.value.icon,
               id: 0,
-              appSetName: widget.appSetName,
+              appSetName: widget.appSetName!,
               name: e.value.name,
             ),
           )
           .toList();
       if (toDelete.isNotEmpty) {
-        await _setRepo.removeApp(toDelete.map((e) => e.id).toList());
+        await _setRepo!.removeApp(toDelete.map((e) => e.id).toList());
       }
       if (toAdd.isNotEmpty) {
-        await _setRepo.addApps(toAdd);
+        await _setRepo!.addApps(toAdd);
       }
       unawaited(_maybeUploadCnDirectApps());
       if (context.mounted) {
