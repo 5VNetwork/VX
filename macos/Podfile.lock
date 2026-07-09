@@ -108,6 +108,9 @@ PODS:
   - flutter_secure_storage_darwin (10.0.0):
     - Flutter
     - FlutterMacOS
+  - flutter_sparkle (0.0.2):
+    - FlutterMacOS
+    - Sparkle
   - FlutterMacOS (1.0.0)
   - google_sign_in_ios (0.0.1):
     - Flutter
@@ -216,6 +219,7 @@ PODS:
     - FlutterMacOS
   - sign_in_with_apple (0.0.1):
     - FlutterMacOS
+  - Sparkle (2.8.1)
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
@@ -265,6 +269,7 @@ DEPENDENCIES:
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_secure_storage_darwin (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - flutter_sparkle (from `Flutter/ephemeral/.symlinks/plugins/flutter_sparkle/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - google_sign_in_ios (from `Flutter/ephemeral/.symlinks/plugins/google_sign_in_ios/darwin`)
   - in_app_purchase_storekit (from `Flutter/ephemeral/.symlinks/plugins/in_app_purchase_storekit/darwin`)
@@ -309,6 +314,7 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - Sentry
+    - Sparkle
     - sqlite3
 
 EXTERNAL SOURCES:
@@ -334,6 +340,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   flutter_secure_storage_darwin:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin
+  flutter_sparkle:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_sparkle/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   google_sign_in_ios:
@@ -397,6 +405,7 @@ SPEC CHECKSUMS:
   FirebaseSessions: 804bd321f2d2f2ddafe74ef7856062aa19f179c2
   flutter_local_notifications: 1fc7ffb10a83d6a2eeeeddb152d43f1944b0aad0
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
+  flutter_sparkle: 550cfddada5e1f60e85406c27525f763872ec9b7
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   google_sign_in_ios: 000870aa06da9b28d1d0bf7ef70ff0213059dd28
   GoogleAppMeasurement: 3b4687de50ab25ee2d4d541849f10ca8df862a12
@@ -420,6 +429,7 @@ SPEC CHECKSUMS:
   sentry_flutter: 841fa2fe08dc72eb95e2320b76e3f751f3400cf5
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sign_in_with_apple: 6673c03c9e3643f6c8d33601943fbfa9ae99f94e
+  Sparkle: a346a4341537c625955751ed3ae4b340b68551fa
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   sqlite3: a51c07cf16e023d6c48abd5e5791a61a47354921
   sqlite3_flutter_libs: b3e120efe9a82017e5552a620f696589ed4f62ab

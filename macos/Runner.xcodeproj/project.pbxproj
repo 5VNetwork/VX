@@ -21,11 +21,10 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		1542052D2F32158C003C77B8 /* tm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1542052C2F32158C003C77B8 /* tm.xcframework */; };
-		1542052E2F32158C003C77B8 /* tm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1542052C2F32158C003C77B8 /* tm.xcframework */; };
-		1542052F2F32158C003C77B8 /* tm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1542052C2F32158C003C77B8 /* tm.xcframework */; };
-		156EB8982E8AED3000DCC6A4 /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 15EEE81F2D6319C100642457 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		15715F4D2D290435007C66D9 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 15F0A1EB2D1EFA2700E9C182 /* libresolv.tbd */; };
+		1572EFEC2EC33041008DEDEC /* com.5vnetwork.x.system.se.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 15A130F12E71D3C4003E5632 /* com.5vnetwork.x.system.se.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		159633CB2F56D14F0054CD2E /* tm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1542052C2F32158C003C77B8 /* tm.xcframework */; };
+		159633CE2F56D1570054CD2E /* tm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1542052C2F32158C003C77B8 /* tm.xcframework */; };
 		15A130F22E71D3C4003E5632 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 15F0A1DB2D1EF8E100E9C182 /* NetworkExtension.framework */; };
 		15A1310E2E71D492003E5632 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 15F0A1EB2D1EFA2700E9C182 /* libresolv.tbd */; };
 		15EEE7902D63071800642457 /* MacosHostApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15EEE78E2D63071800642457 /* MacosHostApi.swift */; };
@@ -43,26 +42,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		156EB8992E8AED3000DCC6A4 /* PBXContainerItemProxy */ = {
+		1572EFED2EC33041008DEDEC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 33CC10E52044A3C60003C045 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 15EEE81E2D6319C100642457;
-			remoteInfo = PacketTunnel;
-		};
-		156F23E62E85A4B70093AA39 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 33CC10E52044A3C60003C045 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 15EEE81E2D6319C100642457;
-			remoteInfo = PacketTunnel;
-		};
-		156F248B2E85B5AF0093AA39 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 33CC10E52044A3C60003C045 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 15EEE81E2D6319C100642457;
-			remoteInfo = PacketTunnel;
+			remoteGlobalIDString = 15A130F02E71D3C4003E5632;
+			remoteInfo = SystemExtension;
 		};
 		331C80D9294CF71000263BE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -81,25 +66,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		156EB89B2E8AED3000DCC6A4 /* Embed Foundation Extensions */ = {
+		1572EFEF2EC33041008DEDEC /* Embed System Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
+			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
 			files = (
-				156EB8982E8AED3000DCC6A4 /* PacketTunnel.appex in Embed Foundation Extensions */,
+				1572EFEC2EC33041008DEDEC /* com.5vnetwork.x.system.se.systemextension in Embed System Extensions */,
 			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		15A130EC2E71D135003E5632 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
+			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		15A1F10C2E71A36C00AF435D /* Embed ExtensionKit Extensions */ = {
@@ -241,7 +216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				15A130F22E71D3C4003E5632 /* NetworkExtension.framework in Frameworks */,
-				1542052D2F32158C003C77B8 /* tm.xcframework in Frameworks */,
+				159633CB2F56D14F0054CD2E /* tm.xcframework in Frameworks */,
 				15A1310E2E71D492003E5632 /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,7 +226,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				15EEE8202D6319C100642457 /* NetworkExtension.framework in Frameworks */,
-				1542052F2F32158C003C77B8 /* tm.xcframework in Frameworks */,
 				15EEE8382D631A0E00642457 /* libresolv.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -269,7 +243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				15715F4D2D290435007C66D9 /* libresolv.tbd in Frameworks */,
-				1542052E2F32158C003C77B8 /* tm.xcframework in Frameworks */,
+				159633CE2F56D1570054CD2E /* tm.xcframework in Frameworks */,
 				8F49F0C08E1F8C01974E02AA /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -506,17 +480,14 @@
 				9266098D7A639974E33997C1 /* [CP] Embed Pods Frameworks */,
 				837C294434FC697072AC9A70 /* [CP] Copy Pods Resources */,
 				15A1F10C2E71A36C00AF435D /* Embed ExtensionKit Extensions */,
-				15A130EC2E71D135003E5632 /* Embed Frameworks */,
-				156EB89B2E8AED3000DCC6A4 /* Embed Foundation Extensions */,
+				1572EFEF2EC33041008DEDEC /* Embed System Extensions */,
 				F2DBBD10C335FBDC707FE234 /* FlutterFire: "flutterfire bundle-service-file" */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				33CC11202044C79F0003C045 /* PBXTargetDependency */,
-				156F23E72E85A4B70093AA39 /* PBXTargetDependency */,
-				156F248C2E85B5AF0093AA39 /* PBXTargetDependency */,
-				156EB89A2E8AED3000DCC6A4 /* PBXTargetDependency */,
+				1572EFEE2EC33041008DEDEC /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -790,20 +761,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		156EB89A2E8AED3000DCC6A4 /* PBXTargetDependency */ = {
+		1572EFEE2EC33041008DEDEC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 15EEE81E2D6319C100642457 /* PacketTunnel */;
-			targetProxy = 156EB8992E8AED3000DCC6A4 /* PBXContainerItemProxy */;
-		};
-		156F23E72E85A4B70093AA39 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 15EEE81E2D6319C100642457 /* PacketTunnel */;
-			targetProxy = 156F23E62E85A4B70093AA39 /* PBXContainerItemProxy */;
-		};
-		156F248C2E85B5AF0093AA39 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 15EEE81E2D6319C100642457 /* PacketTunnel */;
-			targetProxy = 156F248B2E85B5AF0093AA39 /* PBXContainerItemProxy */;
+			target = 15A130F02E71D3C4003E5632 /* SystemExtension */;
+			targetProxy = 1572EFED2EC33041008DEDEC /* PBXContainerItemProxy */;
 		};
 		331C80DA294CF71000263BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2462,7 +2423,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2788,7 +2749,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2839,7 +2800,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2892,7 +2853,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2944,7 +2905,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2993,7 +2954,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -3043,7 +3004,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -3092,7 +3053,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -3142,7 +3103,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -3189,7 +3150,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -3236,7 +3197,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.5.5;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",

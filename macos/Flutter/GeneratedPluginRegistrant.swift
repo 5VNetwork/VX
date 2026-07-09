@@ -16,6 +16,7 @@ import firebase_crashlytics
 import firebase_messaging
 import flutter_local_notifications
 import flutter_secure_storage_darwin
+import flutter_sparkle
 import google_sign_in_ios
 import in_app_purchase_storekit
 import in_app_review
@@ -47,6 +48,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
+  FlutterSparklePlugin.register(with: registry.registrar(forPlugin: "FlutterSparklePlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
   InAppPurchasePlugin.register(with: registry.registrar(forPlugin: "InAppPurchasePlugin"))
   InAppReviewPlugin.register(with: registry.registrar(forPlugin: "InAppReviewPlugin"))
