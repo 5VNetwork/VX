@@ -48,11 +48,11 @@
 		<string>MainMenu</string>
 		<key>NSPrincipalClass</key>
 		<string>NSApplication</string>
-		<!-- <key>SUEnableInstallerLauncherService</key>
+		<key>SUEnableInstallerLauncherService</key>
 		<true/>
 		<key>SUPublicEDKey</key>
 		<string>GosVLcRirDhRX5P+Fwotujvt3k9vvIT5cWLJmtKJXkQ=</string>
 		<key>SUFeedURL</key>
-		<string>https://download.5vnetwork.com/appcast.xml</string> -->
+		<string>https://download.5vnetwork.com/appcast.xml</string>
 	</dict>
 </plist>
