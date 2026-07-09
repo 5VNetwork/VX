@@ -84,6 +84,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     on<AddHandlersEvent>(_onAddHandlers);
     on<AddGroupEvent>(_onAddGroup);
     on<DeleteGroupEvent>(_onDeleteGroup);
+    on<DeleteGroupAndNodesEvent>(_onDeleteGroupAndNodes);
     on<SpeedTestEvent>(_speedTest);
     on<StatusTestEvent>(_statusTest);
     on<SubscriptionDeleteEvent>(_onSubscriptionDelete);
@@ -761,6 +762,28 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     }
   }
 
+  Future<void> _onDeleteGroupAndNodes(
+    DeleteGroupAndNodesEvent e,
+    Emitter<OutboundState> emit,
+  ) async {
+    final handlers = await _outboundRepo.getHandlersByGroup(e.group.name);
+    final ids = handlers.map((h) => h.id).toList();
+    await _outboundRepo.removeHandlerGroup(e.group.name);
+    if (e.group.name == state.selected?.name) {
+      emit(state.copyWith(selected: () => null));
+      _pref.setNodeGroup(null);
+    }
+    if (ids.isNotEmpty) {
+      await _outboundRepo.removeHandlersByIds(ids);
+      await _xController.handlersRemoved(ids);
+    }
+    emit(
+      state.copyWith(
+        handlers: _sortHandlers(await _getHandlers(), state.sortCol),
+      ),
+    );
+  }
+
   Future<void> _speedTest(SpeedTestEvent e, Emitter<OutboundState> emit) async {
     final handlersToBeTested = e.handlers ?? state.handlers;
     // if e.handlers is null, a user want to test all handlers in state.handlers
@@ -1320,6 +1343,11 @@ class AddGroupEvent extends OutboundEvent {
 
 class DeleteGroupEvent extends OutboundEvent {
   const DeleteGroupEvent(this.group);
+  final OutboundHandlerGroup group;
+}
+
+class DeleteGroupAndNodesEvent extends OutboundEvent {
+  const DeleteGroupAndNodesEvent(this.group);
   final OutboundHandlerGroup group;
 }
 

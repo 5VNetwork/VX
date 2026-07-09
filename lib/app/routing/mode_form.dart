@@ -1348,7 +1348,7 @@ class _DnsRuleFormState extends State<DnsRuleForm> with FormDataGetter {
     context.read<DatabaseProvider>().database.managers.dnsServers.get().then((
       l,
     ) {
-      _dnsServers = [/* ...defaultDnsServers */ ...l];
+      _dnsServers = [...l];
       setState(() {
         _selectedDnsServer ??= l
             .where((e) => e.name == _ruleConfig.dnsServerName)

@@ -64,7 +64,7 @@ class _HysteriaRealmSettingScreenState
     final pref = context.read<SharedPreferences>();
     _deviceId = pref.uniqueDeviceId;
     final config = loadLocalRealmServerConfig(pref, _deviceId);
-    _enabled = config.enabled;
+    _enabled = pref.realmServerEnabled;
     _authController = TextEditingController(text: config.auth);
     _deviceNameController = TextEditingController(
       text: pref.realmDeviceName ?? '',
@@ -108,7 +108,6 @@ class _HysteriaRealmSettingScreenState
     saveLocalRealmServerConfig(
       pref,
       LocalRealmServerConfig(
-        enabled: _enabled,
         auth: _authController.text.trim(),
         hysteria: _hysteria,
       ),
@@ -118,8 +117,6 @@ class _HysteriaRealmSettingScreenState
     if (deviceName.isNotEmpty) {
       pref.setRealmDeviceName(deviceName);
     }
-
-    context.read<XController>().restart();
   }
 
   void _persistDeviceName() {
@@ -152,7 +149,6 @@ class _HysteriaRealmSettingScreenState
     }
 
     final serverConfig = LocalRealmServerConfig(
-      enabled: true,
       auth: _authController.text.trim(),
       hysteria: _hysteria,
     );
@@ -382,6 +378,7 @@ class _HysteriaRealmSettingScreenState
               value: _enabled,
               onChanged: (v) {
                 setState(() => _enabled = v);
+                context.read<SharedPreferences>().setRealmServerEnabled(v);
                 _persistRealmConfig();
               },
             ),

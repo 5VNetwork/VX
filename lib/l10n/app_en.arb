@@ -199,6 +199,7 @@
   "proExpiredAt": "Pro Expiry",
   "addGroup": "Add Group",
   "deleteGroup": "Delete Group",
+  "deleteGroupAndNodes": "Delete Group and Nodes",
   "group": "Group",
   "addToGroup": "Add to Group",
   "addToAppSet": "Add to App Set",
@@ -1127,7 +1128,7 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "DNS server name \"hijack\" is reserved",
+  "reservedDnsServerName": "DNS server name \"Hijack\" is reserved",
   "handlersInUseCount": "{count, plural, =1{1 handler} other{{count} handlers}}",
   "@handlersInUseCount": {
     "placeholders": {
@@ -1148,6 +1149,7 @@
     }
   },
   "resetSubscriptionLinkDesc": "Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.",
+  "maxUsersOnly": "These features are available to Max users only.",
   "cnDomainsGoDirectRule": "CN domains go direct",
   "cnIpsGoDirectRule": "CN IPs go direct",
   "cnExcludeGfwDomains": "CN Domains Exclude GFW",

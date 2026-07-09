@@ -198,6 +198,7 @@
   "proExpiredAt": "Pro 到期时间",
   "addGroup": "添加分组",
   "deleteGroup": "删除分组",
+  "deleteGroupAndNodes": "删除分组和节点",
   "group": "分组",
   "addToGroup": "添加至分组",
   "addToAppSet": "添加至应用集合",
@@ -1129,7 +1130,7 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "DNS 服务器名称 \"hijack\" 为保留名",
+  "reservedDnsServerName": "DNS 服务器名称 \"Hijack\" 为保留名",
   "handlersInUseCount": "{count, plural, =1{1 个节点} other{{count} 个节点}}",
   "@handlersInUseCount": {
     "placeholders": {
@@ -1150,6 +1151,7 @@
     }
   },
   "resetSubscriptionLinkDesc": "点击后，将重置订阅链接。新链接将用于获取订阅。可用于防止订阅链接泄露。",
+  "maxUsersOnly": "此功能仅限 Max 用户使用。",
   "cnDomainsGoDirectRule": "CN域名直连",
   "cnIpsGoDirectRule": "CN IP直连",
   "cnExcludeGfwDomains": "CN域名排除GFW",

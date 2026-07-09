@@ -329,8 +329,7 @@ class _AccountPageState extends State<AccountPage> {
                 const Gap(20),
                 divider,
                 const Gap(20),
-                if (context.read<AuthBloc>().state.user!.level == UserLevel.max)
-                  const _Subscription(),
+                const _Subscription(),
                 // const _Invitation(),
               ],
             ),
@@ -757,11 +756,25 @@ class __SubscriptionState extends State<_Subscription> {
 
   @override
   Widget build(BuildContext context) {
+    final isMaxUser =
+        context.watch<AuthBloc>().state.user?.level == UserLevel.max;
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (!isMaxUser)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              l10n.maxUsersOnly,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         FilledButton(
-          onPressed: _adding ? null : _addFreeSubscription,
+          onPressed: isMaxUser && !_adding ? _addFreeSubscription : null,
           child: _adding
               ? const SizedBox(
                   width: 16,
@@ -779,7 +792,7 @@ class __SubscriptionState extends State<_Subscription> {
         ),
         const Gap(10),
         FilledButton(
-          onPressed: _resetting ? null : _resetSubscriptionLink,
+          onPressed: isMaxUser && !_resetting ? _resetSubscriptionLink : null,
           child: _resetting
               ? const SizedBox(
                   width: 16,

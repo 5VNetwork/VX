@@ -172,7 +172,7 @@ enum HomeWidgetId {
       case HomeWidgetId.nodesHelper:
         return ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: preset == HomeLayoutPreset.compact ? 284 : 614,
+            maxHeight: preset == HomeLayoutPreset.compact ? 294 : 614,
           ),
           child: const NodesHelper(),
         );

@@ -97,7 +97,7 @@ class DnsServers extends StatefulWidget {
 
 class _DnsServersState extends State<DnsServers>
     with AutomaticKeepAliveClientMixin<DnsServers> {
-  static const String _reservedDnsServerName = 'hijack';
+  static const String _reservedDnsServerName = 'Hijack';
   final width = 300;
 
   List<DnsServer> _servers = [/* ...defaultDnsServers */];
@@ -165,7 +165,7 @@ class _DnsServersState extends State<DnsServers>
   }
 
   bool _isReservedName(String name) =>
-      name.trim().toLowerCase() == _reservedDnsServerName;
+      name.trim() == _reservedDnsServerName;
 
   void _onAdd() async {
     final k = GlobalKey();
@@ -1495,12 +1495,6 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                 TextFormField(
                   controller: _cacheDurationController,
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.empty;
-                    }
-                    return null;
-                  },
                   decoration: InputDecoration(
                     hintText: '3600',
                     suffixText: 's',

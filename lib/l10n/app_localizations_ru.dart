@@ -572,6 +572,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deleteGroup => 'Удалить группу';
 
   @override
+  String get deleteGroupAndNodes => 'Удалить группу и узлы';
+
+  @override
   String get group => 'Группа';
 
   @override
@@ -2761,6 +2764,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get resetSubscriptionLinkDesc => 'После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку.';
+
+  @override
+  String get maxUsersOnly => 'Эти функции доступны только пользователям Max.';
 
   @override
   String get cnDomainsGoDirectRule => 'CN domains go direct';

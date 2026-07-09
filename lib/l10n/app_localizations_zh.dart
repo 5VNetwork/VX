@@ -558,6 +558,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteGroup => '删除分组';
 
   @override
+  String get deleteGroupAndNodes => '删除分组和节点';
+
+  @override
   String get group => '分组';
 
   @override
@@ -2707,6 +2710,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get resetSubscriptionLinkDesc => '点击后，将重置订阅链接。新链接将用于获取订阅。可用于防止订阅链接泄露。';
+
+  @override
+  String get maxUsersOnly => '此功能仅限 Max 用户使用。';
 
   @override
   String get cnDomainsGoDirectRule => 'CN域名直连';

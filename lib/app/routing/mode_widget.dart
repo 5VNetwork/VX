@@ -1354,14 +1354,14 @@ class _DnsServerPicker extends StatefulWidget {
 }
 
 class __DnsServerPickerState extends State<_DnsServerPicker> {
-  List<String> _dnsServers = [];
+  List<String> _dnsServers = ['Hijack'];
 
   @override
   void initState() {
     super.initState();
     context.read<DnsRepo>().getDnsServers().then((value) {
       setState(() {
-        _dnsServers = value.map((e) => e.name).toList();
+        _dnsServers.addAll(value.map((e) => e.name).toList());
       });
     });
   }

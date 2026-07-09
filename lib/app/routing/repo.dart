@@ -178,7 +178,7 @@ class DbHelper implements SelectorRepo, RouteRepo, SetRepo, DnsRepo {
   DbHelper({required DatabaseProvider databaseProvider})
     : _databaseProvider = databaseProvider;
 
-  static const String _reservedDnsServerName = 'hijack';
+  static const String _reservedDnsServerName = 'Hijack';
   final DatabaseProvider _databaseProvider;
 
   void _validateDnsServerName(String name) {
@@ -186,7 +186,7 @@ class DbHelper implements SelectorRepo, RouteRepo, SetRepo, DnsRepo {
       throw ArgumentError.value(
         name,
         'name',
-        'DNS server name "hijack" is reserved',
+        'DNS server name "Hijack" is reserved',
       );
     }
   }

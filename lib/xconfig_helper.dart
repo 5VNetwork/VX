@@ -494,7 +494,7 @@ class XConfigHelper {
     late final DnsConfig config;
     config = DnsConfig(
       dnsHijack: DnsHijackConfig(enableFakeDns: _persistentStateRepo.fakeDns),
-      requestDomainResolver: Resolver(dnsServers: ['hijack']),
+      requestDomainResolver: Resolver(dnsServers: ['Hijack']),
       records: await (_databaseProvider.database.select(
         _databaseProvider.database.dnsRecords,
       )).get().then((value) => value.map((e) => e.dnsRecord).toList()),

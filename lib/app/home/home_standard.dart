@@ -59,10 +59,7 @@ class StandardHomePage extends StatelessWidget {
                       if (showRealm &&
                           ctx.watch<StartCloseCubit>().state.status ==
                               XStatus.connected)
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 10),
-                          child: _RealmServerCard(),
-                        ),
+                        _RealmServerCard(),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: BlocBuilder<AuthBloc, AuthState>(

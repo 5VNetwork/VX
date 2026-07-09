@@ -174,9 +174,29 @@ class _GroupSelectorState extends State<GroupSelector> {
                                     );
                                   },
                                   child: Text(
-                                    AppLocalizations.of(context)!.delete,
+                                    e is MySubscription
+                                        ? AppLocalizations.of(context)!.delete
+                                        : AppLocalizations.of(
+                                            context,
+                                          )!.deleteGroup,
                                   ),
                                 ),
+                                if (e is OutboundHandlerGroup)
+                                  MenuItemButton(
+                                    leadingIcon: const Icon(
+                                      Icons.delete_forever,
+                                    ),
+                                    onPressed: () {
+                                      ctx.read<OutboundBloc>().add(
+                                        DeleteGroupAndNodesEvent(e),
+                                      );
+                                    },
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.deleteGroupAndNodes,
+                                    ),
+                                  ),
                               ],
                             ),
                         ],

@@ -1159,6 +1159,12 @@ abstract class AppLocalizations {
   /// **'Delete Group'**
   String get deleteGroup;
 
+  /// No description provided for @deleteGroupAndNodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Group and Nodes'**
+  String get deleteGroupAndNodes;
+
   /// No description provided for @group.
   ///
   /// In en, this message translates to:
@@ -5196,6 +5202,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.'**
   String get resetSubscriptionLinkDesc;
+
+  /// No description provided for @maxUsersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'These features are available to Max users only.'**
+  String get maxUsersOnly;
 
   /// No description provided for @cnDomainsGoDirectRule.
   ///

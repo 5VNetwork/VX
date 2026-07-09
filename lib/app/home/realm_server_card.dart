@@ -108,10 +108,13 @@ class _RealmServerCard extends StatelessWidget {
     // Don't render the card at all when realm server is disabled.
     if (!notifier.realmEnabled) return const SizedBox.shrink();
 
-    return HomeCard(
-      title: l10n.realmServer,
-      icon: Icons.hub_rounded,
-      child: _buildBody(context, notifier.status),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: HomeCard(
+        title: l10n.realmServer,
+        icon: Icons.hub_rounded,
+        child: _buildBody(context, notifier.status),
+      ),
     );
   }
 

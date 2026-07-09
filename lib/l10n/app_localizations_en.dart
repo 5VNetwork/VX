@@ -572,6 +572,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteGroup => 'Delete Group';
 
   @override
+  String get deleteGroupAndNodes => 'Delete Group and Nodes';
+
+  @override
   String get group => 'Group';
 
   @override
@@ -2757,6 +2760,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetSubscriptionLinkDesc => 'Once clicked, the subscription link will be reset. The new link will be used to fetch the subscription. This can be used to prevent leak of your subscription link.';
+
+  @override
+  String get maxUsersOnly => 'These features are available to Max users only.';
 
   @override
   String get cnDomainsGoDirectRule => 'CN domains go direct';

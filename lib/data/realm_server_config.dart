@@ -34,13 +34,8 @@ import 'package:vx/widgets/outbound_handler_form/outbound_handler_form.dart';
 const realmServerInboundTag = 'realmServer';
 
 class LocalRealmServerConfig {
-  LocalRealmServerConfig({
-    required this.enabled,
-    required this.auth,
-    required this.hysteria,
-  });
+  LocalRealmServerConfig({required this.auth, required this.hysteria});
 
-  final bool enabled;
   final String auth;
   final Hysteria2ServerConfig hysteria;
 
@@ -50,7 +45,6 @@ class LocalRealmServerConfig {
     Hysteria2ServerConfig? hysteria,
   }) {
     return LocalRealmServerConfig(
-      enabled: enabled ?? this.enabled,
       auth: auth ?? this.auth,
       hysteria: hysteria ?? this.hysteria,
     );
@@ -81,7 +75,6 @@ LocalRealmServerConfig loadLocalRealmServerConfig(
   }
 
   return LocalRealmServerConfig(
-    enabled: pref.realmServerEnabled,
     auth: pref.realmServerAuth ?? const Uuid().v4(),
     hysteria: hysteria,
   );
@@ -128,7 +121,7 @@ Future<LocalRealmServerConfig> buildProRealmServerConfig({
     portMapping: RealmPortMappingConfig(enabled: false),
   );
 
-  return LocalRealmServerConfig(enabled: false, auth: auth, hysteria: hysteria);
+  return LocalRealmServerConfig(auth: auth, hysteria: hysteria);
 }
 
 Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
@@ -157,13 +150,10 @@ Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
     portMapping: RealmPortMappingConfig(enabled: false),
   );
 
-  return LocalRealmServerConfig(enabled: false, auth: auth, hysteria: hysteria);
+  return LocalRealmServerConfig(auth: auth, hysteria: hysteria);
 }
 
 ProxyInboundConfig? buildRealmServerInbound(LocalRealmServerConfig config) {
-  if (!config.enabled) {
-    return null;
-  }
   return ProxyInboundConfig(
     tag: realmServerInboundTag,
     users: [UserConfig(id: 'vx', secret: config.auth)],

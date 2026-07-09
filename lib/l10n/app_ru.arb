@@ -200,6 +200,7 @@
   "lifetimeProAccount": "Пожизненный профессиональный аккаунт",
   "addGroup": "Добавить группу",
   "deleteGroup": "Удалить группу",
+  "deleteGroupAndNodes": "Удалить группу и узлы",
   "group": "Группа",
   "addToGroup": "Добавить в группу",
   "addToAppSet": "Добавить в набор приложений",
@@ -1104,7 +1105,7 @@
   "dnsTypeQuic": "QUIC",
   "dnsTypeGo": "Go",
   "dnsTypeEmpty": "Empty",
-  "reservedDnsServerName": "Имя DNS-сервера \"hijack\" зарезервировано",
+  "reservedDnsServerName": "Имя DNS-сервера \"Hijack\" зарезервировано",
   "handlersInUseCount": "{count, plural, =1{1 узел} few{{count} узла} many{{count} узлов} other{{count} узлов}}",
   "@handlersInUseCount": {
     "placeholders": {
@@ -1125,6 +1126,7 @@
     }
   },
   "resetSubscriptionLinkDesc": "После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку.",
+  "maxUsersOnly": "Эти функции доступны только пользователям Max.",
   "hysteriaRealm": "Hysteria Realm",
   "enableRealmServer": "Включить Realm-сервер",
   "enableRealmServerDesc": "Запускать входящий Hysteria Realm, пока VX подключён",
