@@ -27,6 +27,7 @@ import 'package:vx/app/file_transfer/file_transfer_paths.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/app/settings/general/language.dart';
 import 'package:vx/app/settings/general/sync.dart';
+import 'package:vx/common/common.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/main.dart';
@@ -36,6 +37,7 @@ import 'package:vx/utils/geodata.dart';
 import 'package:vx/widgets/circular_progress_indicator.dart';
 import 'package:tm/tm.dart';
 // import 'package:flutter_sparkle/flutter_sparkle.dart';
+import 'package:flutter_sparkle/flutter_sparkle.dart';
 
 class GeneralSettingPage extends StatelessWidget {
   const GeneralSettingPage({super.key, this.showAppBar = true});
@@ -204,21 +206,21 @@ class GeneralSettingPage extends StatelessWidget {
                   ),
                 ],
               ),
-            // if (isPkg)
-            //   Column(children: [
-            //     Divider(),
-            //     Padding(
-            //         padding: EdgeInsets.only(
-            //             top: 10, bottom: 10, left: 16, right: 16),
-            //         child: TextButton(
-            //           onPressed: () async {
-            //             FlutterSparkle.checkMacUpdate(isProduction()
-            //                 ? 'https://download.5vnetwork.com/appcast.xml'
-            //                 : 'https://pub-f52ca93bef2c463eabe42dfcf7d05b21.r2.dev/appcast.xml');
-            //           },
-            //           child: Text(AppLocalizations.of(context)!.checkUpdate),
-            //         ))
-            //   ])
+            if (isPkg)
+              Column(children: [
+                Divider(),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: 10, bottom: 10, left: 16, right: 16),
+                    child: TextButton(
+                      onPressed: () async {
+                        FlutterSparkle.checkMacUpdate(isProduction()
+                            ? 'https://download.5vnetwork.com/appcast.xml'
+                            : 'https://pub-f52ca93bef2c463eabe42dfcf7d05b21.r2.dev/appcast.xml');
+                      },
+                      child: Text(AppLocalizations.of(context)!.checkUpdate),
+                    ))
+              ])
           ],
         ),
       ),
