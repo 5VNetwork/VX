@@ -400,6 +400,7 @@ class XController implements MessageFlutterApi {
             ? await configFilePath()
             : null,
         sudoPassword: sudoPassword,
+        connectOnDemand: Platform.isIOS ? _pref.connectOnDemand : null,
       );
     } catch (e) {
       if (e.toString().contains('needs user approval')) {
@@ -420,6 +421,7 @@ class XController implements MessageFlutterApi {
               ? await configFilePath()
               : null,
           sudoPassword: sudoPassword,
+          connectOnDemand: Platform.isIOS ? _pref.connectOnDemand : null,
         );
       } else {
         _statusStreamCtrl.add(XStatus.unknown);

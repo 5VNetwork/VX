@@ -1704,6 +1704,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alwaysOnDesc => '在点击“连接”后，只要不点击“断开连接”，会一直保持连接状态。';
 
   @override
+  String get connectOnDemand => '按需连接';
+
+  @override
+  String get connectOnDemandDesc => '设备重启或网络可用后自动启动 VPN 隧道，无需打开应用。';
+
+  @override
   String get systemManagedVpnNotice => '此 VPN 连接由 Android 系统管理。如需连接或断开，请前往 设置 > 网络和互联网 > VPN。';
 
   @override
@@ -2681,7 +2687,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dnsTypeEmpty => 'Empty';
 
   @override
-  String get reservedDnsServerName => 'DNS 服务器名称 \"hijack\" 为保留名';
+  String get reservedDnsServerName => 'DNS 服务器名称 \"Hijack\" 为保留名';
 
   @override
   String handlersInUseCount(int count) {

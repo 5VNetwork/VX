@@ -755,6 +755,8 @@
   "startOnBootDesc": "开机时自动运行VX",
   "alwaysOn": "保持连接",
   "alwaysOnDesc": "在点击“连接”后，只要不点击“断开连接”，会一直保持连接状态。",
+  "connectOnDemand": "按需连接",
+  "connectOnDemandDesc": "设备重启或网络可用后自动启动 VPN 隧道，无需打开应用。",
   "systemManagedVpnNotice": "此 VPN 连接由 Android 系统管理。如需连接或断开，请前往 设置 > 网络和互联网 > VPN。",
   "openVpnSettings": "打开 VPN 设置",
   "checkAndUpdate": "检测并更新",

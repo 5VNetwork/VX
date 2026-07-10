@@ -1754,6 +1754,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get alwaysOnDesc => 'Пока вы не нажимали кнопку «Отключиться», всегда старайтесь оставаться подключенными, когда приложение запущено.';
 
   @override
+  String get connectOnDemand => 'Подключение по требованию';
+
+  @override
+  String get connectOnDemandDesc => 'Автоматически запускать VPN-туннель после перезагрузки устройства или при появлении сети. Открывать приложение не требуется.';
+
+  @override
   String get systemManagedVpnNotice => 'Это VPN-подключение управляется Android. Чтобы подключиться или отключиться, перейдите в Настройки > Сеть и интернет > VPN.';
 
   @override
@@ -2733,7 +2739,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dnsTypeEmpty => 'Empty';
 
   @override
-  String get reservedDnsServerName => 'Имя DNS-сервера \"hijack\" зарезервировано';
+  String get reservedDnsServerName => 'Имя DNS-сервера \"Hijack\" зарезервировано';
 
   @override
   String handlersInUseCount(int count) {

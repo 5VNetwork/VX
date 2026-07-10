@@ -3247,6 +3247,18 @@ abstract class AppLocalizations {
   /// **'As long as you did not click disconnect, always try to be connected when the app is running'**
   String get alwaysOnDesc;
 
+  /// No description provided for @connectOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect on Demand'**
+  String get connectOnDemand;
+
+  /// No description provided for @connectOnDemandDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically start the VPN tunnel after the device reboots or when network becomes available. Does not require opening the app.'**
+  String get connectOnDemandDesc;
+
   /// No description provided for @systemManagedVpnNotice.
   ///
   /// In en, this message translates to:
@@ -5164,7 +5176,7 @@ abstract class AppLocalizations {
   /// No description provided for @reservedDnsServerName.
   ///
   /// In en, this message translates to:
-  /// **'DNS server name \"hijack\" is reserved'**
+  /// **'DNS server name \"Hijack\" is reserved'**
   String get reservedDnsServerName;
 
   /// No description provided for @handlersInUseCount.

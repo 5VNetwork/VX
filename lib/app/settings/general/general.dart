@@ -32,6 +32,7 @@ import 'package:vx/utils/logger.dart';
 import 'package:vx/utils/node_test_service.dart';
 import 'package:vx/utils/geodata.dart';
 import 'package:vx/widgets/circular_progress_indicator.dart';
+import 'package:tm/tm.dart';
 // import 'package:flutter_sparkle/flutter_sparkle.dart';
 
 class GeneralSettingPage extends StatelessWidget {
@@ -183,6 +184,21 @@ class GeneralSettingPage extends StatelessWidget {
                       right: 16,
                     ),
                     child: AlwaysOnSetting(),
+                  ),
+                ],
+              ),
+            if (Platform.isIOS)
+              const Column(
+                children: [
+                  Divider(),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: ConnectOnDemandSetting(),
                   ),
                 ],
               ),
@@ -422,6 +438,79 @@ class _AlwaysOnSettingState extends State<AlwaysOnSetting> {
         const Gap(10),
         Text(
           AppLocalizations.of(context)!.alwaysOnDesc,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// iOS-only: VPN On Demand so the packet tunnel starts after device reboot.
+class ConnectOnDemandSetting extends StatefulWidget {
+  const ConnectOnDemandSetting({super.key});
+
+  @override
+  State<ConnectOnDemandSetting> createState() => _ConnectOnDemandSettingState();
+}
+
+class _ConnectOnDemandSettingState extends State<ConnectOnDemandSetting> {
+  bool _connectOnDemand = false;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectOnDemand = context.read<SharedPreferences>().connectOnDemand;
+  }
+
+  Future<void> _onChanged(bool value) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _connectOnDemand = value;
+    });
+    context.read<SharedPreferences>().setConnectOnDemand(value);
+    // Apply immediately when a VPN profile is already active so reboot
+    // behavior matches the toggle without requiring reconnect.
+    if (Tm.instance.state == TmStatus.connected ||
+        Tm.instance.state == TmStatus.connecting) {
+      try {
+        await Tm.instance.setConnectOnDemand(value);
+      } catch (e) {
+        logger.e('setConnectOnDemand failed', error: e);
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _busy = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.connectOnDemand,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            Switch(
+              value: _connectOnDemand,
+              onChanged: _busy ? null : _onChanged,
+            ),
+          ],
+        ),
+        const Gap(10),
+        Text(
+          AppLocalizations.of(context)!.connectOnDemandDesc,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),

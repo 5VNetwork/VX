@@ -809,6 +809,18 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('alwaysOn', enable);
   }
 
+  /// iOS only: VPN On Demand so the packet tunnel starts after device reboot.
+  bool get connectOnDemand {
+    if (!Platform.isIOS) {
+      return false;
+    }
+    return getBool('connectOnDemand') ?? false;
+  }
+
+  void setConnectOnDemand(bool enable) {
+    setBool('connectOnDemand', enable);
+  }
+
   // if a user clicks connect, set this to true.
   // if a user clicks disconnect, set this to false.
   bool get connect {

@@ -756,6 +756,8 @@
   "startOnBootDesc": "Start VX automatically at startup",
   "alwaysOn": "Always ON",
   "alwaysOnDesc": "As long as you did not click disconnect, always try to be connected when the app is running",
+  "connectOnDemand": "Connect on Demand",
+  "connectOnDemandDesc": "Automatically start the VPN tunnel after the device reboots or when network becomes available. Does not require opening the app.",
   "systemManagedVpnNotice": "This VPN connection is managed by Android. To connect or disconnect, go to Settings > Network & Internet > VPN.",
   "openVpnSettings": "Open VPN Settings",
   "checkAndUpdate": "Check and Update",

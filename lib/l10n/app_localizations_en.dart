@@ -1754,6 +1754,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alwaysOnDesc => 'As long as you did not click disconnect, always try to be connected when the app is running';
 
   @override
+  String get connectOnDemand => 'Connect on Demand';
+
+  @override
+  String get connectOnDemandDesc => 'Automatically start the VPN tunnel after the device reboots or when network becomes available. Does not require opening the app.';
+
+  @override
   String get systemManagedVpnNotice => 'This VPN connection is managed by Android. To connect or disconnect, go to Settings > Network & Internet > VPN.';
 
   @override
@@ -2731,7 +2737,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dnsTypeEmpty => 'Empty';
 
   @override
-  String get reservedDnsServerName => 'DNS server name \"hijack\" is reserved';
+  String get reservedDnsServerName => 'DNS server name \"Hijack\" is reserved';
 
   @override
   String handlersInUseCount(int count) {

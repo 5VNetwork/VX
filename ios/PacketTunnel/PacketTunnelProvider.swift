@@ -10,7 +10,7 @@ import NetworkExtension
 import Network
 import Tm
 import SystemConfiguration
-
+import OSLog
 let XTunnelErrorDomain: String = "XTunnelErrorDomain"
 
 public enum XTunnelError: Error {
@@ -86,15 +86,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             map?["config"] = nil
         }
 
+        // On Demand may wrap options as ["VendorData": ["options": ...]]
+        if let vendorData = map?["VendorData"] as? NSDictionary {
+            map = vendorData["options"] as? [String: NSObject]
+        }
+
         guard let map else {
             throw fatalError(errorStr: "startTunnel no options")
         }
 
+        nsLog(msg: "map: \(String(describing: map))")
+        
         var enable6 = true
         // four only
-        if map["tun46Setting"] as! NSNumber == 0 {
+        if map["tun46Setting"] as? NSNumber == 0 {
             enable6 = false
-        } else if map["tun46Setting"] as! NSNumber == 1 {
+        } else if map["tun46Setting"] as? NSNumber == 1 {
             enable6 = true
         } else {
             let turnOnByApp = options != nil
@@ -141,7 +148,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             Interface(
                 packetTunnelProvider: self,
                 isDebug: false,
-                useFD: useFd),
+                useFD: useFd,
+                logger: Self.logger),
             enable6,
             nil,
             &error)
@@ -299,9 +307,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         return err
     }
 
-    func nsLog(msg: String) {
+    // Use os_log for PacketTunnel extension logging
+    // macOS 26+ redacts NSLog, so we use os_log with public formatting
+    private static let logger = Logger(
+        subsystem: "com.5vnetwork.x.PacketTunnel",
+        category: "PacketTunnel"
+    )
+    
+    public func nsLog(msg: String) {
+        // Use privacy: .public to prevent <private> redaction in Console.app
+        // This marks the message as public so it won't be redacted
         #if DEBUG
-            NSLog(msg)
+            Self.logger.info("\(msg, privacy: .public)")
         #endif
     }
 
@@ -400,25 +417,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 }
-func nsLog(msg: String) {
-    #if DEBUG
-        NSLog(msg)
-    #endif
-}
 
 class Interface: NSObject, X_darwinInterfaceProtocol {
     private let packetTunnelProvider: PacketTunnelProvider
     private let isDebug: Bool
     private let useFD: Bool
-
+    private let logger: Logger
+    
     init(
         packetTunnelProvider: PacketTunnelProvider,
-        isDebug: Bool, useFD: Bool
+        isDebug: Bool, useFD: Bool,
+        logger: Logger
     ) {
         self.packetTunnelProvider = packetTunnelProvider
         self.isDebug = isDebug
         self.useFD = useFD
-
+        self.logger = logger
     }
 
     func useFd() -> Bool {
@@ -446,8 +460,10 @@ class Interface: NSObject, X_darwinInterfaceProtocol {
     }
     
     func nsLog(msg: String) {
+        // Use privacy: .public to prevent <private> redaction in Console.app
+        // This marks the message as public so it won't be redacted
         #if DEBUG
-            NSLog(msg)
+            self.logger.info("\(msg, privacy: .public)")
         #endif
     }
     
