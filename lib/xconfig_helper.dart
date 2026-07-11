@@ -46,6 +46,7 @@ import 'package:tm/protos/vx/grpc/grpc_server.pb.dart';
 import 'package:vx/app/control.dart';
 import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/app/routing/default.dart';
+import 'package:vx/app/routing/mode_form.dart';
 import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/routing/selector_widget.dart';
 import 'package:vx/auth/auth_bloc.dart';
@@ -887,33 +888,53 @@ class XConfigHelper {
     // set refencenced in domainTag, appTag, dstIpTag are required to be present.
     // any set referenced by a great set is required to be present.
     for (final rule in routerConfig.rules) {
-      for (final dstIpTag in rule.dstIpTags) {
-        await prepareIpSet(dstIpTag);
-      }
-      for (final dstIpTag in rule.allTags) {
-        await prepareIpSet(dstIpTag, notFoundThrow: false);
-      }
-      for (final fallback in rule.fallbacks) {
-        for (final dstIpTag in fallback.dstIpTags) {
+      final conditions = loadConditionsFromRuleConfig(rule);
+      for (final condition in conditions) {
+        for (final dstIpTag in condition.dstIpTags) {
           await prepareIpSet(dstIpTag);
         }
-        for (final domainTag in fallback.domainTags) {
+        for (final dstIpTag in condition.allTags) {
+          await prepareIpSet(dstIpTag, notFoundThrow: false);
+        }
+        // domain tags
+        for (final domainTag in condition.domainTags) {
           await prepareDomainSet(domainTag);
         }
+        for (final domainTag in condition.allTags) {
+          await prepareDomainSet(domainTag, notFoundThrow: false);
+        }
+        // app tags
+        for (final appTag in condition.appTags) {
+          await prepareAppSet(appTag);
+        }
+        for (final appTag in condition.allTags) {
+          await prepareAppSet(appTag, notFoundThrow: false);
+        }
       }
-      // domain tags
-      for (final domainTag in rule.domainTags) {
-        await prepareDomainSet(domainTag);
-      }
-      for (final domainTag in rule.allTags) {
-        await prepareDomainSet(domainTag, notFoundThrow: false);
-      }
-      // app tags
-      for (final appTag in rule.appTags) {
-        await prepareAppSet(appTag);
-      }
-      for (final appTag in rule.allTags) {
-        await prepareAppSet(appTag, notFoundThrow: false);
+      for (final fallback in rule.fallbacks) {
+        final conditions = loadConditionsFromFallback(fallback);
+        for (final condition in conditions) {
+          for (final dstIpTag in condition.dstIpTags) {
+            await prepareIpSet(dstIpTag);
+          }
+          for (final dstIpTag in condition.allTags) {
+            await prepareIpSet(dstIpTag, notFoundThrow: false);
+          }
+          // domain tags
+          for (final domainTag in condition.domainTags) {
+            await prepareDomainSet(domainTag);
+          }
+          for (final domainTag in condition.allTags) {
+            await prepareDomainSet(domainTag, notFoundThrow: false);
+          }
+          // app tags
+          for (final appTag in condition.appTags) {
+            await prepareAppSet(appTag);
+          }
+          for (final appTag in condition.allTags) {
+            await prepareAppSet(appTag, notFoundThrow: false);
+          }
+        }
       }
     }
 
