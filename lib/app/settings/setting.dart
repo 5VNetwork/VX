@@ -140,9 +140,7 @@ enum SettingItem {
   Widget? subtitle(BuildContext context) {
     switch (this) {
       case SettingItem.account:
-        return context.read<AuthBloc>().state.user == null
-            ? Text(AppLocalizations.of(context)!.newUserTrialText)
-            : null;
+        return null;
       case SettingItem.advanced:
         return Text(AppLocalizations.of(context)!.advancedSettingDesc);
       case SettingItem.general:
@@ -359,10 +357,7 @@ class _LargeSettingSreenState extends State<LargeSettingSreen> {
           Expanded(child: list),
           const VerticalDivider(),
           Expanded(
-            child: KeyedSubtree(
-              key: ValueKey(selectedItem),
-              child: detail,
-            ),
+            child: KeyedSubtree(key: ValueKey(selectedItem), child: detail),
           ),
         ],
       ),
@@ -382,7 +377,8 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
         ),
       ),
     if ((user == null || (user.lifetimePro == false)) &&
-        !context.watch<AuthBloc>().state.isActivated)
+        !context.watch<AuthBloc>().state.isActivated &&
+        !applePlatform)
       Padding(
         padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
         child: OutlinedButton.icon(
@@ -404,7 +400,8 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
         ),
       ),
-    if ((!useStripe && (user == null || (user.lifetimePro == false))))
+    if ((!useStripe && (user == null || (user.lifetimePro == false))) &&
+        !applePlatform)
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: OutlinedButton.icon(
@@ -581,7 +578,6 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
         ],
       ),
-      
   ];
 }
 
