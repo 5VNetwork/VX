@@ -303,6 +303,7 @@
   "loginBeforeRestore": "恢复购买购买前请先登录",
   "visitWebsiteToPurchasePro": "请访问我们的网站购买 Pro",
   "upgradeToPermanentPro": "升级为永久Pro",
+  "upgradeToMax": "升级为永久Max",
   "caseInsensitive": "不区分大小写",
   "startFailed": "启动失败",
   "startFailedWithReason": "启动失败: {reason}. StackTrace: {stackTrace}",

@@ -313,6 +313,7 @@ class BackupSerevice extends ChangeNotifier {
           // remove old db
           // get all files ended with .sqlite
           final currentDbPath = await getDbPath(_prefHelper);
+          // TODO: breaks if the directory path contains a dot.
           final currentDbWalPath = '${currentDbPath.split('.')[0]}.sqlite-wal';
           final currentDbShmPath = '${currentDbPath.split('.')[0]}.sqlite-shm';
           final sqliteFiles = resourceDirectory

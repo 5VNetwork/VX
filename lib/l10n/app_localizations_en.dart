@@ -835,6 +835,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upgradeToPermanentPro => 'Upgrade to Pro';
 
   @override
+  String get upgradeToMax => 'Upgrade to Max';
+
+  @override
   String get caseInsensitive => 'Case Insensitive';
 
   @override

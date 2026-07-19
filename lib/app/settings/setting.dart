@@ -359,10 +359,7 @@ class _LargeSettingSreenState extends State<LargeSettingSreen> {
           Expanded(child: list),
           const VerticalDivider(),
           Expanded(
-            child: KeyedSubtree(
-              key: ValueKey(selectedItem),
-              child: detail,
-            ),
+            child: KeyedSubtree(key: ValueKey(selectedItem), child: detail),
           ),
         ],
       ),
@@ -399,6 +396,24 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
           label: AutoSizeText(
             AppLocalizations.of(context)!.upgradeToPermanentPro,
+            maxLines: 1,
+            minFontSize: 12,
+          ),
+        ),
+      ),
+    if ((user == null || (user.level != UserLevel.max)) && useStripe)
+      Padding(
+        padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
+        child: OutlinedButton.icon(
+          onPressed: () {
+            launchUrl(getMaxPaymentLink(user?.email ?? '', user?.id ?? ''));
+          },
+          icon: Icon(
+            Icons.stars_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          label: AutoSizeText(
+            AppLocalizations.of(context)!.upgradeToMax,
             maxLines: 1,
             minFontSize: 12,
           ),
@@ -581,7 +596,6 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
         ],
       ),
-      
   ];
 }
 

@@ -306,6 +306,7 @@
   "loginBeforeRestore": "Пожалуйста, войдите в систему, прежде чем восстанавливать покупку.",
   "visitWebsiteToPurchasePro": "Пожалуйста, посетите наш сайт, чтобы купить Pro.",
   "upgradeToPermanentPro": "Перейти на Pro",
+  "upgradeToMax": "Перейти на Max",
   "caseInsensitive": "Регистр не имеет значения",
   "startFailed": "Не удалось запустить",
   "startFailedWithReason": "Не удалось запустить: {reason}. Трассировка стека: {stackTrace}",

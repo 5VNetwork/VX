@@ -821,6 +821,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get upgradeToPermanentPro => '升级为永久Pro';
 
   @override
+  String get upgradeToMax => '升级为永久Max';
+
+  @override
   String get caseInsensitive => '不区分大小写';
 
   @override

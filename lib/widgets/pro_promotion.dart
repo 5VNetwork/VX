@@ -107,8 +107,23 @@ const proPaymentLink = false
     ? 'https://buy.stripe.com/test_3cIaEZ0CF5g74EnfWrdIA00'
     : 'https://buy.stripe.com/aFa3cw7WA54zc1PdSI67S01';
 
+const maxPaymentLink = false
+    ? 'https://buy.stripe.com/test_14A9AMeZq2Bn0HL2BJ7N600'
+    : 'https://buy.stripe.com/eVqfZi1ycfJd4zn4i867S06';
+
 Uri getProPaymentLink(String email, String clientReferenceId) {
   String url = proPaymentLink;
+  if (email.isNotEmpty) {
+    url += '?prefilled_email=${Uri.encodeComponent(email)}';
+  }
+  if (clientReferenceId.isNotEmpty) {
+    url += '&client_reference_id=${Uri.encodeComponent(clientReferenceId)}';
+  }
+  return Uri.parse(url);
+}
+
+Uri getMaxPaymentLink(String email, String clientReferenceId) {
+  String url = maxPaymentLink;
   if (email.isNotEmpty) {
     url += '?prefilled_email=${Uri.encodeComponent(email)}';
   }

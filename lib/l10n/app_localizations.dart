@@ -1669,6 +1669,12 @@ abstract class AppLocalizations {
   /// **'Upgrade to Pro'**
   String get upgradeToPermanentPro;
 
+  /// No description provided for @upgradeToMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Max'**
+  String get upgradeToMax;
+
   /// No description provided for @caseInsensitive.
   ///
   /// In en, this message translates to:

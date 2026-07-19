@@ -312,6 +312,7 @@
   "loginBeforeRestore": "Please login before restoring purchase.",
   "visitWebsiteToPurchasePro": "Please visit our website to purchase Pro",
   "upgradeToPermanentPro": "Upgrade to Pro",
+  "upgradeToMax": "Upgrade to Max",
   "caseInsensitive": "Case Insensitive",
   "startFailed": "Failed to start",
   "startFailedWithReason": "Failed to start: {reason}. StackTrace: {stackTrace}",

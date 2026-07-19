@@ -835,6 +835,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get upgradeToPermanentPro => 'Перейти на Pro';
 
   @override
+  String get upgradeToMax => 'Перейти на Max';
+
+  @override
   String get caseInsensitive => 'Регистр не имеет значения';
 
   @override
