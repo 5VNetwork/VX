@@ -29,6 +29,7 @@ import 'package:uuid/uuid.dart';
 import 'package:vx/app/settings/privacy.dart';
 import 'package:vx/auth/user.dart';
 import 'package:vx/common/common.dart';
+import 'package:vx/iap/pro.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:vx/auth/auth_bloc.dart';
@@ -41,6 +42,7 @@ import 'package:vx/utils/qr.dart';
 import 'package:vx/widgets/divider.dart';
 import 'package:vx/widgets/pro_icon.dart';
 import 'package:flutter/services.dart';
+import 'package:vx/widgets/pro_promotion.dart';
 import 'package:vx/widgets/take_picture.dart';
 
 class AccountPage extends StatefulWidget {
@@ -142,10 +144,6 @@ class _AccountPageState extends State<AccountPage> {
                     showApple: _showApple,
                     termOfServiceUrl: termOfServiceUrl,
                     privacyPolicyUrl: privacyPolicyUrl,
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.newUserProTrial,
-                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),
@@ -324,6 +322,48 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                if ((!useStripe && (state.user!.lifetimePro == false)) &&
+                    applePlatform)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 5,
+                      right: 5,
+                      bottom: 5,
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        showProPromotionDialog(context, showTitle: false);
+                      },
+                      icon: Icon(
+                        Icons.stars_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: AutoSizeText(
+                        AppLocalizations.of(context)!.upgradeToPermanentPro,
+                        maxLines: 1,
+                        minFontSize: 12,
+                      ),
+                    ),
+                  ),
+                if ((!useStripe && (state.user!.lifetimePro == false)) &&
+                    applePlatform)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        context.read<ProPurchases>().restore();
+                      },
+                      icon: Icon(
+                        Icons.history_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: AutoSizeText(
+                        AppLocalizations.of(context)!.restoreIAP,
+                        maxLines: 1,
+                        minFontSize: 12,
+                      ),
                     ),
                   ),
                 const Gap(20),
@@ -759,6 +799,10 @@ class __SubscriptionState extends State<_Subscription> {
     final isMaxUser =
         context.watch<AuthBloc>().state.user?.level == UserLevel.max;
     final l10n = AppLocalizations.of(context)!;
+
+    if (!isMaxUser && Platform.isIOS) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
