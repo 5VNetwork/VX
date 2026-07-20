@@ -392,14 +392,16 @@ class XConfigHelper {
         ),
       ]);
     }
-    final realmInbound = buildRealmServerInbound(
-      loadLocalRealmServerConfig(
-        _persistentStateRepo,
-        _persistentStateRepo.uniqueDeviceId,
-      ),
-    );
-    if (realmInbound != null) {
-      inboundConfig.handlers.add(realmInbound);
+    if (_persistentStateRepo.realmServerEnabled) {
+      final realmInbound = buildRealmServerInbound(
+        loadLocalRealmServerConfig(
+          _persistentStateRepo,
+          _persistentStateRepo.uniqueDeviceId,
+        ),
+      );
+      if (realmInbound != null) {
+        inboundConfig.handlers.add(realmInbound);
+      }
     }
 
     return inboundConfig;
