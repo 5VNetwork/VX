@@ -26,6 +26,7 @@ import 'package:tm/protos/app/api/api.pb.dart';
 import 'package:tm/tm.dart';
 import 'package:flutter_common/util/compress.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vx/common/common.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/logger.dart';
 import 'package:flutter_common/util/crypto.dart';
@@ -236,6 +237,7 @@ class LogUploadService {
       flutterLog: flutterLogZipBase64 ?? '',
       tunnelLog: tunnelLogZipBase64 ?? '',
       deviceInfo: await getDeviceInfo(),
+      winStore: isWinStore,
     );
     return logData;
   }
@@ -265,6 +267,7 @@ class LogUploadService {
       buildNumber: packageInfo.buildNumber,
       tunnelLog: tunnelLogZipBase64 ?? '',
       deviceInfo: await getDeviceInfo(),
+      winStore: isWinStore,
       reason: reason,
     );
 
@@ -384,6 +387,7 @@ class LogData {
   final String flutterLog;
   final String tunnelLog;
   final String deviceInfo;
+  final bool winStore;
   final String? reason;
 
   LogData({
@@ -393,6 +397,7 @@ class LogData {
     required this.flutterLog,
     required this.tunnelLog,
     required this.deviceInfo,
+    this.winStore = false,
     this.reason,
   });
 

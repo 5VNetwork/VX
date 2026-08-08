@@ -13,6 +13,7 @@ LogData _$LogDataFromJson(Map<String, dynamic> json) => LogData(
   flutterLog: json['flutterLog'] as String,
   tunnelLog: json['tunnelLog'] as String,
   deviceInfo: json['deviceInfo'] as String,
+  winStore: json['winStore'] as bool? ?? false,
   reason: json['reason'] as String?,
 );
 
@@ -23,5 +24,6 @@ Map<String, dynamic> _$LogDataToJson(LogData instance) => <String, dynamic>{
   'flutterLog': instance.flutterLog,
   'tunnelLog': instance.tunnelLog,
   'deviceInfo': instance.deviceInfo,
+  'winStore': instance.winStore,
   'reason': instance.reason,
 };
