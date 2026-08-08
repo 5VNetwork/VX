@@ -40,7 +40,6 @@ class LocalRealmServerConfig {
   final Hysteria2ServerConfig hysteria;
 
   LocalRealmServerConfig copyWith({
-    bool? enabled,
     String? auth,
     Hysteria2ServerConfig? hysteria,
   }) {

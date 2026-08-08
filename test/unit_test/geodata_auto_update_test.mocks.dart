@@ -8,15 +8,15 @@ import 'dart:typed_data' as _i12;
 
 import 'package:grpc/grpc.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i17;
+import 'package:mockito/src/dummies.dart' as _i13;
 import 'package:shared_preferences/shared_preferences.dart' as _i9;
 import 'package:tm/protos/app/api/api.pbgrpc.dart' as _i5;
-import 'package:tm/protos/vx/common/geo/geo.pb.dart' as _i15;
+import 'package:tm/protos/vx/common/geo/geo.pb.dart' as _i16;
 import 'package:tm/protos/vx/dns/dns.pb.dart' as _i22;
-import 'package:tm/protos/vx/geo/geo.pb.dart' as _i16;
-import 'package:tm/protos/vx/inbound/inbound.pb.dart' as _i14;
+import 'package:tm/protos/vx/geo/geo.pb.dart' as _i17;
+import 'package:tm/protos/vx/inbound/inbound.pb.dart' as _i15;
 import 'package:tm/protos/vx/log/logger.pb.dart' as _i19;
-import 'package:tm/protos/vx/outbound/outbound.pb.dart' as _i13;
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' as _i14;
 import 'package:tm/protos/vx/router/router.pb.dart' as _i21;
 import 'package:tm/protos/vx/server.pb.dart' as _i7;
 import 'package:tm/protos/vx/sysproxy/sysproxy.pb.dart' as _i18;
@@ -581,6 +581,25 @@ class MockXApiClient extends _i1.Mock implements _i3.XApiClient {
           as _i10.Future<_i7.ServerConfig>);
 
   @override
+  _i10.Future<String> serverConfigJson(_i8.SshServer? server) =>
+      (super.noSuchMethod(
+            Invocation.method(#serverConfigJson, [server]),
+            returnValue: _i10.Future<String>.value(
+              _i13.dummyValue<String>(
+                this,
+                Invocation.method(#serverConfigJson, [server]),
+              ),
+            ),
+            returnValueForMissingStub: _i10.Future<String>.value(
+              _i13.dummyValue<String>(
+                this,
+                Invocation.method(#serverConfigJson, [server]),
+              ),
+            ),
+          )
+          as _i10.Future<String>);
+
+  @override
   _i10.Future<void> updateServerConfig(
     _i8.SshServer? server,
     _i7.ServerConfig? config,
@@ -593,10 +612,22 @@ class MockXApiClient extends _i1.Mock implements _i3.XApiClient {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<List<_i13.OutboundHandlerConfig>> convertInboundToOutbound(
+  _i10.Future<void> updateServerConfigJson(
+    _i8.SshServer? server,
+    String? configJson,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateServerConfigJson, [server, configJson]),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
+
+  @override
+  _i10.Future<List<_i14.OutboundHandlerConfig>> convertInboundToOutbound(
     _i8.SshServer? server, {
-    _i14.ProxyInboundConfig? inbound,
-    _i14.MultiProxyInboundConfig? multiInbound,
+    _i15.ProxyInboundConfig? inbound,
+    _i15.MultiProxyInboundConfig? multiInbound,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -604,15 +635,39 @@ class MockXApiClient extends _i1.Mock implements _i3.XApiClient {
               [server],
               {#inbound: inbound, #multiInbound: multiInbound},
             ),
-            returnValue: _i10.Future<List<_i13.OutboundHandlerConfig>>.value(
-              <_i13.OutboundHandlerConfig>[],
+            returnValue: _i10.Future<List<_i14.OutboundHandlerConfig>>.value(
+              <_i14.OutboundHandlerConfig>[],
             ),
             returnValueForMissingStub:
-                _i10.Future<List<_i13.OutboundHandlerConfig>>.value(
-                  <_i13.OutboundHandlerConfig>[],
+                _i10.Future<List<_i14.OutboundHandlerConfig>>.value(
+                  <_i14.OutboundHandlerConfig>[],
                 ),
           )
-          as _i10.Future<List<_i13.OutboundHandlerConfig>>);
+          as _i10.Future<List<_i14.OutboundHandlerConfig>>);
+
+  @override
+  _i10.Future<List<_i14.OutboundHandlerConfig>> inboundConfigToOutboundConfig(
+    String? serverName,
+    String? serverAddress,
+    _i15.ProxyInboundConfig? inbound,
+    _i15.MultiProxyInboundConfig? multiInbound,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#inboundConfigToOutboundConfig, [
+              serverName,
+              serverAddress,
+              inbound,
+              multiInbound,
+            ]),
+            returnValue: _i10.Future<List<_i14.OutboundHandlerConfig>>.value(
+              <_i14.OutboundHandlerConfig>[],
+            ),
+            returnValueForMissingStub:
+                _i10.Future<List<_i14.OutboundHandlerConfig>>.value(
+                  <_i14.OutboundHandlerConfig>[],
+                ),
+          )
+          as _i10.Future<List<_i14.OutboundHandlerConfig>>);
 
   @override
   _i10.Future<void> vx(
@@ -863,49 +918,49 @@ class MockXApiClient extends _i1.Mock implements _i3.XApiClient {
           as _i10.Future<_i5.ParseClashRuleFileResponse>);
 
   @override
-  _i10.Future<List<_i15.CIDR>> parseGeoIPConfig(_i16.GeoIPConfig? config) =>
+  _i10.Future<List<_i16.CIDR>> parseGeoIPConfig(_i17.GeoIPConfig? config) =>
       (super.noSuchMethod(
             Invocation.method(#parseGeoIPConfig, [config]),
-            returnValue: _i10.Future<List<_i15.CIDR>>.value(<_i15.CIDR>[]),
-            returnValueForMissingStub: _i10.Future<List<_i15.CIDR>>.value(
-              <_i15.CIDR>[],
+            returnValue: _i10.Future<List<_i16.CIDR>>.value(<_i16.CIDR>[]),
+            returnValueForMissingStub: _i10.Future<List<_i16.CIDR>>.value(
+              <_i16.CIDR>[],
             ),
           )
-          as _i10.Future<List<_i15.CIDR>>);
+          as _i10.Future<List<_i16.CIDR>>);
 
   @override
-  _i10.Future<List<_i15.Domain>> parseGeositeConfig(
-    _i16.GeositeConfig? config,
+  _i10.Future<List<_i16.Domain>> parseGeositeConfig(
+    _i17.GeositeConfig? config,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#parseGeositeConfig, [config]),
-            returnValue: _i10.Future<List<_i15.Domain>>.value(<_i15.Domain>[]),
-            returnValueForMissingStub: _i10.Future<List<_i15.Domain>>.value(
-              <_i15.Domain>[],
+            returnValue: _i10.Future<List<_i16.Domain>>.value(<_i16.Domain>[]),
+            returnValueForMissingStub: _i10.Future<List<_i16.Domain>>.value(
+              <_i16.Domain>[],
             ),
           )
-          as _i10.Future<List<_i15.Domain>>);
+          as _i10.Future<List<_i16.Domain>>);
 
   @override
   _i10.Future<(String, String)> generateX25519KeyPair() =>
       (super.noSuchMethod(
             Invocation.method(#generateX25519KeyPair, []),
             returnValue: _i10.Future<(String, String)>.value((
-              _i17.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#generateX25519KeyPair, []),
               ),
-              _i17.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#generateX25519KeyPair, []),
               ),
             )),
             returnValueForMissingStub: _i10.Future<(String, String)>.value((
-              _i17.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#generateX25519KeyPair, []),
               ),
-              _i17.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#generateX25519KeyPair, []),
               ),
@@ -951,7 +1006,7 @@ class MockXApiClient extends _i1.Mock implements _i3.XApiClient {
 
   @override
   _i10.Future<_i5.ToUrlResponse> toUrl(
-    List<_i13.OutboundHandlerConfig>? configs,
+    List<_i14.OutboundHandlerConfig>? configs,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#toUrl, [configs]),
@@ -1097,6 +1152,16 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Future<void>);
 
   @override
+  _i10.Future<_i8.CustomRouteMode?> getCustomRouteMode(String? name) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCustomRouteMode, [name]),
+            returnValue: _i10.Future<_i8.CustomRouteMode?>.value(),
+            returnValueForMissingStub:
+                _i10.Future<_i8.CustomRouteMode?>.value(),
+          )
+          as _i10.Future<_i8.CustomRouteMode?>);
+
+  @override
   _i10.Stream<List<_i8.CustomRouteMode>> getCustomRouteModesStream() =>
       (super.noSuchMethod(
             Invocation.method(#getCustomRouteModesStream, []),
@@ -1154,7 +1219,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> addGreatIpSet(_i16.GreatIPSetConfig? greatIpSet) =>
+  _i10.Future<void> addGreatIpSet(_i17.GreatIPSetConfig? greatIpSet) =>
       (super.noSuchMethod(
             Invocation.method(#addGreatIpSet, [greatIpSet]),
             returnValue: _i10.Future<void>.value(),
@@ -1165,7 +1230,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
   @override
   _i10.Future<void> updateGreatIpSet(
     String? name, {
-    _i16.GreatIPSetConfig? greatIpSet,
+    _i17.GreatIPSetConfig? greatIpSet,
     String? newName,
   }) =>
       (super.noSuchMethod(
@@ -1200,7 +1265,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
   @override
   _i10.Future<void> updateAtomicIpSet(
     String? name, {
-    _i16.GeoIPConfig? geoIpConfig,
+    _i17.GeoIPConfig? geoIpConfig,
     List<String>? clashRuleUrls,
     String? newName,
     String? geoUrl,
@@ -1307,7 +1372,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
   @override
   _i10.Future<void> updateAtomicDomainSet(
     String? name, {
-    _i16.GeositeConfig? geositeConfig,
+    _i17.GeositeConfig? geositeConfig,
     List<String>? clashRuleUrls,
     bool? useBloomFilter,
     String? geoUrl,
@@ -1333,7 +1398,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> addGreatDomainSet(_i16.GreatDomainSetConfig? config) =>
+  _i10.Future<void> addGreatDomainSet(_i17.GreatDomainSetConfig? config) =>
       (super.noSuchMethod(
             Invocation.method(#addGreatDomainSet, [config]),
             returnValue: _i10.Future<void>.value(),
@@ -1344,7 +1409,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
   @override
   _i10.Future<void> updateGreateDomainSet(
     String? name, {
-    _i16.GreatDomainSetConfig? greatDomainSet,
+    _i17.GreatDomainSetConfig? greatDomainSet,
     String? newName,
   }) =>
       (super.noSuchMethod(
@@ -1641,7 +1706,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Stream<List<_i8.DnsRecord>>);
 
   @override
-  _i10.Future<void> addGeoDomain(String? setName, _i15.Domain? d) =>
+  _i10.Future<void> addGeoDomain(String? setName, _i16.Domain? d) =>
       (super.noSuchMethod(
             Invocation.method(#addGeoDomain, [setName, d]),
             returnValue: _i10.Future<void>.value(),
@@ -1661,7 +1726,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
   @override
   _i10.Future<void> bulkAddGeoDomain(
     String? domainSetName,
-    List<_i15.Domain>? domains,
+    List<_i16.Domain>? domains,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#bulkAddGeoDomain, [domainSetName, domains]),
@@ -1680,7 +1745,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> addCidr(String? ipSetName, _i15.CIDR? cidr) =>
+  _i10.Future<void> addCidr(String? ipSetName, _i16.CIDR? cidr) =>
       (super.noSuchMethod(
             Invocation.method(#addCidr, [ipSetName, cidr]),
             returnValue: _i10.Future<void>.value(),
@@ -1689,7 +1754,7 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<void> bulkAddCidr(String? ipSetName, List<_i15.CIDR>? cidrs) =>
+  _i10.Future<void> bulkAddCidr(String? ipSetName, List<_i16.CIDR>? cidrs) =>
       (super.noSuchMethod(
             Invocation.method(#bulkAddCidr, [ipSetName, cidrs]),
             returnValue: _i10.Future<void>.value(),
@@ -1871,6 +1936,16 @@ class MockDbHelper extends _i1.Mock implements _i20.DbHelper {
             returnValueForMissingStub: _i10.Future<void>.value(),
           )
           as _i10.Future<void>);
+
+  @override
+  _i10.Future<_i21.SelectorConfig?> getSelector(String? selectorName) =>
+      (super.noSuchMethod(
+            Invocation.method(#getSelector, [selectorName]),
+            returnValue: _i10.Future<_i21.SelectorConfig?>.value(),
+            returnValueForMissingStub:
+                _i10.Future<_i21.SelectorConfig?>.value(),
+          )
+          as _i10.Future<_i21.SelectorConfig?>);
 
   @override
   _i10.Future<void> addSelector(_i21.SelectorConfig? selector) =>

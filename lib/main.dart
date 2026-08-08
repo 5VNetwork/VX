@@ -100,6 +100,7 @@ import 'package:vx/common/serial.dart';
 import 'package:vx/data/database.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/path.dart';
+import 'package:vx/utils/db_recovery.dart';
 import 'package:vx/utils/upload_log.dart';
 import 'package:vx/utils/wintun.dart';
 import 'package:vx/utils/xapi_client.dart';
@@ -405,6 +406,7 @@ void main() async {
                 }
                 showDialog(
                   context: rootNavigationKey.currentContext!,
+                  barrierDismissible: false,
                   builder: (context) => HasNewerVersionDialog(
                     release: release,
                     setSkipCurrentVersion: () {

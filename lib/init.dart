@@ -23,77 +23,83 @@ Future<AppDatabase?> _initDatabase(
     final path = await getDbPath(pref);
     final db = AppDatabase(path: path, interceptor: interceptor);
     await db.customSelect('SELECT 1').get();
-    // if (Platform.isAndroid) {
-    //   // PRAGMA quick_check returns one row "ok" if healthy,
-    //   // or multiple rows describing each corruption found.
-    //   final rows = await db.customSelect('PRAGMA quick_check').get();
-    //   final messages = rows
-    //       .map((r) => r.data.values.first?.toString() ?? '')
-    //       .toList();
-    //   logger.d('quick_check messages: $messages');
-    //   if (messages.length != 1 || messages.first != 'ok') {
-    //     final report = messages.join('\n');
-    //     logger.e('Database corruption detected:\n$report');
-    //     reportError("database corruption detected", report);
-    //     fatalErrorMessage =
-    //         "Database was corrupted. Details of corruption: $report";
-    //   }
-    // }
+
+    final corruption = await _quickCheckReport(db);
+    if (corruption != null) {
+      logger.e('Database corruption detected:\n$corruption');
+      reportError('database corruption detected', corruption);
+      await db.close();
+      return await _recoverCorruptDatabase(
+        pref,
+        interceptor: interceptor,
+        integrityReport: corruption,
+      );
+    }
 
     return db;
   } catch (e) {
     logger.e('Error initializing database', error: e);
-    reportError("init database", e);
+    reportError('init database', e);
 
-    if (e.toString().contains('malformed') ||
-        e.toString().contains('corrupt') ||
-        e.toString().contains('SqliteException(11)')) {
+    if (looksLikeCorruptDbError(e)) {
       try {
-        final path = await getDbPath(pref);
-        // Try to get a detailed corruption report before deleting.
-        String report = '';
-        try {
-          final corruptDb = AppDatabase(path: path, interceptor: interceptor);
-          final rows = await corruptDb
-              .customSelect('PRAGMA integrity_check')
-              .get();
-          report = rows
-              .map((r) => r.data.values.first?.toString() ?? '')
-              .join('\n');
-          logger.e('Integrity check on corrupt database:\n$report');
-          reportError("integrity_check before recovery", report);
-          await corruptDb.close();
-        } catch (_) {}
-
-        logger.w('Attempting database recovery by deleting corrupt file');
-        await _deleteCorruptDatabase(path);
-        final db = AppDatabase(path: path, interceptor: interceptor);
-        fatalErrorMessage =
-            "Database was corrupted and has been recreated. Your data has been reset.\n$report";
-        return db;
+        return await _recoverCorruptDatabase(
+          pref,
+          interceptor: interceptor,
+          integrityReport: e.toString(),
+        );
       } catch (e2) {
         logger.e('Error recovering database', error: e2);
-        reportError("recover database", e2);
+        reportError('recover database', e2);
       }
     }
 
-    fatalErrorMessage = "Failed to initialize database: $e";
+    fatalErrorMessage = 'Failed to initialize database: $e';
   }
 
   return null;
 }
 
-Future<void> _deleteCorruptDatabase(String path) async {
-  final files = [
-    File(path),
-    File('$path-wal'),
-    File('$path-shm'),
-    File('$path-journal'),
-  ];
-  for (final f in files) {
-    if (await f.exists()) {
-      logger.w('Deleting corrupt database file: ${f.path}');
-      await f.delete();
+/// Drift wrapper around [quickCheckSqliteFile].
+Future<String?> _quickCheckReport(AppDatabase db) async {
+  try {
+    final rows = await db.customSelect('PRAGMA quick_check').get();
+    final messages = rows
+        .map((r) => r.data.values.first?.toString() ?? '')
+        .toList();
+    if (messages.length == 1 && messages.first == 'ok') {
+      return null;
     }
+    return messages.join('\n');
+  } catch (e) {
+    return e.toString();
   }
+}
+
+Future<AppDatabase?> _recoverCorruptDatabase(
+  SharedPreferences pref, {
+  QueryInterceptor? interceptor,
+  required String integrityReport,
+}) async {
+  final oldPath = await getDbPath(pref);
+  final result = await recoverCorruptDatabase(
+    oldPath: oldPath,
+    currentDbName: pref.dbName,
+    resourceDir: resourceDirectory.path,
+    cacheDir: cacheDirectory,
+    integrityReport: integrityReport,
+  );
+
+  pref.setDbName(result.newDbName);
+  fatalErrorMessage = result.message;
+
+  if (result.kind == DbRecoveryKind.vacuumSalvaged) {
+    reportError('database vacuum recovery succeeded', integrityReport);
+  } else {
+    reportError('database wipe recovery', integrityReport);
+  }
+
+  final db = AppDatabase(path: result.newDbPath, interceptor: interceptor);
+  await db.customSelect('SELECT 1').get();
+  return db;
 }

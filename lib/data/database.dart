@@ -280,12 +280,7 @@ class AppDatabase extends _$AppDatabase {
       // runs after migration
       beforeOpen: (details) async {
         try {
-          if (Platform.isAndroid) {
-            await customStatement('PRAGMA journal_mode = DELETE');
-            await customStatement('PRAGMA wal_checkpoint(TRUNCATE)');
-          } else {
-            await customStatement('PRAGMA journal_mode = WAL');
-          }
+          await customStatement('PRAGMA journal_mode = WAL');
         } catch (e) {
           reportError("beforeOpen journal_mode setup", e);
         }
