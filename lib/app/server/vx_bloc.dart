@@ -309,13 +309,24 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXReloadConfigEvent event,
     Emitter<VXState> emit,
   ) async {
-    _originalConfig = await _xapiClient.serverConfig(_server);
-    emit(
-      (state as VXInstalledState).copyWith(
-        config: () => _originalConfig,
-        configUnsaved: false,
-      ),
-    );
+    // After a fresh deploy, status may still be NotInstalled until refresh runs.
+    if (state is! VXInstalledState) {
+      add(_RefreshVXStatusEvent());
+      return;
+    }
+    try {
+      _originalConfig = await _xapiClient.serverConfig(_server);
+      final currentState = state;
+      if (currentState is! VXInstalledState) return;
+      emit(
+        currentState.copyWith(
+          config: () => _originalConfig,
+          configUnsaved: false,
+        ),
+      );
+    } catch (e) {
+      logger.e('Failed to reload config: $e');
+    }
   }
 
   Future<void> _onVproxyRestartEvent(
@@ -448,14 +459,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXAddInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.inbounds.add(event.inbound);
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -466,14 +477,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXAddMultiInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.multiInbounds.add(event.multiInbound);
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -484,14 +495,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXEditInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.inbounds[event.index] = event.inbound;
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -502,14 +513,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXEditMultiInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.multiInbounds[event.index] = event.multiInbound;
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -520,14 +531,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXRemoveInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.inbounds.removeWhere((e) => e.tag == event.tag);
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -538,14 +549,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXRemoveMultiInboundEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.multiInbounds.removeWhere((e) => e.tag == event.tag);
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -556,16 +567,24 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXSaveConfigEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
+      return;
+    }
     try {
-      emit(state.copyWith(isSavingConfig: true));
-      await _xapiClient.updateServerConfig(_server, state.config!);
-      _originalConfig = state.config!.deepCopy();
-      emit(state.copyWith(configUnsaved: false, isSavingConfig: false));
+      emit(currentState.copyWith(isSavingConfig: true));
+      await _xapiClient.updateServerConfig(_server, currentState.config!);
+      final latest = state;
+      if (latest is! VXInstalledState) return;
+      _originalConfig = currentState.config!.deepCopy();
+      emit(latest.copyWith(configUnsaved: false, isSavingConfig: false));
       snack(rootLocalizations()?.applySuccess ?? 'Saved successfully');
     } catch (e) {
       snack(rootLocalizations()?.applyFailed ?? 'Failed to apply: $e');
-      emit(state.copyWith(isSavingConfig: false));
+      final latest = state;
+      if (latest is VXInstalledState) {
+        emit(latest.copyWith(isSavingConfig: false));
+      }
     }
   }
 
@@ -573,13 +592,22 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXDiscardChangesEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
+    if (state is! VXInstalledState) return;
     try {
       // Fetch the config from the server again to discard local changes
       _originalConfig = await _xapiClient.serverConfig(_server);
-      emit(state.copyWith(config: () => _originalConfig, configUnsaved: false));
+      final currentState = state;
+      if (currentState is! VXInstalledState) return;
+      emit(
+        currentState.copyWith(
+          config: () => _originalConfig,
+          configUnsaved: false,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(config: () => null, configUnsaved: false));
+      final currentState = state;
+      if (currentState is! VXInstalledState) return;
+      emit(currentState.copyWith(config: () => null, configUnsaved: false));
     }
   }
 
@@ -604,18 +632,18 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXSetLogLevelEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     if (copy.hasLog()) {
       copy.log.logLevel = event.logLevel;
     } else {
       copy.log = LoggerConfig(logLevel: event.logLevel);
     }
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
@@ -626,14 +654,14 @@ class VXBloc extends Bloc<VXEvent, VXState> {
     VXSetLoggerConfigEvent event,
     Emitter<VXState> emit,
   ) async {
-    final state = this.state as VXInstalledState;
-    if (state.config == null) {
+    final currentState = state;
+    if (currentState is! VXInstalledState || currentState.config == null) {
       return;
     }
-    final copy = state.config!.deepCopy();
+    final copy = currentState.config!.deepCopy();
     copy.log = event.loggerConfig;
     emit(
-      state.copyWith(
+      currentState.copyWith(
         configUnsaved: copy != _originalConfig,
         config: () => copy,
       ),
