@@ -18,6 +18,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
+import 'package:flutter_common/util/download.dart';
 import 'package:http/http.dart' as http;
 import 'package:tm/protos/app/api/api.pbgrpc.dart';
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
@@ -25,55 +26,6 @@ import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/utils/logger.dart';
 import 'package:vx/utils/path.dart';
 import 'package:vx/utils/xapi_client.dart';
-
-/// download content from url, save them to [dest] file
-Future<void> directDownloadToFile(
-  String url,
-  String dest, [
-  http.Client? client,
-]) async {
-  logger.d("downloading $url to $dest");
-  final httpClient = client ?? http.Client();
-  // Create temporary file path
-  final tempPath = '$dest.tmp.${DateTime.now().millisecondsSinceEpoch}';
-  final tempFile = File(tempPath);
-  tempFile.createSync(recursive: true);
-
-  try {
-    final request = await httpClient.send(http.Request('GET', Uri.parse(url)));
-    if (request.statusCode != 200) {
-      throw Exception("download failed: ${request.statusCode}");
-    }
-    // Open the file in write mode
-    final fileStream = tempFile.openWrite();
-    // Pipe the response stream to the file
-    await request.stream.pipe(fileStream);
-    // Close the file
-    await fileStream.flush();
-    await fileStream.close();
-
-    await tempFile.rename(dest);
-    logger.d("downloaded $url to $dest");
-  } catch (e) {
-    // Clean up temp file if anything goes wrong
-    if (tempFile.existsSync()) {
-      tempFile.deleteSync();
-    }
-    rethrow;
-  } finally {
-    httpClient.close();
-  }
-}
-
-/// download from url, return the content
-Future<Uint8List> directDownloadMemory(
-  String url, [
-  http.Client? client,
-]) async {
-  final httpClient = client ?? http.Client();
-  final res = await httpClient.get(Uri.parse(url));
-  return res.bodyBytes;
-}
 
 /// Download something and record traffic usage
 class Downloader {
