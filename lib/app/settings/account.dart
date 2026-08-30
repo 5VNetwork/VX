@@ -800,7 +800,7 @@ class __SubscriptionState extends State<_Subscription> {
         context.watch<AuthBloc>().state.user?.level == UserLevel.max;
     final l10n = AppLocalizations.of(context)!;
 
-    if (!isMaxUser && Platform.isIOS) {
+    if (!isMaxUser) {
       return const SizedBox.shrink();
     }
 
