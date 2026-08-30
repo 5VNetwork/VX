@@ -325,6 +325,14 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('showRealtimeUsage', show);
   }
 
+  bool get dismissSameRoute {
+    return getBool('dismissSameRoute') ?? true;
+  }
+
+  void setDismissSameRoute(bool dismiss) {
+    setBool('dismissSameRoute', dismiss);
+  }
+
   DateTime? get lastGeoUpdate {
     final time = getInt('lastGeoUpdate');
     if (time == null) return null;

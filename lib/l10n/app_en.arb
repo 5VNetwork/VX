@@ -272,6 +272,8 @@
   "hideSessionOngoingIndicator": "Hide session ongoing indicator",
   "showRealtimeUsage": "Show realtime usage",
   "hideRealtimeUsage": "Hide realtime usage",
+  "dismissSameDestination": "Dismiss same destination",
+  "showSameDestination": "Show same destination",
   "proFeatureDescription": "This is a Pro feature. Upgrade to Pro to unlock all features",
   "becomePermanentPro": "Become Permanent Pro User",
   "becomePermanentProDescription": "Become permanent Pro user",
@@ -792,6 +794,8 @@
   "checkUpdate": "Check Update",
   "handlerCopiedSuccess": "Copy succeeded. The node has been added to the Default group",
   "hysteriaRejectQuic": "Hysteria Reject QUIC",
+  "disableCoreDatabase": "Core does not use database",
+  "disableCoreDatabaseDesc": "Core does not share database with UI. Turn this on if database corruption happens.",
   "syncBackup": "Sync & Backup",
   "cloudSync": "Cloud Sync",
   "cloudSyncDesc1": "Sync your database between multiple devices. ",
@@ -1099,7 +1103,15 @@
     }
   },
   "policyTimeout": "Policy Timeout",
-  "policyTimeoutNoTimeoutHint": "0 means no timeout",
+  "policyTimeoutNoTimeoutHint": "-1 means no timeout",
+  "policyTimeoutDefault": "Default: {seconds}s",
+  "@policyTimeoutDefault": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "policyTcpIdleTimeout": "TCP Idle Timeout",
   "policyTcpIdleTimeoutDesc": "If uplink or downlink data is absent during this period, the connection will be closed.",
   "policyUdpIdleTimeout": "UDP Idle Timeout",

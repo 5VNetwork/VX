@@ -772,6 +772,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hideRealtimeUsage => 'Hide realtime usage';
 
   @override
+  String get dismissSameDestination => 'Dismiss same destination';
+
+  @override
+  String get showSameDestination => 'Show same destination';
+
+  @override
   String get proFeatureDescription => 'This is a Pro feature. Upgrade to Pro to unlock all features';
 
   @override
@@ -1862,6 +1868,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hysteriaRejectQuic => 'Hysteria Reject QUIC';
 
   @override
+  String get disableCoreDatabase => 'Core does not use database';
+
+  @override
+  String get disableCoreDatabaseDesc => 'Core does not share database with UI. Turn this on if database corruption happens.';
+
+  @override
   String get syncBackup => 'Sync & Backup';
 
   @override
@@ -2644,7 +2656,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get policyTimeout => 'Policy Timeout';
 
   @override
-  String get policyTimeoutNoTimeoutHint => '0 means no timeout';
+  String get policyTimeoutNoTimeoutHint => '-1 means no timeout';
+
+  @override
+  String policyTimeoutDefault(int seconds) {
+    return 'Default: ${seconds}s';
+  }
 
   @override
   String get policyTcpIdleTimeout => 'TCP Idle Timeout';

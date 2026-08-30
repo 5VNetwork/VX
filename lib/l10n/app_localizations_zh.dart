@@ -758,6 +758,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hideRealtimeUsage => '隐藏实时使用情况';
 
   @override
+  String get dismissSameDestination => '隐藏相同目标';
+
+  @override
+  String get showSameDestination => '显示相同目标';
+
+  @override
   String get proFeatureDescription => '该功能为Pro功能，升级为Pro用户即可解锁全部功能';
 
   @override
@@ -1812,6 +1818,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hysteriaRejectQuic => 'Hysteria拒绝QUIC';
 
   @override
+  String get disableCoreDatabase => '核心不共享数据库';
+
+  @override
+  String get disableCoreDatabaseDesc => '核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项';
+
+  @override
   String get syncBackup => '同步与备份';
 
   @override
@@ -2594,7 +2606,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get policyTimeout => '策略超时';
 
   @override
-  String get policyTimeoutNoTimeoutHint => '0 表示不超时';
+  String get policyTimeoutNoTimeoutHint => '-1 表示不超时';
+
+  @override
+  String policyTimeoutDefault(int seconds) {
+    return '默认值：$seconds秒';
+  }
 
   @override
   String get policyTcpIdleTimeout => 'TCP 空闲超时';

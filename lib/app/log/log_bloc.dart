@@ -58,6 +58,7 @@ class LogBloc extends Bloc<LogEvent, LogState> {
            showHandler: pref.showHandler,
            showSessionOngoing: pref.showSessionOngoing,
            showRealtimeUsage: pref.showRealtimeUsage,
+           dismissSameRoute: pref.dismissSameRoute,
            logs: CircularBuffer<XLog>(maxSize: maxLogSize),
            filter: const LogFilter(
              showDirect: true,
@@ -85,6 +86,7 @@ class LogBloc extends Bloc<LogEvent, LogState> {
     on<HandlerPressedEvent>(_onHandlerPressedEvent);
     on<SessionOngoingPressedEvent>(_onSessionOngoingPressedEvent);
     on<RealtimeUsagePressedEvent>(_onRealtimeUsagePressedEvent);
+    on<DismissSameRoutePressedEvent>(_onDismissSameRoutePressedEvent);
     _logs = state.logs;
     isIOSSimulator().then((value) {
       if (value) {
@@ -212,6 +214,14 @@ class LogBloc extends Bloc<LogEvent, LogState> {
     emit(state.copyWith(showHandler: event.showHandler));
   }
 
+  void _onDismissSameRoutePressedEvent(
+    DismissSameRoutePressedEvent event,
+    Emitter<LogState> emit,
+  ) {
+    _pref.setDismissSameRoute(event.dismissSameRoute);
+    emit(state.copyWith(dismissSameRoute: event.dismissSameRoute));
+  }
+
   Future<Uint8List?> _getAppIcon(String app) async {
     if (Platform.isAndroid) {
       final icon = await _appIconCache.get(app);
@@ -292,11 +302,10 @@ class LogBloc extends Bloc<LogEvent, LogState> {
               : await _getAppIcon(l.routeMessage.appId),
         );
         // dismiss same RouteInfo
-        if (state.logs.isNotEmpty) {
+        if (state.dismissSameRoute && state.logs.isNotEmpty) {
           final last = state.logs.last;
           if (last is SessionInfo) {
             if (last.dst == routeInfo.dst && last.tag == routeInfo.tag) {
-              // logger.d('dismiss same RouteInfo: $last');
               return;
             }
           }

@@ -157,6 +157,16 @@ class _LogPageState extends State<LogPage> {
                     : AppLocalizations.of(context)!.showRealtimeUsage,
               ),
             ),
+            MenuItemButton(
+              onPressed: () => context.read<LogBloc>().add(
+                DismissSameRoutePressedEvent(!state.dismissSameRoute),
+              ),
+              child: Text(
+                state.dismissSameRoute
+                    ? AppLocalizations.of(context)!.showSameDestination
+                    : AppLocalizations.of(context)!.dismissSameDestination,
+              ),
+            ),
           ],
           builder: (context, controller, child) {
             return IconButton(

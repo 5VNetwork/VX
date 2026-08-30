@@ -791,6 +791,8 @@
   "checkUpdate": "检查更新",
   "handlerCopiedSuccess": "复制节点成功！该节点已加入默认分组",
   "hysteriaRejectQuic": "Hysteria拒绝QUIC",
+  "disableCoreDatabase": "核心不共享数据库",
+  "disableCoreDatabaseDesc": "核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项",
   "syncBackup": "同步与备份",
   "cloudSync": "云同步",
   "cloudSyncDesc1": "多设备间同步数据库。",
@@ -1060,6 +1062,8 @@
   "showSessionOngoingIndicator": "显示会话进行中指示器",
   "hideRealtimeUsage": "隐藏实时使用情况",
   "showRealtimeUsage": "显示实时使用情况",
+  "dismissSameDestination": "隐藏相同目标",
+  "showSameDestination": "显示相同目标",
   "internalDns": "内部DNS服务器",
   "fallback": "回退",
   "fallbackDesc": "如果此规则所使用的节点失败，使用以下回退。每个回退都有一些条件，只有当回退的任意一个条件成立时，回退才会被使用。",
@@ -1101,7 +1105,15 @@
     }
   },
   "policyTimeout": "策略超时",
-  "policyTimeoutNoTimeoutHint": "0 表示不超时",
+  "policyTimeoutNoTimeoutHint": "-1 表示不超时",
+  "policyTimeoutDefault": "默认值：{seconds}秒",
+  "@policyTimeoutDefault": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "policyTcpIdleTimeout": "TCP 空闲超时",
   "policyTcpIdleTimeoutDesc": "若在此期间上行或下行均无数据，将关闭连接。",
   "policyUdpIdleTimeout": "UDP 空闲超时",

@@ -772,6 +772,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get hideRealtimeUsage => 'Скрыть использование в режиме реального времени';
 
   @override
+  String get dismissSameDestination => 'Скрывать одинаковые назначения';
+
+  @override
+  String get showSameDestination => 'Показывать одинаковые назначения';
+
+  @override
   String get proFeatureDescription => 'Это функция версии Pro. Для разблокировки всех функций перейдите на версию Pro.';
 
   @override
@@ -1862,6 +1868,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get hysteriaRejectQuic => 'Истерия отвергает QUIC';
 
   @override
+  String get disableCoreDatabase => 'Ядро не использует базу данных';
+
+  @override
+  String get disableCoreDatabaseDesc => 'Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.';
+
+  @override
   String get syncBackup => 'Синхронизация и резервное копирование';
 
   @override
@@ -2646,7 +2658,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get policyTimeout => 'Policy Timeout';
 
   @override
-  String get policyTimeoutNoTimeoutHint => '0 means no timeout';
+  String get policyTimeoutNoTimeoutHint => '-1 means no timeout';
+
+  @override
+  String policyTimeoutDefault(int seconds) {
+    return 'Default: ${seconds}s';
+  }
 
   @override
   String get policyTcpIdleTimeout => 'TCP Idle Timeout';

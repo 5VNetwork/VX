@@ -24,6 +24,7 @@ class LogState {
     this.showHandler = false,
     this.showSessionOngoing = true,
     this.showRealtimeUsage = false,
+    this.dismissSameRoute = true,
   });
   final bool enableLog;
   final LogFilter filter;
@@ -32,6 +33,7 @@ class LogState {
   final bool showHandler;
   final bool showSessionOngoing;
   final bool showRealtimeUsage;
+  final bool dismissSameRoute;
 
   LogState copyWith({
     bool? enableLog,
@@ -41,6 +43,7 @@ class LogState {
     bool? showHandler,
     bool? showSessionOngoing,
     bool? showRealtimeUsage,
+    bool? dismissSameRoute,
   }) {
     return LogState(
       enableLog: enableLog ?? this.enableLog,
@@ -50,6 +53,7 @@ class LogState {
       showHandler: showHandler ?? this.showHandler,
       showSessionOngoing: showSessionOngoing ?? this.showSessionOngoing,
       showRealtimeUsage: showRealtimeUsage ?? this.showRealtimeUsage,
+      dismissSameRoute: dismissSameRoute ?? this.dismissSameRoute,
     );
   }
 }

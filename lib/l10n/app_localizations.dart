@@ -1555,6 +1555,18 @@ abstract class AppLocalizations {
   /// **'Hide realtime usage'**
   String get hideRealtimeUsage;
 
+  /// No description provided for @dismissSameDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss same destination'**
+  String get dismissSameDestination;
+
+  /// No description provided for @showSameDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Show same destination'**
+  String get showSameDestination;
+
   /// No description provided for @proFeatureDescription.
   ///
   /// In en, this message translates to:
@@ -3463,6 +3475,18 @@ abstract class AppLocalizations {
   /// **'Hysteria Reject QUIC'**
   String get hysteriaRejectQuic;
 
+  /// No description provided for @disableCoreDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Core does not use database'**
+  String get disableCoreDatabase;
+
+  /// No description provided for @disableCoreDatabaseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Core does not share database with UI. Turn this on if database corruption happens.'**
+  String get disableCoreDatabaseDesc;
+
   /// No description provided for @syncBackup.
   ///
   /// In en, this message translates to:
@@ -4990,8 +5014,14 @@ abstract class AppLocalizations {
   /// No description provided for @policyTimeoutNoTimeoutHint.
   ///
   /// In en, this message translates to:
-  /// **'0 means no timeout'**
+  /// **'-1 means no timeout'**
   String get policyTimeoutNoTimeoutHint;
+
+  /// No description provided for @policyTimeoutDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default: {seconds}s'**
+  String policyTimeoutDefault(int seconds);
 
   /// No description provided for @policyTcpIdleTimeout.
   ///

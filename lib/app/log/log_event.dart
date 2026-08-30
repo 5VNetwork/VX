@@ -72,6 +72,11 @@ class RealtimeUsagePressedEvent extends LogEvent {
   final bool showRealtimeUsage;
 }
 
+class DismissSameRoutePressedEvent extends LogEvent {
+  const DismissSameRoutePressedEvent(this.dismissSameRoute);
+  final bool dismissSameRoute;
+}
+
 class SubstringChangedEvent extends LogEvent {
   const SubstringChangedEvent(this.substring);
   final String substring;
