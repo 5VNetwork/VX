@@ -179,11 +179,11 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           if (_pref.proxySelectorMode == ProxySelectorMode.manual) {
             return state;
           }
-          if (handlerBeingUsed.selector != '代理') {
+          if (handlerBeingUsed.selector != defaultProxySelectorTag) {
             return state;
           }
           if (handlerBeingUsed.tags.length != 1) {
-            return state;
+            return state.copyWith(using4: 0, using6: 0);
           }
           final tag = handlerBeingUsed.tags.first;
           late final int handlerBeingUsedId4;
@@ -208,9 +208,9 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
               (h) => h.id == handlerBeingUsedId4 || h.id == handlerBeingUsedId6,
             );
           }
-          logger.d(
-            'handler being used, ${handlerBeingUsedId4}, ${handlerBeingUsedId6}',
-          );
+          // logger.d(
+          //   'handler being used, ${handlerBeingUsedId4}, ${handlerBeingUsedId6}',
+          // );
           return state.copyWith(
             handlers: newHandlers,
             using4: handlerBeingUsedId4,
@@ -306,7 +306,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     Emitter<OutboundState> emit,
   ) {
     if (e.mode == ProxySelectorMode.manual) {
-      emit(state.copyWith(using4: null, using6: null));
+      emit(state.copyWith(using4: 0, using6: 0));
     }
   }
 
@@ -347,7 +347,11 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
 
     switch (col) {
       case Col.speed:
-        handlers.sort((a, b) => (a.speed).compareTo(b.speed) * multiplier);
+        handlers.sort((a, b) {
+          final aSpeed = a.ok > 0 ? a.speed : -1.0;
+          final bSpeed = b.ok > 0 ? b.speed : -1.0;
+          return aSpeed.compareTo(bSpeed) * multiplier;
+        });
       case Col.ping:
         handlers.sort((a, b) {
           int v1 = a.ping;

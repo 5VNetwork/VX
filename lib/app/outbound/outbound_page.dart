@@ -466,9 +466,8 @@ class OutboundTableState extends State<OutboundTable> {
                                                                           .status ==
                                                                       XStatus
                                                                           .connected &&
-                                                                  xstate.proxySelectorMode ==
-                                                                      ProxySelectorMode
-                                                                          .auto &&
+                                                                  xstate
+                                                                      .isSingleHandlerAutoMode &&
                                                                   r.$1 ==
                                                                       handlers[index]
                                                                           .id,
@@ -528,9 +527,8 @@ class OutboundTableState extends State<OutboundTable> {
                                                                     .status ==
                                                                 XStatus
                                                                     .connected &&
-                                                            xstate.proxySelectorMode ==
-                                                                ProxySelectorMode
-                                                                    .auto &&
+                                                            xstate
+                                                                .isSingleHandlerAutoMode &&
                                                             r.$1 ==
                                                                 handlers[index]
                                                                     .id);

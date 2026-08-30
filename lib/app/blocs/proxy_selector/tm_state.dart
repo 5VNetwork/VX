@@ -34,6 +34,16 @@ class ProxySelectorState extends Equatable {
       (showProxySelector ?? false) &&
       proxySelectorMode == ProxySelectorMode.manual;
 
+  /// Auto mode strategies that pick exactly one handler. Others load-balance
+  /// across multiple handlers and should not mark a single "in use" node.
+  bool get isSingleHandlerAutoMode {
+    if (proxySelectorMode != ProxySelectorMode.auto) return false;
+    final strategy = autoNodeSetting?.strategy;
+    return strategy == null ||
+        strategy == SelectorConfig_SelectingStrategy.MOST_THROUGHPUT ||
+        strategy == SelectorConfig_SelectingStrategy.LEAST_PING;
+  }
+
   @override
   List<Object?> get props => [
     routeMode,
