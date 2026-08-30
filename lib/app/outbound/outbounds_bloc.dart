@@ -548,8 +548,8 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     Emitter<OutboundState> emit,
   ) async {
     try {
-      final newList = List<OutboundHandler>.from(state.handlers);
-      final index = newList.indexWhere((h) => h.id == e.handler.id);
+      // final newList = List<OutboundHandler>.from(state.handlers);
+      // final index = newList.indexWhere((h) => h.id == e.handler.id);
       // single node mode
       if (_pref.proxySelectorManualMode ==
           ProxySelectorManualNodeSelectionMode.single) {
@@ -571,31 +571,41 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           await _outboundRepo.updateHandlersTx(m);
         }
 
-        final currentlySelected = newList.indexWhere((h) => h.selected);
-        if (currentlySelected >= 0 &&
-            newList[currentlySelected].id != e.handler.id) {
-          newList[currentlySelected] = newList[currentlySelected].copyWith(
-            selected: false,
-          );
-        }
-        if (index >= 0) {
-          newList[index] = newList[index].copyWith(selected: e.selected);
-        }
-        emit(state.copyWith(handlers: _sortHandlers(newList, state.sortCol)));
+        // final currentlySelected = newList.indexWhere((h) => h.selected);
+        // if (currentlySelected >= 0 &&
+        //     newList[currentlySelected].id != e.handler.id) {
+        //   newList[currentlySelected] = newList[currentlySelected].copyWith(
+        //     selected: false,
+        //   );
+        // }
+        // if (index >= 0) {
+        //   newList[index] = newList[index].copyWith(selected: e.selected);
+        // }
+        emit(
+          state.copyWith(
+            handlers: _sortHandlers(await _getHandlers(), state.sortCol),
+          ),
+        );
       } else {
         // update database
         await _outboundRepo.updateHandler(e.handler.id, selected: e.selected);
         // multiple node mode
-        if (index >= 0) {
-          newList[index] = newList[index].copyWith(selected: e.selected);
-        }
-        emit(state.copyWith(handlers: _sortHandlers(newList, state.sortCol)));
+        // if (index >= 0) {
+        //   newList[index] = newList[index].copyWith(selected: e.selected);
+        // }
+        emit(
+          state.copyWith(
+            handlers: _sortHandlers(await _getHandlers(), state.sortCol),
+          ),
+        );
       }
       if ((await _outboundRepo.getHandlers(selected: true)).isEmpty) {
         snack(rootLocalizations()?.noSelectedNode);
       }
       // notify core
       await _xController.handlerSelectedChange();
+    } catch (e) {
+      logger.e('switchHandler error', error: e);
     } finally {
       final c = e.whenPersisted;
       if (c != null && !c.isCompleted) {
