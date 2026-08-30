@@ -721,27 +721,42 @@ class _PolicyTimeoutSettingState extends State<PolicyTimeoutSetting> {
     required TextEditingController controller,
     required String label,
     required String helperText,
+    required int defaultSeconds,
     required void Function(int timeout) onSave,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           labelText: label,
-          helperText: helperText,
-          helperMaxLines: 3,
+          hintText: '$defaultSeconds',
+          helperText:
+              '$helperText\n${l10n.policyTimeoutDefault(defaultSeconds)}',
+          helperMaxLines: 5,
           suffixText: 's',
           border: const OutlineInputBorder(),
         ),
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        keyboardType: const TextInputType.numberWithOptions(signed: true),
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*'))],
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return l10n.fieldRequired;
+          }
+          final timeout = int.tryParse(value.trim());
+          if (timeout == null || timeout == 0) {
+            return l10n.fieldRequired;
+          }
+          return null;
+        },
         onChanged: (value) {
-          if (value.isEmpty) {
-            onSave(0);
+          final timeout = int.tryParse(value.trim());
+          if (timeout == null || timeout == 0) {
             return;
           }
-          onSave(int.parse(value));
+          onSave(timeout);
         },
       ),
     );
@@ -775,6 +790,7 @@ class _PolicyTimeoutSettingState extends State<PolicyTimeoutSetting> {
           controller: _connectionIdleTimeoutController,
           label: l10n.policyTcpIdleTimeout,
           helperText: l10n.policyTcpIdleTimeoutDesc,
+          defaultSeconds: 60,
           onSave: _pref.setPolicyConnectionIdleTimeout,
         ),
         const Gap(10),
@@ -782,6 +798,7 @@ class _PolicyTimeoutSettingState extends State<PolicyTimeoutSetting> {
           controller: _udpIdleTimeoutController,
           label: l10n.policyUdpIdleTimeout,
           helperText: l10n.policyUdpIdleTimeoutDesc,
+          defaultSeconds: 120,
           onSave: _pref.setPolicyUdpIdleTimeout,
         ),
         const Gap(10),
@@ -789,6 +806,7 @@ class _PolicyTimeoutSettingState extends State<PolicyTimeoutSetting> {
           controller: _upLinkOnlyTimeoutController,
           label: l10n.policyUpLinkOnlyTimeout,
           helperText: l10n.policyUpLinkOnlyTimeoutDesc,
+          defaultSeconds: 5,
           onSave: _pref.setPolicyUpLinkOnlyTimeout,
         ),
         const Gap(10),
@@ -796,6 +814,7 @@ class _PolicyTimeoutSettingState extends State<PolicyTimeoutSetting> {
           controller: _downLinkOnlyTimeoutController,
           label: l10n.policyDownLinkOnlyTimeout,
           helperText: l10n.policyDownLinkOnlyTimeoutDesc,
+          defaultSeconds: 2,
           onSave: _pref.setPolicyDownLinkOnlyTimeout,
         ),
       ],

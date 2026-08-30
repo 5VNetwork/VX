@@ -1203,8 +1203,16 @@ extension PrefHelperExtension on SharedPreferences {
     setInt('globalDialTimeout', timeout);
   }
 
+  int _policyTimeoutOrDefault(String key, int defaultValue) {
+    final value = getInt(key);
+    if (value == null || value == 0) {
+      return defaultValue;
+    }
+    return value;
+  }
+
   int get policyHandshakeTimeout {
-    return getInt('policyHandshakeTimeout') ?? 4;
+    return _policyTimeoutOrDefault('policyHandshakeTimeout', 4);
   }
 
   void setPolicyHandshakeTimeout(int timeout) {
@@ -1212,7 +1220,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyConnectionIdleTimeout {
-    return getInt('policyConnectionIdleTimeout') ?? 60;
+    return _policyTimeoutOrDefault('policyConnectionIdleTimeout', 60);
   }
 
   void setPolicyConnectionIdleTimeout(int timeout) {
@@ -1220,7 +1228,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyUdpIdleTimeout {
-    return getInt('policyUdpIdleTimeout') ?? 120;
+    return _policyTimeoutOrDefault('policyUdpIdleTimeout', 120);
   }
 
   void setPolicyUdpIdleTimeout(int timeout) {
@@ -1228,7 +1236,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyUpLinkOnlyTimeout {
-    return getInt('policyUpLinkOnlyTimeout') ?? 5;
+    return _policyTimeoutOrDefault('policyUpLinkOnlyTimeout', 5);
   }
 
   void setPolicyUpLinkOnlyTimeout(int timeout) {
@@ -1236,7 +1244,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyDownLinkOnlyTimeout {
-    return getInt('policyDownLinkOnlyTimeout') ?? 2;
+    return _policyTimeoutOrDefault('policyDownLinkOnlyTimeout', 2);
   }
 
   void setPolicyDownLinkOnlyTimeout(int timeout) {

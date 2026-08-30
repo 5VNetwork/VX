@@ -400,24 +400,6 @@ List<Widget> _getBottomButtons(BuildContext context, User? user) {
           ),
         ),
       ),
-    // if ((user == null || (user.level != UserLevel.max)) && useStripe)
-    //   Padding(
-    //     padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),
-    //     child: OutlinedButton.icon(
-    //       onPressed: () {
-    //         launchUrl(getMaxPaymentLink(user?.email ?? '', user?.id ?? ''));
-    //       },
-    //       icon: Icon(
-    //         Icons.stars_rounded,
-    //         color: Theme.of(context).colorScheme.primary,
-    //       ),
-    //       label: AutoSizeText(
-    //         AppLocalizations.of(context)!.upgradeToMax,
-    //         maxLines: 1,
-    //         minFontSize: 12,
-    //       ),
-    //     ),
-    //   ),
     if ((!useStripe && (user == null || (user.lifetimePro == false))) &&
         !applePlatform)
       Padding(
