@@ -819,7 +819,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
 
     _handlersSpeedTesting.addAll(handlersToBeTested.map((h) => h.id));
 
-    _outboundRepo.updateHandlerFields(
+    await _outboundRepo.updateHandlerFields(
       handlersToBeTested.map((h) => h.id).toList(),
       speed: 0,
     );
@@ -901,7 +901,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
 
     _handlersUsableTesting.addAll(handlersToBeTested.map((h) => h.id));
 
-    _outboundRepo.updateHandlerFields(
+    await _outboundRepo.updateHandlerFields(
       handlersToBeTested.map((h) => h.id).toList(),
       ok: 0,
       ping: 0,
@@ -945,7 +945,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
             .map(
               (h) => _xApiClient
                   .handlerUsable(HandlerUsableRequest(handler: h.toConfig()))
-                  .then((res) {
+                  .then((res) async {
                     _handlersUsableTesting.remove(h.id);
                     final handlers = List<OutboundHandler>.from(state.handlers);
                     final index = handlers.indexWhere((hh) => hh.id == h.id);
@@ -963,7 +963,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
                         ),
                       );
                     }
-                    _outboundRepo.updateHandler(
+                    await _outboundRepo.updateHandler(
                       h.id,
                       ok: ok ? 1 : -1,
                       ping: res.ping,
@@ -1011,7 +1011,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           }
 
           return f
-              .then((res) {
+              .then((res) async {
                 _handlersUsableTesting.remove(h.id);
                 final handlers = List<OutboundHandler>.from(state.handlers);
                 final index = handlers.indexWhere((hh) => hh.id == h.id);
@@ -1029,7 +1029,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
                     ),
                   );
                 }
-                _outboundRepo.updateHandler(
+                await _outboundRepo.updateHandler(
                   h.id,
                   ok: ok ? 1 : -1,
                   ping: res,
@@ -1135,7 +1135,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
 
     _handlersUsableTesting.addAll(handlersToBeTested.map((h) => h.id));
 
-    _outboundRepo.updateHandlerFields(
+    await _outboundRepo.updateHandlerFields(
       handlersToBeTested.map((h) => h.id).toList(),
       ok: 0,
     );
@@ -1167,7 +1167,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
                 .handlerCountryTest(
                   HandlerCountryTestRequest(handler: h.toConfig()),
                 )
-                .then((res) {
+                .then((res) async {
                   _handlersUsableTesting.remove(h.id);
                   final handlers = List<OutboundHandler>.from(state.handlers);
                   final index = handlers.indexWhere((hh) => hh.id == h.id);
@@ -1186,7 +1186,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
                   logger.d(
                     'updateHandler: ${h.id}, country: ${res.country}, ip: ${res.ip}',
                   );
-                  _outboundRepo.updateHandler(
+                  await _outboundRepo.updateHandler(
                     h.id,
                     ok: 1,
                     country: res.country,
