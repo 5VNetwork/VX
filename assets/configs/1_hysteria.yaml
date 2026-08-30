@@ -1,4 +1,4 @@
-# listen: :443
+listen: :__TLS_PORT__
 auth:
   type: password
   password: __UUID__

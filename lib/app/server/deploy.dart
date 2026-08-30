@@ -50,6 +50,10 @@ class BasicQuickDeploy extends QuickDeployOption {
 
   @override
   final int id = 1;
+
+  /// Shared by vless (TCP) and hysteria (UDP).
+  int port = 443;
+
   @override
   String getTitle(BuildContext context) {
     return AppLocalizations.of(context)!.basicQuickDeployTitle;
@@ -102,6 +106,26 @@ class BasicQuickDeploy extends QuickDeployOption {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
+        const Gap(10),
+        TextFormField(
+          initialValue: port.toString(),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return AppLocalizations.of(context)!.empty;
+            }
+            final parsed = int.tryParse(value);
+            if (parsed == null || parsed < 1 || parsed > 65535) {
+              return AppLocalizations.of(context)!.invalidPort;
+            }
+            port = parsed;
+            return null;
+          },
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.port,
+          ),
+        ),
       ],
     );
   }
@@ -121,7 +145,9 @@ class BasicQuickDeploy extends QuickDeployOption {
 
     xrayConfig = xrayConfig.replaceAll('__VMESS_PORT__', vmessPorts);
     xrayConfig = xrayConfig.replaceAll('__SS_PORT__', ssPorts);
+    xrayConfig = xrayConfig.replaceAll('__TLS_PORT__', port.toString());
     xrayConfig = xrayConfig.replaceAll('__UUID__', uuid);
+    hysteriaConfig = hysteriaConfig.replaceAll('__TLS_PORT__', port.toString());
     hysteriaConfig = hysteriaConfig.replaceAll('__UUID__', uuid);
     final certPath = secureStorage.user == 'root'
         ? '/root/vx/certs/cert.pem'
@@ -177,7 +203,7 @@ class BasicQuickDeploy extends QuickDeployOption {
         HandlerConfig(
           outbound: OutboundHandlerConfig(
             tag: '${server.name} hysteria',
-            ports: [PortRange(from: 443, to: 443)],
+            ports: [PortRange(from: port, to: port)],
             address: server.address,
             protocol: Any.pack(
               Hysteria2ClientConfig(
@@ -195,7 +221,7 @@ class BasicQuickDeploy extends QuickDeployOption {
         HandlerConfig(
           outbound: OutboundHandlerConfig(
             tag: '${server.name} vless',
-            ports: [PortRange(from: 443, to: 443)],
+            ports: [PortRange(from: port, to: port)],
             address: server.address,
             transport: TransportConfig(
               tls: TlsConfig(
