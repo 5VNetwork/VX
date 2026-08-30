@@ -1117,25 +1117,32 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
   bool _useDefaultDns = false;
   DnsServerType? _type = DnsServerType.plain;
 
+  List<String> _splitCsv(String value) => value
+      .split(',')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+
   @override
   Object? get formData {
-    if (_type == null) {
-      return null;
-    }
     if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
       return null;
     }
+    if (_type == null) {
+      return null;
+    }
+    final name = _nameController.text.trim();
+    final clientIp = _clientIpController.text.trim();
+    final cacheDuration = int.tryParse(_cacheDurationController.text.trim());
+    final addresses = _splitCsv(_dnsServerAddressController.text);
     if (_type == DnsServerType.fake) {
+      final lruSize = int.parse(_lruSizeController.text.trim());
       return DnsServerConfig(
-        name: _nameController.text,
+        name: name,
         fakeDnsServer: FakeDnsServer(
-          poolConfigs: _fakeDnsPoolController.text
-              .split(',')
+          poolConfigs: _splitCsv(_fakeDnsPoolController.text)
               .map(
-                (e) => FakeDnsServer_PoolConfig(
-                  cidr: e,
-                  lruSize: int.parse(_lruSizeController.text),
-                ),
+                (e) => FakeDnsServer_PoolConfig(cidr: e, lruSize: lruSize),
               )
               .toList(),
         ),
@@ -1143,60 +1150,60 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
     }
     if (_type == DnsServerType.plain) {
       return DnsServerConfig(
-        name: _nameController.text,
+        name: name,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
-        clientIp: _clientIpController.text,
+        cacheDuration: cacheDuration,
+        clientIp: clientIp,
         plainDnsServer: PlainDnsServer(
           useDefaultDns: _useDefaultDns,
-          addresses: _dnsServerAddressController.text.split(',').toList(),
+          addresses: addresses,
         ),
       );
     }
     if (_type == DnsServerType.tls) {
       return DnsServerConfig(
-        name: _nameController.text,
+        name: name,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
-        clientIp: _clientIpController.text,
-        tlsDnsServer: TlsDnsServer(
-          addresses: _dnsServerAddressController.text.split(',').toList(),
-        ),
+        cacheDuration: cacheDuration,
+        clientIp: clientIp,
+        tlsDnsServer: TlsDnsServer(addresses: addresses),
       );
     }
     if (_type == DnsServerType.doh) {
       return DnsServerConfig(
-        name: _nameController.text,
-        clientIp: _clientIpController.text,
+        name: name,
+        clientIp: clientIp,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
-        dohDnsServer: DohDnsServer(url: _dnsServerAddressController.text),
+        cacheDuration: cacheDuration,
+        dohDnsServer: DohDnsServer(url: _dnsServerAddressController.text.trim()),
       );
     }
     if (_type == DnsServerType.quic) {
       return DnsServerConfig(
-        name: _nameController.text,
-        clientIp: _clientIpController.text,
+        name: name,
+        clientIp: clientIp,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
-        quicDnsServer: QuicDnsServer(address: _dnsServerAddressController.text),
+        cacheDuration: cacheDuration,
+        quicDnsServer: QuicDnsServer(
+          address: _dnsServerAddressController.text.trim(),
+        ),
       );
     }
     if (_type == DnsServerType.go) {
       return DnsServerConfig(
-        name: _nameController.text,
-        clientIp: _clientIpController.text,
+        name: name,
+        clientIp: clientIp,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
+        cacheDuration: cacheDuration,
         goDnsServer: GoDnsServer(),
       );
     }
     if (_type == DnsServerType.empty) {
       return DnsServerConfig(
-        name: _nameController.text,
-        clientIp: _clientIpController.text,
+        name: name,
+        clientIp: clientIp,
         ipTags: _ipTags,
-        cacheDuration: int.tryParse(_cacheDurationController.text),
+        cacheDuration: cacheDuration,
         emptyDnsServer: EmptyDnsServer(),
       );
     }
@@ -1270,18 +1277,61 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
     _dnsServerAddressController.dispose();
     _lruSizeController.dispose();
     _clientIpController.dispose();
+    _cacheDurationController.dispose();
     super.dispose();
   }
 
-  String? validAddressPorts(String? value) {
-    if (value == null || value.isEmpty) {
+  String? _required(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return AppLocalizations.of(context)!.empty;
     }
-    final addressPorts = value.split(',');
-    for (var addressPort in addressPorts) {
+    return null;
+  }
+
+  String? validAddressPorts(String? value, {bool optional = false}) {
+    final items = _splitCsv(value ?? '');
+    if (items.isEmpty) {
+      return optional ? null : AppLocalizations.of(context)!.empty;
+    }
+    for (final addressPort in items) {
       if (!isValidAddressPort(addressPort)) {
         return AppLocalizations.of(context)!.invalidAddress;
       }
+    }
+    return null;
+  }
+
+  String? _validPositiveInt(String? value) {
+    final required = _required(value);
+    if (required != null) {
+      return required;
+    }
+    final n = int.tryParse(value!.trim());
+    if (n == null || n <= 0) {
+      return AppLocalizations.of(context)!.invalidInterval;
+    }
+    return null;
+  }
+
+  String? _validOptionalNonNegativeInt(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final n = int.tryParse(value.trim());
+    if (n == null || n < 0) {
+      return AppLocalizations.of(context)!.invalidInterval;
+    }
+    return null;
+  }
+
+  String? _validDohUrl(String? value) {
+    final required = _required(value);
+    if (required != null) {
+      return required;
+    }
+    final uri = Uri.tryParse(value!.trim());
+    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+      return AppLocalizations.of(context)!.invalidUrl;
     }
     return null;
   }
@@ -1290,17 +1340,13 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextFormField(
             controller: _nameController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return AppLocalizations.of(context)!.empty;
-              }
-              return null;
-            },
+            validator: _required,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
@@ -1309,19 +1355,29 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
             ),
           ),
           const SizedBox(height: 10),
-          DropdownMenu<DnsServerType>(
-            label: Text(AppLocalizations.of(context)!.type),
-            initialSelection: _type,
-            onSelected: (value) {
-              setState(() {
-                _type = value;
-              });
+          FormField<DnsServerType>(
+            initialValue: _type,
+            validator: (value) =>
+                _type == null ? AppLocalizations.of(context)!.empty : null,
+            builder: (state) {
+              return DropdownMenu<DnsServerType>(
+                label: Text(AppLocalizations.of(context)!.type),
+                initialSelection: _type,
+                errorText: state.errorText,
+                onSelected: (value) {
+                  setState(() {
+                    _type = value;
+                  });
+                  state.didChange(value);
+                },
+                dropdownMenuEntries: DnsServerType.values
+                    .map(
+                      (e) =>
+                          DropdownMenuEntry(value: e, label: e.label(context)),
+                    )
+                    .toList(),
+              );
             },
-            dropdownMenuEntries: DnsServerType.values
-                .map(
-                  (e) => DropdownMenuEntry(value: e, label: e.label(context)),
-                )
-                .toList(),
           ),
           const SizedBox(height: 10),
           if (_type == DnsServerType.fake)
@@ -1330,11 +1386,11 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                 TextFormField(
                   controller: _fakeDnsPoolController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.empty;
+                    final required = _required(value);
+                    if (required != null) {
+                      return required;
                     }
-                    final cidrs = value.split(',');
-                    for (var cidr in cidrs) {
+                    for (final cidr in _splitCsv(value!)) {
                       if (!isValidCidr(cidr)) {
                         return AppLocalizations.of(context)!.invalidCidr;
                       }
@@ -1353,12 +1409,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                 TextFormField(
                   controller: _lruSizeController,
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.empty;
-                    }
-                    return null;
-                  },
+                  validator: _validPositiveInt,
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.lruSize,
                     helperMaxLines: 2,
@@ -1372,7 +1423,8 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
               children: [
                 TextFormField(
                   controller: _dnsServerAddressController,
-                  validator: validAddressPorts,
+                  validator: (value) =>
+                      validAddressPorts(value, optional: _useDefaultDns),
                   decoration: InputDecoration(
                     helperText: AppLocalizations.of(context)!.addDnsAddressHint,
                     helperMaxLines: 5,
@@ -1390,6 +1442,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                     setState(() {
                       _useDefaultDns = value ?? false;
                     });
+                    _formKey.currentState?.validate();
                   },
                   title: Text(
                     AppLocalizations.of(context)!.useDefaultDnsServer,
@@ -1403,16 +1456,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
               children: [
                 TextFormField(
                   controller: _dnsServerAddressController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.empty;
-                    }
-                    final uri = Uri.tryParse(value);
-                    if (uri == null) {
-                      return AppLocalizations.of(context)!.invalidUrl;
-                    }
-                    return null;
-                  },
+                  validator: _validDohUrl,
                   decoration: InputDecoration(
                     hintText: 'https://1.1.1.1/dns-query',
                     border: OutlineInputBorder(
@@ -1447,10 +1491,11 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                 TextFormField(
                   controller: _dnsServerAddressController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.empty;
+                    final required = _required(value);
+                    if (required != null) {
+                      return required;
                     }
-                    if (!isValidAddressPort(value)) {
+                    if (!isValidAddressPort(value!.trim())) {
                       return AppLocalizations.of(context)!.invalidAddress;
                     }
                     return null;
@@ -1475,10 +1520,11 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                     child: TextFormField(
                       controller: _clientIpController,
                       validator: (value) {
-                        if (value?.isNotEmpty ?? false) {
-                          if (!isValidIp(value!)) {
-                            return AppLocalizations.of(context)!.invalidIp;
-                          }
+                        if (value == null || value.trim().isEmpty) {
+                          return null;
+                        }
+                        if (!isValidIp(value.trim())) {
+                          return AppLocalizations.of(context)!.invalidIp;
                         }
                         return null;
                       },
@@ -1495,6 +1541,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                 TextFormField(
                   controller: _cacheDurationController,
                   keyboardType: TextInputType.number,
+                  validator: _validOptionalNonNegativeInt,
                   decoration: InputDecoration(
                     hintText: '3600',
                     suffixText: 's',
