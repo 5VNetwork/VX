@@ -199,6 +199,27 @@ class OutboundHandler {
     return copy;
   }
 
+  outboundpb.OutboundHandler toStoredHandler({List<String> groupTags = const []}) {
+    return outboundpb.OutboundHandler(
+      id: Int64(id),
+      selected: selected,
+      countryCode: countryCode,
+      ok: ok,
+      speed: speed,
+      speedTestTime: speedTestTime,
+      ping: ping,
+      pingTestTime: pingTestTime,
+      subId: subId == null ? null : Int64(subId!),
+      config: toConfig().writeToBuffer(),
+      sni: sni,
+      serverIp: serverIp,
+      support6: support6,
+      support6TestTime: support6TestTime,
+      groupTags: groupTags,
+      name: name,
+    );
+  }
+
   String get address {
     if (config.hasOutbound()) {
       return config.outbound.address;

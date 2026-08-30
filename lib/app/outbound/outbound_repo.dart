@@ -17,7 +17,9 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:lru_cache/lru_cache.dart';
-import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' hide OutboundHandler;
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' as o show OutboundHandler;
+import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:vx/app/outbound/outbounds_bloc.dart';
 import 'package:vx/app/outbound/subscription.dart';
 import 'package:vx/app/routing/routing_page.dart';
@@ -74,6 +76,99 @@ class OutboundRepo {
 
   Future<List<OutboundHandler>> getAllHandlers() async {
     return await databaseProvider.database.managers.outboundHandlers.get();
+  }
+
+  Future<Map<int, List<String>>> getAllHandlerGroupNames() async {
+    final rows = await databaseProvider.database
+        .select(databaseProvider.database.outboundHandlerGroupRelations)
+        .get();
+    final byId = <int, List<String>>{};
+    for (final row in rows) {
+      byId.putIfAbsent(row.handlerId, () => []).add(row.groupName);
+    }
+    return byId;
+  }
+
+  Future<o.OutboundHandler> storedHandler(OutboundHandler handler) async {
+    return handler.toStoredHandler(
+      groupTags: await getGroupNamesForHandler(handler.id),
+    );
+  }
+
+  Future<List<o.OutboundHandler>> storedHandlers([
+    List<OutboundHandler>? handlers,
+  ]) async {
+    handlers ??= await getAllHandlers();
+    final groupsById = await getAllHandlerGroupNames();
+    return handlers
+        .map(
+          (handler) => handler.toStoredHandler(
+            groupTags: groupsById[handler.id] ?? const [],
+          ),
+        )
+        .toList();
+  }
+
+  /// Mirrors vx-core dbFilter matching so OM fallback tags stay in sync.
+  Future<List<OutboundHandler>> getHandlersMatchingFilter(
+    SelectorConfig_Filter filter,
+  ) async {
+    if (filter.all) {
+      return getAllHandlers();
+    }
+    final byId = <int, OutboundHandler>{};
+    for (final group in filter.groupTags) {
+      for (final handler in await getHandlersByGroup(group)) {
+        byId[handler.id] = handler;
+      }
+    }
+    for (final handler in await getAllHandlers()) {
+      if (_handlerMatchesFilter(handler, filter)) {
+        byId[handler.id] = handler;
+      }
+    }
+    return byId.values.toList();
+  }
+
+  bool _handlerMatchesFilter(
+    OutboundHandler handler,
+    SelectorConfig_Filter filter,
+  ) {
+    final tag = handler.name;
+    for (final prefix in filter.prefixes) {
+      if (tag.startsWith(prefix)) {
+        return true;
+      }
+    }
+    for (final subString in filter.subStrings) {
+      if (tag.contains(subString)) {
+        return true;
+      }
+    }
+    for (final countryCode in filter.countryCodes) {
+      if (handler.countryCode == countryCode) {
+        return true;
+      }
+    }
+    for (final filterTag in filter.tags) {
+      if (tag == filterTag) {
+        return true;
+      }
+    }
+    for (final handlerId in filter.handlerIds) {
+      if (handler.id == handlerId.toInt()) {
+        return true;
+      }
+    }
+    for (final subId in filter.subIds) {
+      if (handler.subId != null && handler.subId == subId.toInt()) {
+        return true;
+      }
+    }
+    if (filter.selected && handler.selected) {
+      return true;
+    }
+    return false;
   }
 
   Future<List<OutboundHandler>> getHandlersByNodeGroup(NodeGroup group) async {

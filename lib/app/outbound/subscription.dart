@@ -24,7 +24,7 @@ import 'package:gap/gap.dart';
 import 'package:protobuf/well_known_types/google/protobuf/any.pb.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tm/protos/app/api/api.pbgrpc.dart';
-import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' hide OutboundHandler;
 import 'package:tm/protos/vx/proxy/freedom/freedom.pb.dart';
 import 'package:tm/protos/vx/transport/dlhelper.pb.dart';
 import 'package:tm/protos/vx/transport/transport.pb.dart';
@@ -243,6 +243,7 @@ class AutoSubscriptionUpdater with ChangeNotifier {
         ? config.protocol.writeToJson()
         : const <int>[];
     return Object.hash(
+      config.tag,
       config.address,
       portString(config),
       transportBytes,

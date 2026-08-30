@@ -52,6 +52,7 @@ import 'package:vx/app/routing/selector_widget.dart';
 import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/common/common.dart';
 import 'package:vx/data/realm_server_config.dart';
+import 'package:vx/data/database.dart';
 import 'package:vx/data/database_provider.dart';
 import 'package:vx/main.dart';
 import 'package:vx/pref_helper.dart';
@@ -97,6 +98,9 @@ class XConfigHelper {
   final XApiClient _xApiClient;
   final DatabaseProvider _databaseProvider;
 
+  bool get androidUseRemoteDb =>
+      Platform.isAndroid && _persistentStateRepo.disableCoreDatabase;
+
   /// Return outbound handlers to use
   ///
   /// All enabled outbound handlers will be returned if outbound mode is auto
@@ -131,8 +135,12 @@ class XConfigHelper {
       geo: geoConfig,
       grpc: await _getGrpcConfig(certBytes: certBytes),
       dispatcher: _getDispatcherConfig(),
-      subscription: isPkg ? null : await _getSubscriptionConfig(),
-      dbPath: isPkg ? null : await getDbPath(_persistentStateRepo),
+      subscription: isPkg || androidUseRemoteDb
+          ? null
+          : await _getSubscriptionConfig(),
+      dbPath: (isPkg || androidUseRemoteDb)
+          ? null
+          : await getDbPath(_persistentStateRepo),
       serviceSecret: dbSecretAndPort?.$1,
       servicePort: dbSecretAndPort?.$2,
       defaultNicMonitor: true,
@@ -154,6 +162,9 @@ class XConfigHelper {
         shouldBindDevice: _persistentStateRepo.inboundMode == InboundMode.tun,
         resolveDomain: true,
       ),
+      outboundHandlers: androidUseRemoteDb
+          ? await _outboundRepo.storedHandlers()
+          : null,
     );
     // redirect std err
     if (!isProduction() ||
@@ -218,6 +229,18 @@ class XConfigHelper {
       }
     }
     return config;
+  }
+
+  Future<List<o.HandlerConfig>> getAllProxyHandlerConfigs() async {
+    return handlersToHandlerConfig(await _outboundRepo.getAllHandlers());
+  }
+
+  Future<List<o.OutboundHandler>> getOutboundHandlers() {
+    return _outboundRepo.storedHandlers();
+  }
+
+  Future<o.OutboundHandler> outboundHandler(OutboundHandler handler) {
+    return _outboundRepo.storedHandler(handler);
   }
 
   Future<Directory> _configFileDir() async {

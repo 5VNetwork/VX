@@ -22,7 +22,7 @@ import 'package:gap/gap.dart';
 import 'package:tm/protos/vx/common/geo/geo.pb.dart';
 import 'package:tm/protos/vx/common/net/net.pb.dart';
 import 'package:tm/protos/vx/dns/dns.pb.dart';
-import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' hide OutboundHandler;
 import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:vx/app/log/log_page.dart';
 import 'package:vx/app/outbound/outbound_repo.dart';

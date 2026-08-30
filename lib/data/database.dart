@@ -28,6 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tm/protos/vx/common/net/net.pb.dart';
 import 'package:tm/protos/vx/geo/geo.pb.dart';
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' as outboundpb;
 import 'package:tm/protos/vx/proxy/hysteria/hysteria.pb.dart';
 import 'package:tm/protos/vx/transport/transport.pb.dart';
 import 'package:vx/app/outbound/outbounds_bloc.dart';
@@ -285,7 +286,7 @@ class AppDatabase extends _$AppDatabase {
           reportError("beforeOpen journal_mode setup", e);
         }
         try {
-          await customStatement('PRAGMA busy_timeout = 5000');
+          await customStatement('PRAGMA busy_timeout = 10000');
         } catch (e) {
           reportError("beforeOpen busy_timeout", e);
         }

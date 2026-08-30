@@ -65,6 +65,8 @@ import 'package:vx/xconfig_helper.dart';
 import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/app/windows_host_api.g.dart';
 
+const int androidRemoteDbPort = 17890;
+
 /// Its duty is to make sure x core is running as expected
 /// Control Xcore
 class XController implements MessageFlutterApi {
@@ -97,6 +99,9 @@ class XController implements MessageFlutterApi {
        _logUploadService = logUploadService,
        _databaseProvider = databaseProvider {
     Tm.instance.stateStream.listen(_onTmStatusChange);
+    if (_androidUseRemoteDb() && Tm.instance.state == TmStatus.connected) {
+      _ensureRemoteDbServer();
+    }
 
     // Set up shutdown notification handling on macOS
     // if (isPkg) {
@@ -119,6 +124,9 @@ class XController implements MessageFlutterApi {
   void _onTmStatusChange(TmStatusChange statusChange) {
     _statusStreamCtrl.add(XStatus.fromTmStatus(statusChange.status));
     if (statusChange.status == TmStatus.connected) {
+      if (_androidUseRemoteDb()) {
+        _ensureRemoteDbServer();
+      }
       _communicate();
       _listenGeoRoute();
     }
@@ -254,11 +262,37 @@ class XController implements MessageFlutterApi {
 
   Future<TmConfig> _getTmConfig() async {
     return await _xConfigHelper.getAndOrStoreConfig(
-      dbSecretAndPort: isPkg ? (_dbSecret ?? '', _dbServerPort ?? 0) : null,
+      dbSecretAndPort: (isPkg || _androidUseRemoteDb())
+          ? (_dbSecret ?? '', _dbServerPort ?? 0)
+          : null,
       certBytes: _certificate == null
           ? null
           : Uint8List.fromList(_certificate!.certificate),
     );
+  }
+
+  bool _androidUseRemoteDb() => Platform.isAndroid && _pref.disableCoreDatabase;
+
+  String _remoteDbSecret() {
+    var secret = _pref.coreRemoteDbSecret;
+    if (secret.isEmpty) {
+      secret = const Uuid().v4();
+      _pref.setCoreRemoteDbSecret(secret);
+    }
+    return secret;
+  }
+
+  Future<void> _ensureRemoteDbServer() async {
+    if (_dbServer != null) {
+      return;
+    }
+    try {
+      _dbSecret ??= _remoteDbSecret();
+      _certificate ??= await _xApiClient.getCertificate();
+      await startDbServer();
+    } catch (e) {
+      logger.e('_ensureRemoteDbServer', error: e);
+    }
   }
 
   String? _sudoPassword;
@@ -274,13 +308,13 @@ class XController implements MessageFlutterApi {
     String? sudoPassword;
 
     try {
-      _dbSecret = const Uuid().v4();
+      _dbSecret = _androidUseRemoteDb() ? _remoteDbSecret() : const Uuid().v4();
       logger.d("start");
-      if (useTcpForGrpc) {
+      if (useTcpForGrpc || _androidUseRemoteDb()) {
         _certificate = await _xApiClient.getCertificate();
-        if (isPkg) {
-          await startDbServer();
-        }
+      }
+      if (isPkg || _androidUseRemoteDb()) {
+        await startDbServer();
       }
       config = await _getTmConfig();
       grpcPort = config.grpc.port;
@@ -658,14 +692,40 @@ class XController implements MessageFlutterApi {
       services: [DatabaseServer(database: _databaseProvider.database)],
       interceptors: [_grpcAuthInterceptor],
     );
-    await _dbServer!.serve(
-      address: InternetAddress.loopbackIPv4,
-      port: 0,
-      security: ServerTlsCredentials(
-        certificate: _certificate!.certificate,
-        privateKey: _certificate!.key,
-      ),
-    );
+
+    if (_androidUseRemoteDb()) {
+      final port = androidRemoteDbPort;
+      try {
+        await _dbServer!.serve(
+          address: InternetAddress.loopbackIPv4,
+          port: port,
+          security: ServerTlsCredentials(
+            certificate: _certificate!.certificate,
+            privateKey: _certificate!.key,
+          ),
+        );
+      } catch (e) {
+        logger.w('stable db port $port busy, using ephemeral', error: e);
+        await _dbServer!.serve(
+          address: InternetAddress.loopbackIPv4,
+          port: 0,
+          security: ServerTlsCredentials(
+            certificate: _certificate!.certificate,
+            privateKey: _certificate!.key,
+          ),
+        );
+      }
+    } else {
+      await _dbServer!.serve(
+        address: InternetAddress.loopbackIPv4,
+        port: 0,
+        security: ServerTlsCredentials(
+          certificate: _certificate!.certificate,
+          privateKey: _certificate!.key,
+        ),
+      );
+    }
+
     _dbServerPort = _dbServer!.port;
     logger.d('db server started on port $_dbServerPort');
   }
@@ -1178,6 +1238,15 @@ class XController implements MessageFlutterApi {
 
   void handlerAdded() async {
     await notifyHandlerChange();
+    if (!_androidUseRemoteDb()) {
+      return;
+    }
+    await _syncHandlersToCore(
+      storeChange: ChangeHandlerStoreRequest(
+        deleteAll: true,
+        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+      ),
+    );
     await _replaceNodeSet();
   }
 
@@ -1191,21 +1260,67 @@ class XController implements MessageFlutterApi {
 
   Future<void> handlerSelectedChange() async {
     await notifyHandlerChange();
+    if (!_androidUseRemoteDb()) {
+      return;
+    }
+    await _syncHandlersToCore(
+      storeChange: ChangeHandlerStoreRequest(
+        deleteAll: true,
+        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+      ),
+    );
   }
 
   Future<void> handlersRemoved(List<int> ids) async {
     await notifyHandlerChange();
+    if (!_androidUseRemoteDb()) {
+      return;
+    }
+    final tags = ids.map((id) => '$id').toList();
+    await _syncHandlersToCore(
+      storeChange: ChangeHandlerStoreRequest(tags: tags),
+    );
     await _replaceNodeSet();
   }
 
   void handlerUpdated(OutboundHandler handler) async {
     await notifyHandlerChange();
+    if (!_androidUseRemoteDb()) {
+      return;
+    }
+    await _syncHandlersToCore(
+      storeChange: ChangeHandlerStoreRequest(
+        tags: ['${handler.id}'],
+        outboundHandlers: [await _xConfigHelper.outboundHandler(handler)],
+      ),
+    );
     await _replaceNodeSet();
   }
 
   void subscriptionUpdated() async {
     await notifyHandlerChange();
+    if (!_androidUseRemoteDb()) {
+      return;
+    }
+    await _syncHandlersToCore(
+      storeChange: ChangeHandlerStoreRequest(
+        deleteAll: true,
+        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+      ),
+    );
     await _replaceNodeSet();
+  }
+
+  Future<void> _syncHandlersToCore({
+    required ChangeHandlerStoreRequest storeChange,
+  }) async {
+    await waitForConnectedIfConnecting();
+    if (Tm.instance.state != TmStatus.connected) {
+      return;
+    }
+    final client = await getXClient();
+    await client.changeHandlerStore(storeChange);
+    await _getTmConfig();
   }
 
   void setSubscriptionInterval(int interval) async {

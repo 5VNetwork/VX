@@ -871,6 +871,22 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('rejectQuicHysteria', enable);
   }
 
+  bool get disableCoreDatabase {
+    return getBool('disableCoreDatabase') ?? false;
+  }
+
+  void setDisableCoreDatabase(bool disable) {
+    setBool('disableCoreDatabase', disable);
+  }
+
+  String get coreRemoteDbSecret {
+    return getString('coreRemoteDbSecret') ?? '';
+  }
+
+  void setCoreRemoteDbSecret(String secret) {
+    setString('coreRemoteDbSecret', secret);
+  }
+
   bool get cloudSync {
     return getBool('cloudSync') ?? true;
   }

@@ -17,7 +17,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' hide OutboundHandler;
 import 'package:vx/widgets/outbound_handler_form/outbound_handler_form.dart';
 import 'package:vx/data/database.dart';
 import 'package:vx/l10n/app_localizations.dart';

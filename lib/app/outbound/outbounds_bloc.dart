@@ -23,7 +23,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tm/protos/app/api/api.pb.dart';
-import 'package:tm/protos/vx/outbound/outbound.pb.dart';
+import 'package:tm/protos/vx/outbound/outbound.pb.dart' hide OutboundHandler;
 import 'package:tm/protos/vx/proxy/wireguard/config.pb.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:tm/protos/vx/transport/headers/wireguard/config.pb.dart';
@@ -641,7 +641,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           handlers: _sortHandlers(await _getHandlers(), state.sortCol),
         ),
       );
-      await _xController.notifyHandlerChange();
+      await _xController.handlerSelectedChange();
       await _xController.selectorBalancingStrategyChange(
         defaultProxySelectorTag,
         SelectorConfig_BalanceStrategy.RANDOM,

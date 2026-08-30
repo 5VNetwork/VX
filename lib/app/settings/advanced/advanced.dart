@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,6 +122,10 @@ class AdvancedScreen extends StatelessWidget {
             const SystemProxySetting(),
             const Divider(),
             const RejectQuicHysteriaSetting(),
+            if (Platform.isAndroid) ...[
+              const Divider(),
+              const DisableCoreDatabaseSetting(),
+            ],
             const Divider(),
             const DialerSetting(),
             const Divider(),
@@ -579,6 +585,70 @@ class _RejectQuicHysteriaSettingState extends State<RejectQuicHysteriaSetting> {
               });
               context.read<XController>().restart();
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DisableCoreDatabaseSetting extends StatefulWidget {
+  const DisableCoreDatabaseSetting({super.key});
+
+  @override
+  State<DisableCoreDatabaseSetting> createState() =>
+      _DisableCoreDatabaseSettingState();
+}
+
+class _DisableCoreDatabaseSettingState
+    extends State<DisableCoreDatabaseSetting> {
+  bool _disableCoreDatabase = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _disableCoreDatabase = context
+        .read<SharedPreferences>()
+        .disableCoreDatabase;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.disableCoreDatabase,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              const Gap(10),
+              Switch(
+                value: _disableCoreDatabase,
+                onChanged: (value) {
+                  context.read<SharedPreferences>().setDisableCoreDatabase(
+                    value,
+                  );
+                  setState(() {
+                    _disableCoreDatabase = value;
+                  });
+                  context.read<XController>().restart();
+                },
+              ),
+            ],
+          ),
+          const Gap(5),
+          Text(
+            AppLocalizations.of(context)!.disableCoreDatabaseDesc,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
