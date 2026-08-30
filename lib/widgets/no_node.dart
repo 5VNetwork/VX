@@ -99,36 +99,12 @@ class Welcome extends StatelessWidget {
           runSpacing: 5,
           children: [
             OutlinedButton.icon(
-              onPressed: () {
-                launchUrl(Uri.parse('https://x.com/vproxy5vnetwork'));
-              },
-              icon: Image.asset(
-                MediaQuery.of(context).platformBrightness == Brightness.light
-                    ? 'assets/icons/x_logo_black.png'
-                    : 'assets/icons/x_logo_white.png',
-                width: 16,
-                height: 16,
-              ),
-              label: const Text(' X'),
-            ),
-            OutlinedButton.icon(
               label: Text(AppLocalizations.of(context)!.email),
               onPressed: () {
                 final Uri emailLaunchUri = Uri(scheme: 'mailto', path: email);
                 launchUrl(emailLaunchUri);
               },
               icon: const Icon(Icons.email_outlined),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {
-                launchUrl(Uri.parse('https://t.me/vproxygroup'));
-              },
-              icon: Image.asset(
-                'assets/icons/telegram_icon.png',
-                width: 20,
-                height: 20,
-              ),
-              label: Text(AppLocalizations.of(context)!.telegram),
             ),
           ],
         ),
