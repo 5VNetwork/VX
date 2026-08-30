@@ -510,7 +510,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactUsFreely => '如果您在使用VX的过程中有任何问题或需要任何功能，请随时联系我们。';
 
   @override
-  String get contactUsProPriority => '如果您是 Pro 用户，联系我们时请告知，我们会优先处理 Pro 用户的咨询。';
+  String get contactUsProPriority => '如果您是 Pro 用户，联系我们时请告知，我们会优先处理 Pro 用户的咨询。Pro用户可以加入电报群组，如需加入，请通过邮件联系我们，我们会向您发送邀请链接。';
 
   @override
   String get bugAreWelcome => '欢迎向我们反馈bug和建议，谢谢!';

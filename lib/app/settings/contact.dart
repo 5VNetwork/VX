@@ -75,45 +75,45 @@ class ContactScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                OutlinedButton.icon(
-                  onPressed: () {
-                    launchUrl(Uri.parse('https://x.com/vproxy5vnetwork'));
-                  },
-                  icon: Image.asset(
-                    MediaQuery.of(context).platformBrightness == Brightness.dark
-                        ? 'assets/icons/x_logo_white.png'
-                        : 'assets/icons/x_logo_black.png',
-                    width: 16,
-                    height: 16,
-                  ),
-                  label: const Text(' X'),
-                ),
-                const SizedBox(width: 10),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    launchUrl(Uri.parse('https://t.me/vproxygroup'));
-                  },
-                  icon: Image.asset(
-                    'assets/icons/telegram_icon.png',
-                    width: 20,
-                    height: 20,
-                  ),
-                  label: Text(AppLocalizations.of(context)!.telegram),
-                ),
-                const SizedBox(width: 10),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    launchUrl(
-                      Uri.parse('https://www.youtube.com/@vproxy5vnetwork'),
-                    );
-                  },
-                  icon: Image.asset(
-                    'assets/icons/youtube.png',
-                    width: 24,
-                    height: 24,
-                  ),
-                  label: const Text('Youtube'),
-                ),
+                // OutlinedButton.icon(
+                //   onPressed: () {
+                //     launchUrl(Uri.parse('https://x.com/vproxy5vnetwork'));
+                //   },
+                //   icon: Image.asset(
+                //     MediaQuery.of(context).platformBrightness == Brightness.dark
+                //         ? 'assets/icons/x_logo_white.png'
+                //         : 'assets/icons/x_logo_black.png',
+                //     width: 16,
+                //     height: 16,
+                //   ),
+                //   label: const Text(' X'),
+                // ),
+                // const SizedBox(width: 10),
+                // OutlinedButton.icon(
+                //   onPressed: () {
+                //     launchUrl(Uri.parse('https://t.me/vproxygroup'));
+                //   },
+                //   icon: Image.asset(
+                //     'assets/icons/telegram_icon.png',
+                //     width: 20,
+                //     height: 20,
+                //   ),
+                //   label: Text(AppLocalizations.of(context)!.telegram),
+                // ),
+                // const SizedBox(width: 10),
+                // OutlinedButton.icon(
+                //   onPressed: () {
+                //     launchUrl(
+                //       Uri.parse('https://www.youtube.com/@vproxy5vnetwork'),
+                //     );
+                //   },
+                //   icon: Image.asset(
+                //     'assets/icons/youtube.png',
+                //     width: 24,
+                //     height: 24,
+                //   ),
+                //   label: const Text('Youtube'),
+                // ),
               ],
             ),
             const SizedBox(height: 10),
