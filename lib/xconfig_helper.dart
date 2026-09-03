@@ -279,6 +279,8 @@ class XConfigHelper {
       sniff: _persistentStateRepo.sniff,
       fallbackTimeout: _persistentStateRepo.fallbackTimeout,
       sessionStats: true,
+      changeDomainToIpv6: _persistentStateRepo.changeDomainToIpv6,
+      changeDomainToIpv4: _persistentStateRepo.changeDomainToIpv4,
     );
     return config;
   }

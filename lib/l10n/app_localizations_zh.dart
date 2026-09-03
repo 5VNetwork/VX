@@ -1675,6 +1675,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get changeIpv6ToDomainDesc => '如果匹配到的节点不支持IPv6，而目标地址是IPv6并且嗅探到了域名，则将目标地址改为域名。';
 
   @override
+  String get changeDomainToIpv6 => '将域名改为IPv6';
+
+  @override
+  String get changeDomainToIpv6Desc => '如果连接目标地址是域名，则将其解析为IPv6地址。';
+
+  @override
+  String get changeDomainToIpv4 => '将域名改为IPv4';
+
+  @override
+  String get changeDomainToIpv4Desc => '如果连接目标地址是域名，则将其解析为IPv4地址。';
+
+  @override
   String get installAsWinService => '添加VX进Windows Service';
 
   @override

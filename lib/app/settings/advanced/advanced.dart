@@ -107,6 +107,8 @@ class AdvancedScreen extends StatelessWidget {
             const Divider(),
             const FallbackSetting(),
             const Divider(),
+            const ChangeDomainToIpSetting(),
+            const Divider(),
             ListTile(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -303,6 +305,108 @@ class _FallbackSettingState extends State<FallbackSetting> {
             },
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChangeDomainToIpSetting extends StatefulWidget {
+  const ChangeDomainToIpSetting({super.key});
+
+  @override
+  State<ChangeDomainToIpSetting> createState() =>
+      _ChangeDomainToIpSettingState();
+}
+
+class _ChangeDomainToIpSettingState extends State<ChangeDomainToIpSetting> {
+  bool _changeDomainToIpv6 = false;
+  bool _changeDomainToIpv4 = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final pref = context.read<SharedPreferences>();
+    _changeDomainToIpv6 = pref.changeDomainToIpv6;
+    _changeDomainToIpv4 = pref.changeDomainToIpv4;
+  }
+
+  void _toggleChangeDomainToIpv6(bool value) {
+    final pref = context.read<SharedPreferences>();
+    pref.setChangeDomainToIpv6(value);
+    if (value && _changeDomainToIpv4) {
+      pref.setChangeDomainToIpv4(false);
+    }
+    setState(() {
+      _changeDomainToIpv6 = value;
+      if (value) {
+        _changeDomainToIpv4 = false;
+      }
+    });
+    context.read<XController>().restart();
+  }
+
+  void _toggleChangeDomainToIpv4(bool value) {
+    final pref = context.read<SharedPreferences>();
+    pref.setChangeDomainToIpv4(value);
+    if (value && _changeDomainToIpv6) {
+      pref.setChangeDomainToIpv6(false);
+    }
+    setState(() {
+      _changeDomainToIpv4 = value;
+      if (value) {
+        _changeDomainToIpv6 = false;
+      }
+    });
+    context.read<XController>().restart();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final descStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.changeDomainToIpv6,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              Switch(
+                value: _changeDomainToIpv6,
+                onChanged: _toggleChangeDomainToIpv6,
+              ),
+            ],
+          ),
+          const Gap(5),
+          Text(l10n.changeDomainToIpv6Desc, style: descStyle),
+          const Gap(10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.changeDomainToIpv4,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              Switch(
+                value: _changeDomainToIpv4,
+                onChanged: _toggleChangeDomainToIpv4,
+              ),
+            ],
+          ),
+          const Gap(5),
+          Text(l10n.changeDomainToIpv4Desc, style: descStyle),
         ],
       ),
     );

@@ -1725,6 +1725,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeIpv6ToDomainDesc => 'If the matched node does not support IPv6, but the target address is IPv6, and the domain is sniffed, change target address to the domain.';
 
   @override
+  String get changeDomainToIpv6 => 'Change Domain to IPv6';
+
+  @override
+  String get changeDomainToIpv6Desc => 'If the connection destination is a domain, resolve it to an IPv6 address and use that IP as the target.';
+
+  @override
+  String get changeDomainToIpv4 => 'Change Domain to IPv4';
+
+  @override
+  String get changeDomainToIpv4Desc => 'If the connection destination is a domain, resolve it to an IPv4 address and use that IP as the target.';
+
+  @override
   String get installAsWinService => 'Add VX to Windows Service';
 
   @override

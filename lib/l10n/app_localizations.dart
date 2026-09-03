@@ -3193,6 +3193,30 @@ abstract class AppLocalizations {
   /// **'If the matched node does not support IPv6, but the target address is IPv6, and the domain is sniffed, change target address to the domain.'**
   String get changeIpv6ToDomainDesc;
 
+  /// No description provided for @changeDomainToIpv6.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Domain to IPv6'**
+  String get changeDomainToIpv6;
+
+  /// No description provided for @changeDomainToIpv6Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'If the connection destination is a domain, resolve it to an IPv6 address and use that IP as the target.'**
+  String get changeDomainToIpv6Desc;
+
+  /// No description provided for @changeDomainToIpv4.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Domain to IPv4'**
+  String get changeDomainToIpv4;
+
+  /// No description provided for @changeDomainToIpv4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'If the connection destination is a domain, resolve it to an IPv4 address and use that IP as the target.'**
+  String get changeDomainToIpv4Desc;
+
   /// No description provided for @installAsWinService.
   ///
   /// In en, this message translates to:

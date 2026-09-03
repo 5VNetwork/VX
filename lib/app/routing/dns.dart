@@ -1428,7 +1428,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                   decoration: InputDecoration(
                     helperText: AppLocalizations.of(context)!.addDnsAddressHint,
                     helperMaxLines: 5,
-                    hintText: '1.1.1.1:53,8.8.8.8:53',
+                    hintText: '1.1.1.1:53,[2001:4860:4860::8888]:53',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -1474,7 +1474,7 @@ class __DnsServerFormState extends State<_DnsServerForm> with FormDataGetter {
                   controller: _dnsServerAddressController,
                   validator: validAddressPorts,
                   decoration: InputDecoration(
-                    hintText: '1.1.1.1:853,8.8.8.8:853',
+                    hintText: '1.1.1.1:853,[2001:4860:4860::8888]:853',
                     helperText: AppLocalizations.of(context)!.addDnsAddressHint,
                     helperMaxLines: 3,
                     border: OutlineInputBorder(

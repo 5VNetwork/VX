@@ -788,6 +788,22 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('changeIpv6ToDomain', enable);
   }
 
+  bool get changeDomainToIpv6 {
+    return getBool('changeDomainToIpv6') ?? false;
+  }
+
+  void setChangeDomainToIpv6(bool enable) {
+    setBool('changeDomainToIpv6', enable);
+  }
+
+  bool get changeDomainToIpv4 {
+    return getBool('changeDomainToIpv4') ?? false;
+  }
+
+  void setChangeDomainToIpv4(bool enable) {
+    setBool('changeDomainToIpv4', enable);
+  }
+
   int get fallbackTimeout {
     return getInt('fallbackTimeout') ?? 8;
   }
