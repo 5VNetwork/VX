@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           cd ..
-          git clone https://x-access-token:${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+          git clone https://x-access-token:github.com/5VNetwork/tm-plugin.git tm-plugin
           git clone https://github.com/5VNetwork/flutter_common.git flutter_common
 
       - name: create files in tm_plugin and folders
@@ -183,7 +183,7 @@ jobs:
   #       shell: bash
   #       run: |
   #         cd ..
-  #         git clone https://x-access-token:${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+  #         git clone https://x-access-token:github.com/5VNetwork/tm-plugin.git tm-plugin
 
   #     - name: create files in tm_plugin and folders
   #       run: |

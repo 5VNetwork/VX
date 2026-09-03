@@ -23,7 +23,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           cd ..
-          git clone https://${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+          git clone https://github.com/5VNetwork/tm-plugin.git tm-plugin
           git clone https://github.com/5VNetwork/flutter_common.git flutter_common
 
       - name: Download library from release
@@ -219,7 +219,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           cd ..
-          git clone https://${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+          git clone https://github.com/5VNetwork/tm-plugin.git tm-plugin
           git clone https://github.com/5VNetwork/flutter_common.git flutter_common
 
       - name: Download library from release
@@ -430,7 +430,7 @@ jobs:
     #       GH_TOKEN: ${{ secrets.PAT_TOKEN }}
     #     run: |
     #       cd ..
-    #       git clone https://${GH_TOKEN}@github.com/5VNetwork/tm-plugin.git tm-plugin
+    #       git clone https://github.com/5VNetwork/tm-plugin.git tm-plugin
 
     #   - name: Free up disk space
     #     run: |
