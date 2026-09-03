@@ -16,6 +16,7 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:flutter_common/common.dart';
 import 'package:installed_apps/index.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
@@ -159,7 +160,9 @@ class XConfigHelper {
       ),
       dialerFactory: DialerFactoryConfig(
         dialTimeout: _persistentStateRepo.globalDialTimeout,
-        shouldBindDevice: _persistentStateRepo.inboundMode == InboundMode.tun,
+        shouldBindDevice:
+            _persistentStateRepo.inboundMode == InboundMode.tun &&
+            !applePlatform,
         resolveDomain: true,
       ),
       outboundHandlers: androidUseRemoteDb
