@@ -204,38 +204,41 @@ class _Inbound extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeCard(
-      title: AppLocalizations.of(context)!.inbound,
-      icon: Icons.keyboard_double_arrow_right_rounded,
-      child: BlocBuilder<InboundCubit, InboundMode>(
-        builder: (ctx, mode) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  ChoiceChip(
-                    label: Text(InboundMode.tun.toLocalString(context)),
-                    selected: mode == InboundMode.tun,
-                    onSelected: (value) => context
-                        .read<InboundCubit>()
-                        .setInboundMode(InboundMode.tun),
-                  ),
-                  ChoiceChip(
-                    label: Text(InboundMode.systemProxy.toLocalString(context)),
-                    selected: mode == InboundMode.systemProxy,
-                    onSelected: (value) => context
-                        .read<InboundCubit>()
-                        .setInboundMode(InboundMode.systemProxy),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: HomeCard(
+        title: AppLocalizations.of(context)!.inbound,
+        icon: Icons.keyboard_double_arrow_right_rounded,
+        child: BlocBuilder<InboundCubit, InboundMode>(
+          builder: (ctx, mode) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 5,
+                  runSpacing: 5,
+                  children: [
+                    ChoiceChip(
+                      label: Text(InboundMode.tun.toLocalString(context)),
+                      selected: mode == InboundMode.tun,
+                      onSelected: (value) => context
+                          .read<InboundCubit>()
+                          .setInboundMode(InboundMode.tun),
+                    ),
+                    ChoiceChip(
+                      label: Text(InboundMode.systemProxy.toLocalString(context)),
+                      selected: mode == InboundMode.systemProxy,
+                      onSelected: (value) => context
+                          .read<InboundCubit>()
+                          .setInboundMode(InboundMode.systemProxy),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -51,42 +51,45 @@ class _RouteState extends State<_Route> {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<ProxySelectorBloc>();
-    return HomeCard(
-      title: AppLocalizations.of(context)!.mode,
-      icon: Icons.alt_route_rounded,
-      child: BlocSelector<ProxySelectorBloc, ProxySelectorState, String?>(
-        selector: (state) => state.routeMode,
-        builder: (context, routeModeIdx) {
-          return Wrap(
-            crossAxisAlignment: WrapCrossAlignment.start,
-            spacing: 5,
-            runSpacing: 5,
-            children: [
-              ..._configs.map(
-                (e) => ChoiceChip(
-                  tooltip: isDefaultRouteMode(e.name, context)
-                      ? DefaultRouteMode.values
-                            .firstWhereOrNull((defaultMode) {
-                              return defaultMode.toLocalString(
-                                    AppLocalizations.of(context)!,
-                                  ) ==
-                                  e.name;
-                            })
-                            ?.description(context)
-                      : null,
-                  label: Text(e.name),
-                  selected: (routeModeIdx == e.name),
-                  onSelected: (value) {
-                    if (routeModeIdx == e.name) {
-                      return;
-                    }
-                    bloc.add(RoutingModeSelectionChangeEvent(e));
-                  },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: HomeCard(
+        title: AppLocalizations.of(context)!.mode,
+        icon: Icons.alt_route_rounded,
+        child: BlocSelector<ProxySelectorBloc, ProxySelectorState, String?>(
+          selector: (state) => state.routeMode,
+          builder: (context, routeModeIdx) {
+            return Wrap(
+              crossAxisAlignment: WrapCrossAlignment.start,
+              spacing: 5,
+              runSpacing: 5,
+              children: [
+                ..._configs.map(
+                  (e) => ChoiceChip(
+                    tooltip: isDefaultRouteMode(e.name, context)
+                        ? DefaultRouteMode.values
+                              .firstWhereOrNull((defaultMode) {
+                                return defaultMode.toLocalString(
+                                      AppLocalizations.of(context)!,
+                                    ) ==
+                                    e.name;
+                              })
+                              ?.description(context)
+                        : null,
+                    label: Text(e.name),
+                    selected: (routeModeIdx == e.name),
+                    onSelected: (value) {
+                      if (routeModeIdx == e.name) {
+                        return;
+                      }
+                      bloc.add(RoutingModeSelectionChangeEvent(e));
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

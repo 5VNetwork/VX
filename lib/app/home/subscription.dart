@@ -57,7 +57,10 @@ class _SubScriptionById extends StatelessWidget {
 
         return snapshot.data == null
             ? const SizedBox()
-            : _SubscriptionCard(subscription: snapshot.data!);
+            : Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _SubscriptionCard(subscription: snapshot.data!),
+            );
       },
     );
   }

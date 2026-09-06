@@ -39,23 +39,14 @@ class StandardHomePage extends StatelessWidget {
                           child: const NodesHelper(),
                         ),
                       if (!hidden.contains(HomeWidgetId.route.id))
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: const _Route(),
-                        ),
+                        const _Route(),
                       if (!hidden.contains(HomeWidgetId.proxySelector.id))
                         const ProxySelector(home: true),
                       if (desktopPlatforms &&
                           !hidden.contains(HomeWidgetId.inbound.id))
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 10),
-                          child: _Inbound(),
-                        ),
+                        const _Inbound(),
                       if (!hidden.contains(HomeWidgetId.subscription.id))
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 10),
-                          child: _Subscription(),
-                        ),
+                        const _Subscription(),
                       if (showRealm &&
                           ctx.watch<StartCloseCubit>().state.status ==
                               XStatus.connected)
@@ -88,27 +79,18 @@ class StandardHomePage extends StatelessWidget {
                             child: ListView(
                               children: [
                                 if (!hidden.contains(HomeWidgetId.route.id))
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const _Route(),
-                                  ),
+                                  const _Route(),
                                 if (!hidden.contains(
                                   HomeWidgetId.proxySelector.id,
                                 ))
                                   const ProxySelector(home: true),
                                 if (desktopPlatforms &&
                                     !hidden.contains(HomeWidgetId.inbound.id))
-                                  const Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: _Inbound(),
-                                  ),
+                                  const _Inbound(),
                                 if (!hidden.contains(
                                   HomeWidgetId.subscription.id,
                                 ))
-                                  const Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: _Subscription(),
-                                  ),
+                                  const _Subscription(),
                                 if (showRealm &&
                                     ctx.watch<StartCloseCubit>().state.status ==
                                         XStatus.connected)
