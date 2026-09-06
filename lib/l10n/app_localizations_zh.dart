@@ -1836,6 +1836,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get disableCoreDatabaseDesc => '核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项';
 
   @override
+  String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
+    return '如果再次出现此问题，请在「$settings → $advanced」中开启「$option」。';
+  }
+
+  @override
   String get syncBackup => '同步与备份';
 
   @override

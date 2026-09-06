@@ -800,6 +800,20 @@
   "hysteriaRejectQuic": "Hysteria Reject QUIC",
   "disableCoreDatabase": "Core does not use database",
   "disableCoreDatabaseDesc": "Core does not share database with UI. Turn this on if database corruption happens.",
+  "databaseIssueTurnOnDisableCoreDatabase": "If this happens again, turn on \"{option}\" under {settings} → {advanced}.",
+  "@databaseIssueTurnOnDisableCoreDatabase": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "settings": {
+        "type": "String"
+      },
+      "advanced": {
+        "type": "String"
+      }
+    }
+  },
   "syncBackup": "Sync & Backup",
   "cloudSync": "Cloud Sync",
   "cloudSyncDesc1": "Sync your database between multiple devices. ",

@@ -162,6 +162,7 @@ void main() {
         resourceDir: resourceDir,
         cacheDir: cacheDir,
         integrityReport: 'simulated corruption',
+        rotateFileName: true,
       );
 
       expect(result.kind, DbRecoveryKind.vacuumSalvaged);
@@ -189,6 +190,7 @@ void main() {
         resourceDir: resourceDir,
         cacheDir: cacheDir,
         integrityReport: 'disk image is malformed',
+        rotateFileName: true,
       );
 
       expect(result.kind, DbRecoveryKind.wiped);
@@ -212,9 +214,55 @@ void main() {
         resourceDir: resourceDir,
         cacheDir: cacheDir,
         integrityReport: 'report',
+        rotateFileName: true,
       );
 
       expect(result.newDbName, '8.sqlite');
+    });
+
+    test('VACUUM salvage replaces the same path when not rotating', () async {
+      final oldPath = p.join(resourceDir, 'x_database.sqlite');
+      _createSampleDb(oldPath, rows: {'subscription-a', 'node-b'});
+      await File('$oldPath-wal').writeAsString('stale-wal');
+
+      final result = await recoverCorruptDatabase(
+        oldPath: oldPath,
+        currentDbName: 'x_database.sqlite',
+        resourceDir: resourceDir,
+        cacheDir: cacheDir,
+        integrityReport: 'simulated corruption',
+      );
+
+      expect(result.kind, DbRecoveryKind.vacuumSalvaged);
+      expect(result.newDbName, 'x_database.sqlite');
+      expect(result.newDbPath, oldPath);
+      expect(await File(oldPath).exists(), isTrue);
+      expect(await File('$oldPath-wal').exists(), isFalse);
+      expect(quickCheckSqliteFile(oldPath), isNull);
+      expect(
+        _readNames(oldPath),
+        unorderedEquals(['subscription-a', 'node-b']),
+      );
+    });
+
+    test('wipe reuses the same path when not rotating', () async {
+      final oldPath = p.join(resourceDir, 'x_database.sqlite');
+      await File(oldPath).writeAsBytes(List<int>.filled(2048, 0xDE));
+      await File('$oldPath-wal').writeAsString('stale-wal');
+
+      final result = await recoverCorruptDatabase(
+        oldPath: oldPath,
+        currentDbName: 'x_database.sqlite',
+        resourceDir: resourceDir,
+        cacheDir: cacheDir,
+        integrityReport: 'disk image is malformed',
+      );
+
+      expect(result.kind, DbRecoveryKind.wiped);
+      expect(result.newDbName, 'x_database.sqlite');
+      expect(result.newDbPath, oldPath);
+      expect(await File(oldPath).exists(), isFalse);
+      expect(await File('$oldPath-wal').exists(), isFalse);
     });
   });
 }

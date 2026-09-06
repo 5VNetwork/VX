@@ -19,27 +19,39 @@ Future<AppDatabase?> _initDatabase(
   SharedPreferences pref, {
   QueryInterceptor? interceptor,
 }) async {
+  AppDatabase? db;
   try {
     final path = await getDbPath(pref);
-    final db = AppDatabase(path: path, interceptor: interceptor);
+    db = AppDatabase(path: path, interceptor: interceptor);
     await db.customSelect('SELECT 1').get();
 
-    final corruption = await _quickCheckReport(db);
-    if (corruption != null) {
-      logger.e('Database corruption detected:\n$corruption');
-      reportError('database corruption detected', corruption);
-      await db.close();
-      return await _recoverCorruptDatabase(
-        pref,
-        interceptor: interceptor,
-        integrityReport: corruption,
-      );
+    if (Platform.isAndroid) {
+      final corruption = await _quickCheckReport(db);
+      if (corruption != null) {
+        logger.e('Database corruption detected:\n$corruption');
+        reportError('database corruption detected', corruption);
+        await db.close();
+        db = null;
+        return await _recoverCorruptDatabase(
+          pref,
+          interceptor: interceptor,
+          integrityReport: corruption,
+        );
+      }
     }
 
     return db;
   } catch (e) {
     logger.e('Error initializing database', error: e);
     reportError('init database', e);
+
+    if (db != null) {
+      try {
+        await db.close();
+      } catch (closeErr) {
+        logger.e('Error closing corrupt database', error: closeErr);
+      }
+    }
 
     if (looksLikeCorruptDbError(e)) {
       try {
@@ -81,25 +93,22 @@ Future<AppDatabase?> _recoverCorruptDatabase(
   QueryInterceptor? interceptor,
   required String integrityReport,
 }) async {
-  final oldPath = await getDbPath(pref);
-  final result = await recoverCorruptDatabase(
-    oldPath: oldPath,
+  final opened = await recoverAndOpenDatabase(
+    pref: pref,
+    oldPath: await getDbPath(pref),
     currentDbName: pref.dbName,
     resourceDir: resourceDirectory.path,
     cacheDir: cacheDirectory,
     integrityReport: integrityReport,
+    rotateFileName: Platform.isWindows,
+    interceptor: interceptor,
   );
 
-  pref.setDbName(result.newDbName);
-  fatalErrorMessage = result.message;
-
-  if (result.kind == DbRecoveryKind.vacuumSalvaged) {
+  databaseRecoveryMessage = opened.result.message;
+  if (opened.result.kind == DbRecoveryKind.vacuumSalvaged) {
     reportError('database vacuum recovery succeeded', integrityReport);
   } else {
     reportError('database wipe recovery', integrityReport);
   }
-
-  final db = AppDatabase(path: result.newDbPath, interceptor: interceptor);
-  await db.customSelect('SELECT 1').get();
-  return db;
+  return opened.db;
 }

@@ -1886,6 +1886,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get disableCoreDatabaseDesc => 'Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.';
 
   @override
+  String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
+    return 'Если это повторится, включите «$option» в разделе $settings → $advanced.';
+  }
+
+  @override
   String get syncBackup => 'Синхронизация и резервное копирование';
 
   @override

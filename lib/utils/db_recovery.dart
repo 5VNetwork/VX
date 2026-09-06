@@ -143,27 +143,58 @@ Future<String?> tryVacuumRecover(String corruptPath, String cacheDir) async {
   }
 }
 
-/// Salvage [oldPath] into a new file under [resourceDir], or wipe and reserve
-/// a fresh path. Does not open Drift — caller opens [DbRecoveryResult.newDbPath].
+String _recoveryTargetName(String currentDbName, {required bool rotateFileName}) {
+  return rotateFileName ? nextDbName(currentDbName) : currentDbName;
+}
+
+String _recoveryTargetPath({
+  required String oldPath,
+  required String resourceDir,
+  required String newDbName,
+  required bool rotateFileName,
+}) {
+  return rotateFileName ? p.join(resourceDir, newDbName) : oldPath;
+}
+
+/// Salvage [oldPath] into a usable file, or wipe and reserve a path.
+///
+/// When [rotateFileName] is true (Windows), writes a new numbered file so the
+/// locked original can be abandoned. Otherwise replaces [oldPath] in place so
+/// the name stays `x_database.sqlite`. Does not open Drift — caller opens
+/// [DbRecoveryResult.newDbPath].
 Future<DbRecoveryResult> recoverCorruptDatabase({
   required String oldPath,
   required String currentDbName,
   required String resourceDir,
   required String cacheDir,
   required String integrityReport,
+  bool rotateFileName = false,
 }) async {
   developer.log('Attempting database recovery for $oldPath');
 
   final salvagedPath = await tryVacuumRecover(oldPath, cacheDir);
   if (salvagedPath != null) {
-    final newDbName = nextDbName(currentDbName);
-    final newDbPath = p.join(resourceDir, newDbName);
+    final newDbName = _recoveryTargetName(
+      currentDbName,
+      rotateFileName: rotateFileName,
+    );
+    final newDbPath = _recoveryTargetPath(
+      oldPath: oldPath,
+      resourceDir: resourceDir,
+      newDbName: newDbName,
+      rotateFileName: rotateFileName,
+    );
+    if (p.equals(newDbPath, oldPath)) {
+      await deleteCorruptDatabaseFiles(oldPath);
+    }
     await File(salvagedPath).copy(newDbPath);
     try {
       await File(salvagedPath).delete();
     } catch (_) {}
 
-    await deleteCorruptDatabaseFiles(oldPath);
+    if (!p.equals(newDbPath, oldPath)) {
+      await deleteCorruptDatabaseFiles(oldPath);
+    }
 
     final stillBad = quickCheckSqliteFile(newDbPath);
     if (stillBad == null) {
@@ -182,8 +213,16 @@ Future<DbRecoveryResult> recoverCorruptDatabase({
 
   developer.log('Falling back to recreate empty database');
   await deleteCorruptDatabaseFiles(oldPath);
-  final newDbName = nextDbName(currentDbName);
-  final newDbPath = p.join(resourceDir, newDbName);
+  final newDbName = _recoveryTargetName(
+    currentDbName,
+    rotateFileName: rotateFileName,
+  );
+  final newDbPath = _recoveryTargetPath(
+    oldPath: oldPath,
+    resourceDir: resourceDir,
+    newDbName: newDbName,
+    rotateFileName: rotateFileName,
+  );
   return DbRecoveryResult(
     kind: DbRecoveryKind.wiped,
     newDbPath: newDbPath,

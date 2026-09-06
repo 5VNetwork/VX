@@ -3511,6 +3511,12 @@ abstract class AppLocalizations {
   /// **'Core does not share database with UI. Turn this on if database corruption happens.'**
   String get disableCoreDatabaseDesc;
 
+  /// No description provided for @databaseIssueTurnOnDisableCoreDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'If this happens again, turn on \"{option}\" under {settings} → {advanced}.'**
+  String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced);
+
   /// No description provided for @syncBackup.
   ///
   /// In en, this message translates to:

@@ -101,6 +101,7 @@ import 'package:vx/data/database.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/path.dart';
 import 'package:vx/utils/db_recovery.dart';
+import 'package:vx/utils/recover_and_open.dart';
 import 'package:vx/utils/upload_log.dart';
 import 'package:vx/utils/wintun.dart';
 import 'package:vx/utils/xapi_client.dart';
@@ -641,19 +642,37 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     syncService = context.read<SyncService>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       if (fatalErrorMessage != null) {
-        fatalMessageDialog(fatalErrorMessage!);
+        fatalMessageDialog(
+          _withAndroidDisableCoreDatabaseHint(
+            context,
+            fatalErrorMessage!,
+            isDatabaseIssue:
+                fatalErrorMessage!.toLowerCase().contains('database') ||
+                looksLikeCorruptDbError(fatalErrorMessage!),
+          ),
+        );
         fatalErrorMessage = null;
-      } else {
-        try {
-          await insertDefault(
-            rootNavigationKey.currentContext!,
-            context.read<SharedPreferences>(),
-            context.read<DatabaseProvider>().database,
-          );
-        } catch (e) {
-          logger.e('Error inserting default', error: e);
-          snack(rootLocalizations()?.insertDefaultError(e.toString()));
-        }
+        return;
+      }
+      try {
+        await insertDefault(
+          rootNavigationKey.currentContext!,
+          context.read<SharedPreferences>(),
+          context.read<DatabaseProvider>().database,
+        );
+      } catch (e) {
+        logger.e('Error inserting default', error: e);
+        snack(rootLocalizations()?.insertDefaultError(e.toString()));
+      }
+      if (databaseRecoveryMessage != null) {
+        fatalMessageDialog(
+          _withAndroidDisableCoreDatabaseHint(
+            context,
+            databaseRecoveryMessage!,
+            isDatabaseIssue: true,
+          ),
+        );
+        databaseRecoveryMessage = null;
       }
     });
 
@@ -949,6 +968,27 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 }
 
 String? fatalErrorMessage;
+String? databaseRecoveryMessage;
+
+String _withAndroidDisableCoreDatabaseHint(
+  BuildContext context,
+  String message, {
+  required bool isDatabaseIssue,
+}) {
+  if (!isDatabaseIssue || !Platform.isAndroid) {
+    return message;
+  }
+  final pref = context.read<SharedPreferences>();
+  if (pref.disableCoreDatabase) {
+    return message;
+  }
+  final al = AppLocalizations.of(context)!;
+  return '$message\n\n${al.databaseIssueTurnOnDisableCoreDatabase(
+    al.disableCoreDatabase,
+    al.settings,
+    al.advanced,
+  )}';
+}
 
 void fatalMessageDialog(String message) {
   if (rootNavigationKey.currentContext == null) {

@@ -797,6 +797,20 @@
   "hysteriaRejectQuic": "Hysteria拒绝QUIC",
   "disableCoreDatabase": "核心不共享数据库",
   "disableCoreDatabaseDesc": "核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项",
+  "databaseIssueTurnOnDisableCoreDatabase": "如果再次出现此问题，请在「{settings} → {advanced}」中开启「{option}」。",
+  "@databaseIssueTurnOnDisableCoreDatabase": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "settings": {
+        "type": "String"
+      },
+      "advanced": {
+        "type": "String"
+      }
+    }
+  },
   "syncBackup": "同步与备份",
   "cloudSync": "云同步",
   "cloudSyncDesc1": "多设备间同步数据库。",

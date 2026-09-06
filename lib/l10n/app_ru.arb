@@ -794,6 +794,20 @@
   "hysteriaRejectQuic": "Истерия отвергает QUIC",
   "disableCoreDatabase": "Ядро не использует базу данных",
   "disableCoreDatabaseDesc": "Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.",
+  "databaseIssueTurnOnDisableCoreDatabase": "Если это повторится, включите «{option}» в разделе {settings} → {advanced}.",
+  "@databaseIssueTurnOnDisableCoreDatabase": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      },
+      "settings": {
+        "type": "String"
+      },
+      "advanced": {
+        "type": "String"
+      }
+    }
+  },
   "syncBackup": "Синхронизация и резервное копирование",
   "cloudSync": "Облачная синхронизация",
   "cloudSyncDesc1": "Синхронизируйте базу данных между несколькими устройствами. ",

@@ -1886,6 +1886,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disableCoreDatabaseDesc => 'Core does not share database with UI. Turn this on if database corruption happens.';
 
   @override
+  String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
+    return 'If this happens again, turn on \"$option\" under $settings → $advanced.';
+  }
+
+  @override
   String get syncBackup => 'Sync & Backup';
 
   @override
