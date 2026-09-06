@@ -1268,7 +1268,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyUpLinkOnlyTimeout {
-    return _policyTimeoutOrDefault('policyUpLinkOnlyTimeout', 5);
+    return _policyTimeoutOrDefault('policyUpLinkOnlyTimeout', -1);
   }
 
   void setPolicyUpLinkOnlyTimeout(int timeout) {
@@ -1276,7 +1276,7 @@ extension PrefHelperExtension on SharedPreferences {
   }
 
   int get policyDownLinkOnlyTimeout {
-    return _policyTimeoutOrDefault('policyDownLinkOnlyTimeout', 2);
+    return _policyTimeoutOrDefault('policyDownLinkOnlyTimeout', -1);
   }
 
   void setPolicyDownLinkOnlyTimeout(int timeout) {
