@@ -21,6 +21,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:vx/app/file_transfer/file_transfer_controller.dart';
+import 'package:vx/app/file_transfer/file_transfer_page.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/app/layout_provider.dart';
 import 'package:vx/app/x_controller.dart';
@@ -40,31 +42,73 @@ class GlobalQuicActionMenuAnchor extends StatelessWidget {
   final Widget child;
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final transfer = context.watch<FileTransferController>();
+    final receiving = transfer.isReceiving;
+    final receiveSubtitle = !receiving
+        ? null
+        : transfer.isReceiveTransferring
+        ? l10n.fileTransferTransferring
+        : l10n.fileTransferWaiting;
     return MenuAnchor(
       menuChildren: [
         MenuItemButton(
+          leadingIcon: Badge(
+            isLabelVisible: receiving,
+            child: const Icon(Icons.swap_vert_rounded),
+          ),
+          child: receiveSubtitle == null
+              ? Text(l10n.fileTransfer)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l10n.fileTransfer),
+                    Text(
+                      receiveSubtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+          onPressed: () => openFileTransferPage(context),
+        ),
+        MenuItemButton(
           leadingIcon: const Icon(Icons.sync),
-          child: Text(AppLocalizations.of(context)!.sync),
+          child: Text(l10n.sync),
           onPressed: () {
             context.read<SyncService>().sync();
           },
         ),
       ],
       builder: (context, c, child) {
-        return Container(
-          width: 80,
-          height: double.infinity,
-          color: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            hoverColor: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.08),
-            onTapDown: (_) {
-              c.open();
-            },
-            child: Center(child: child),
+        return Tooltip(
+          message: receiveSubtitle ?? l10n.fileTransfer,
+          waitDuration: const Duration(milliseconds: 400),
+          child: Container(
+            width: 80,
+            height: double.infinity,
+            color: Colors.transparent,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              hoverColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.08),
+              onTapDown: (_) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (c.isOpen) return;
+                  c.open();
+                });
+              },
+              child: Center(
+                child: Badge(
+                  alignment: Alignment(1.5, -1.2),
+                  isLabelVisible: receiving,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  child: child,
+                ),
+              ),
+            ),
           ),
         );
       },

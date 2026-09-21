@@ -797,6 +797,8 @@
   "hysteriaRejectQuic": "Hysteria拒绝QUIC",
   "disableCoreDatabase": "核心不共享数据库",
   "disableCoreDatabaseDesc": "核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项",
+  "bindToDefaultNic": "绑定默认网卡",
+  "bindToDefaultNicDesc": "将节点测试和 API 流量绑定到默认网络接口。如果遇到节点测试全部失败的问题，请关闭此选项。更改后需重启应用。",
   "databaseIssueTurnOnDisableCoreDatabase": "如果再次出现此问题，请在「{settings} → {advanced}」中开启「{option}」。",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -1262,5 +1264,53 @@
   "enterRealmCloudEncryptionPassword": "请输入云端加密密码",
   "realmDecryptPassword": "解密密码",
   "realmDecryptPasswordDesc": "输入设备所有者分享的密码以解密 Realm URL。",
-  "realmDecryptFailed": "密码错误或加密 Realm URL 无效"
+  "realmDecryptFailed": "密码错误或加密 Realm URL 无效",
+  "fileTransfer": "闪电文件直传",
+  "fileTransferHomeHint": "通过 Realm 发送或接收文件",
+  "fileTransferReceive": "接收",
+  "fileTransferSend": "发送",
+  "fileTransferReceiveHint": "点击“开始接受”以开始接收文件。收到的文件会自动保存。传输结束后，请点击“停止接收”。",
+  "fileTransferSendHint": "选择已同步的设备，或粘贴接收方的 Realm 地址，然后选择文件。",
+  "fileTransferStartReceive": "开始接收",
+  "fileTransferStopReceive": "停止接收",
+  "fileTransferSaveFolder": "保存文件夹",
+  "fileTransferChooseFolder": "更改",
+  "fileTransferShareUrl": "分享此地址",
+  "fileTransferRegenerateUrl": "重新生成",
+  "fileTransferRegenerateUrlTitle": "重新生成地址",
+  "fileTransferRegenerateUrlDesc": "选择分享地址使用的 Realm 服务器。如果正在接收，将会重新开始。",
+  "fileTransferCustomRealmServer": "自定义服务器",
+  "fileTransferCustomRealmServerHint": "主机名或 主机:端口",
+  "fileTransferInvalidRealmServer": "请输入有效的 Realm 服务器",
+  "fileTransferPasteAddress": "Realm 地址",
+  "fileTransferAddressHint": "hysteria2+realm://…",
+  "fileTransferPickFile": "文件",
+  "fileTransferNoFileSelected": "未选择文件",
+  "fileTransferSendMissing": "请输入 Realm 地址并选择文件",
+  "fileTransferStarting": "正在启动…",
+  "fileTransferWaiting": "等待发送方…",
+  "fileTransferConnecting": "正在连接…",
+  "fileTransferTransferring": "正在传输…",
+  "fileTransferCompleted": "已完成",
+  "fileTransferFailed": "失败",
+  "fileTransferCancelled": "已取消",
+  "fileTransferReceivedAs": "已保存到 {path}",
+  "@fileTransferReceivedAs": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransferMinimize": "最小化",
+  "fileTransferYourDevices": "你的设备",
+  "fileTransferRefreshDevices": "刷新设备",
+  "fileTransferNoSyncedDevices": "还没有其他设备上传文件传输地址。请在那台设备上开始接收并上传地址。",
+  "fileTransferSignInToSyncDevices": "登录后即可从其他设备同步文件传输地址。",
+  "fileTransferStartReceiveToUpload": "请先开始接收，再上传地址。",
+  "fileTransferUrlUploaded": "地址已上传。其他已登录设备发送时可选择它。",
+  "fileTransferUrlDeleted": "已从账户中删除该地址。",
+  "fileTransferDeleteUrlConfirm": "从账户中移除此设备的文件传输地址？其他设备将无法再看到它。",
+  "fileTransferUploadUrlToCloud": "上传地址到云端",
+  "fileTransferDeleteCloudUrl": "删除云端地址"
 }

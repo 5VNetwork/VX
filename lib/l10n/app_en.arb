@@ -800,6 +800,8 @@
   "hysteriaRejectQuic": "Hysteria Reject QUIC",
   "disableCoreDatabase": "Core does not use database",
   "disableCoreDatabaseDesc": "Core does not share database with UI. Turn this on if database corruption happens.",
+  "bindToDefaultNic": "Bind to default network",
+  "bindToDefaultNicDesc": "Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.",
   "databaseIssueTurnOnDisableCoreDatabase": "If this happens again, turn on \"{option}\" under {settings} → {advanced}.",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -1295,5 +1297,53 @@
   "enterRealmCloudEncryptionPassword": "Enter a cloud encryption password",
   "realmDecryptPassword": "Decryption password",
   "realmDecryptPasswordDesc": "Enter the password shared by the device owner to decrypt its Realm URL.",
-  "realmDecryptFailed": "Wrong password or invalid encrypted Realm URL"
+  "realmDecryptFailed": "Wrong password or invalid encrypted Realm URL",
+  "fileTransfer": "File transfer",
+  "fileTransferHomeHint": "Send or receive files over Realm",
+  "fileTransferReceive": "Receive",
+  "fileTransferSend": "Send",
+  "fileTransferReceiveHint": "Click \"Start receiving\" to start receiving files. Incoming files are saved automatically. When the transfer is complete, click \"Stop receiving\".",
+  "fileTransferSendHint": "Pick a synced device or paste the receiver’s Realm address, then choose a file.",
+  "fileTransferStartReceive": "Start receiving",
+  "fileTransferStopReceive": "Stop receiving",
+  "fileTransferSaveFolder": "Save folder",
+  "fileTransferChooseFolder": "Change",
+  "fileTransferShareUrl": "Share this address",
+  "fileTransferRegenerateUrl": "Regenerate",
+  "fileTransferRegenerateUrlTitle": "Regenerate address",
+  "fileTransferRegenerateUrlDesc": "Choose the realm server embedded in the share address. Receiving restarts if it is already running.",
+  "fileTransferCustomRealmServer": "Custom server",
+  "fileTransferCustomRealmServerHint": "host or host:port",
+  "fileTransferInvalidRealmServer": "Enter a valid realm server",
+  "fileTransferPasteAddress": "Realm address",
+  "fileTransferAddressHint": "hysteria2+realm://…",
+  "fileTransferPickFile": "File",
+  "fileTransferNoFileSelected": "No file selected",
+  "fileTransferSendMissing": "Enter the Realm address and pick a file",
+  "fileTransferStarting": "Starting…",
+  "fileTransferWaiting": "Waiting for sender…",
+  "fileTransferConnecting": "Connecting…",
+  "fileTransferTransferring": "Transferring…",
+  "fileTransferCompleted": "Completed",
+  "fileTransferFailed": "Failed",
+  "fileTransferCancelled": "Cancelled",
+  "fileTransferReceivedAs": "Saved to {path}",
+  "@fileTransferReceivedAs": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransferMinimize": "Minimize",
+  "fileTransferYourDevices": "Your devices",
+  "fileTransferRefreshDevices": "Refresh devices",
+  "fileTransferNoSyncedDevices": "No other devices have uploaded a File Transfer address yet. On that device, start receiving and upload the address.",
+  "fileTransferSignInToSyncDevices": "Sign in to load File Transfer addresses from your other devices.",
+  "fileTransferStartReceiveToUpload": "Start receiving first so there is an address to upload.",
+  "fileTransferUrlUploaded": "Address uploaded. Other signed-in devices can select it when sending.",
+  "fileTransferUrlDeleted": "Address removed from your account.",
+  "fileTransferDeleteUrlConfirm": "Remove this device’s File Transfer address from your account? Other devices will no longer see it.",
+  "fileTransferUploadUrlToCloud": "Upload URL to cloud",
+  "fileTransferDeleteCloudUrl": "Delete cloud URL"
 }

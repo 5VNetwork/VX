@@ -3511,6 +3511,18 @@ abstract class AppLocalizations {
   /// **'Core does not share database with UI. Turn this on if database corruption happens.'**
   String get disableCoreDatabaseDesc;
 
+  /// No description provided for @bindToDefaultNic.
+  ///
+  /// In en, this message translates to:
+  /// **'Bind to default network'**
+  String get bindToDefaultNic;
+
+  /// No description provided for @bindToDefaultNicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.'**
+  String get bindToDefaultNicDesc;
+
   /// No description provided for @databaseIssueTurnOnDisableCoreDatabase.
   ///
   /// In en, this message translates to:
@@ -5712,6 +5724,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wrong password or invalid encrypted Realm URL'**
   String get realmDecryptFailed;
+
+  /// No description provided for @fileTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'File transfer'**
+  String get fileTransfer;
+
+  /// No description provided for @fileTransferHomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send or receive files over Realm'**
+  String get fileTransferHomeHint;
+
+  /// No description provided for @fileTransferReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get fileTransferReceive;
+
+  /// No description provided for @fileTransferSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get fileTransferSend;
+
+  /// No description provided for @fileTransferReceiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Click \"Start receiving\" to start receiving files. Incoming files are saved automatically. When the transfer is complete, click \"Stop receiving\".'**
+  String get fileTransferReceiveHint;
+
+  /// No description provided for @fileTransferSendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a synced device or paste the receiver’s Realm address, then choose a file.'**
+  String get fileTransferSendHint;
+
+  /// No description provided for @fileTransferStartReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Start receiving'**
+  String get fileTransferStartReceive;
+
+  /// No description provided for @fileTransferStopReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop receiving'**
+  String get fileTransferStopReceive;
+
+  /// No description provided for @fileTransferSaveFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Save folder'**
+  String get fileTransferSaveFolder;
+
+  /// No description provided for @fileTransferChooseFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get fileTransferChooseFolder;
+
+  /// No description provided for @fileTransferShareUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this address'**
+  String get fileTransferShareUrl;
+
+  /// No description provided for @fileTransferRegenerateUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
+  String get fileTransferRegenerateUrl;
+
+  /// No description provided for @fileTransferRegenerateUrlTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate address'**
+  String get fileTransferRegenerateUrlTitle;
+
+  /// No description provided for @fileTransferRegenerateUrlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the realm server embedded in the share address. Receiving restarts if it is already running.'**
+  String get fileTransferRegenerateUrlDesc;
+
+  /// No description provided for @fileTransferCustomRealmServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom server'**
+  String get fileTransferCustomRealmServer;
+
+  /// No description provided for @fileTransferCustomRealmServerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'host or host:port'**
+  String get fileTransferCustomRealmServerHint;
+
+  /// No description provided for @fileTransferInvalidRealmServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid realm server'**
+  String get fileTransferInvalidRealmServer;
+
+  /// No description provided for @fileTransferPasteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Realm address'**
+  String get fileTransferPasteAddress;
+
+  /// No description provided for @fileTransferAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'hysteria2+realm://…'**
+  String get fileTransferAddressHint;
+
+  /// No description provided for @fileTransferPickFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get fileTransferPickFile;
+
+  /// No description provided for @fileTransferNoFileSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No file selected'**
+  String get fileTransferNoFileSelected;
+
+  /// No description provided for @fileTransferSendMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the Realm address and pick a file'**
+  String get fileTransferSendMissing;
+
+  /// No description provided for @fileTransferStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get fileTransferStarting;
+
+  /// No description provided for @fileTransferWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sender…'**
+  String get fileTransferWaiting;
+
+  /// No description provided for @fileTransferConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get fileTransferConnecting;
+
+  /// No description provided for @fileTransferTransferring.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferring…'**
+  String get fileTransferTransferring;
+
+  /// No description provided for @fileTransferCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get fileTransferCompleted;
+
+  /// No description provided for @fileTransferFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get fileTransferFailed;
+
+  /// No description provided for @fileTransferCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get fileTransferCancelled;
+
+  /// No description provided for @fileTransferReceivedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to {path}'**
+  String fileTransferReceivedAs(String path);
+
+  /// No description provided for @fileTransferMinimize.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get fileTransferMinimize;
+
+  /// No description provided for @fileTransferYourDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices'**
+  String get fileTransferYourDevices;
+
+  /// No description provided for @fileTransferRefreshDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh devices'**
+  String get fileTransferRefreshDevices;
+
+  /// No description provided for @fileTransferNoSyncedDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No other devices have uploaded a File Transfer address yet. On that device, start receiving and upload the address.'**
+  String get fileTransferNoSyncedDevices;
+
+  /// No description provided for @fileTransferSignInToSyncDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to load File Transfer addresses from your other devices.'**
+  String get fileTransferSignInToSyncDevices;
+
+  /// No description provided for @fileTransferStartReceiveToUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Start receiving first so there is an address to upload.'**
+  String get fileTransferStartReceiveToUpload;
+
+  /// No description provided for @fileTransferUrlUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Address uploaded. Other signed-in devices can select it when sending.'**
+  String get fileTransferUrlUploaded;
+
+  /// No description provided for @fileTransferUrlDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Address removed from your account.'**
+  String get fileTransferUrlDeleted;
+
+  /// No description provided for @fileTransferDeleteUrlConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this device’s File Transfer address from your account? Other devices will no longer see it.'**
+  String get fileTransferDeleteUrlConfirm;
+
+  /// No description provided for @fileTransferUploadUrlToCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload URL to cloud'**
+  String get fileTransferUploadUrlToCloud;
+
+  /// No description provided for @fileTransferDeleteCloudUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cloud URL'**
+  String get fileTransferDeleteCloudUrl;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

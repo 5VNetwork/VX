@@ -15,6 +15,7 @@
 
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ import 'package:gap/gap.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vx/app/file_transfer/file_transfer_paths.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/app/settings/general/language.dart';
 import 'package:vx/app/settings/general/sync.dart';

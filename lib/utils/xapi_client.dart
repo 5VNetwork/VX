@@ -726,6 +726,20 @@ class XApiClient {
     return response;
   }
 
+  Future<ResponseStream<FileTransferEvent>> startFileReceive(
+    StartFileReceiveRequest request,
+  ) async {
+    await _completer.future;
+    return _xApiClient.startFileReceive(request);
+  }
+
+  Future<ResponseStream<FileTransferEvent>> startFileSend(
+    StartFileSendRequest request,
+  ) async {
+    await _completer.future;
+    return _xApiClient.startFileSend(request);
+  }
+
   Future<GenerateECHResponse> generateECHResponse(String domain) async {
     await _completer.future;
     return await _xApiClient.generateECH(GenerateECHRequest(domain: domain));

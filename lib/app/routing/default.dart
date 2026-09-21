@@ -15,6 +15,8 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:tm/protos/vx/common/geo/geo.pb.dart';
+import 'package:tm/protos/vx/common/net/net.pb.dart';
 import 'package:tm/protos/vx/dns/dns.pb.dart';
 import 'package:tm/protos/vx/geo/geo.pb.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
@@ -739,6 +741,28 @@ enum DefaultRouteMode {
                   AppId(type: AppId_Type.Exact, value: androidPackageNme),
                 if (Platform.isWindows)
                   AppId(type: AppId_Type.Keyword, value: 'vx.exe'),
+              ],
+            ),
+            // all stun servers will go direct
+            Condition(
+              dstPortRanges: [PortRange(from: 3478, to: 3478)],
+              appIds: [
+                if (Platform.isWindows)
+                  AppId(type: AppId_Type.Keyword, value: 'vx.exe'),
+                if (Platform.isAndroid)
+                  AppId(type: AppId_Type.Exact, value: androidPackageNme),
+              ],
+            ),
+            Condition(
+              geoDomains: [
+                Domain(value: 'realm.hy2.io'),
+                Domain(value: 'realm.leeveck.site'),
+              ],
+              appIds: [
+                if (Platform.isWindows)
+                  AppId(type: AppId_Type.Keyword, value: 'vx.exe'),
+                if (Platform.isAndroid)
+                  AppId(type: AppId_Type.Exact, value: androidPackageNme),
               ],
             ),
           ],

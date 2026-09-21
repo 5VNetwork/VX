@@ -20,7 +20,7 @@ import 'dart:ui';
 
 import 'package:ads/ads_provider.dart';
 import 'package:app_links/app_links.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide View;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -43,6 +43,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:tm/protos/vx/outbound/outbound.pb.dart';
 import 'package:vx/app/blocs/inbound.dart';
 import 'package:vx/app/home/home.dart';
+import 'package:vx/app/file_transfer/file_transfer_controller.dart';
 import 'package:vx/app/start_close_button.dart';
 import 'package:vx/app/android_host_api.g.dart';
 import 'package:vx/app/darwin_host_api.g.dart';
@@ -381,6 +382,12 @@ void main() async {
         create: (ctx) => RealmServerStatusNotifier(
           controller: ctx.read<XController>(),
           prefs: ctx.read<SharedPreferences>(),
+        ),
+      ),
+      ChangeNotifierProvider<FileTransferController>(
+        create: (ctx) => FileTransferController(
+          api: ctx.read<XApiClient>(),
+          pref: ctx.read<SharedPreferences>(),
         ),
       ),
       Provider<MyLayout>(create: (_) => MyLayout()),
@@ -946,22 +953,23 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           create: (ctx) => HomePageCubit(ctx.read<SharedPreferences>()),
         ),
       ],
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          logger.d("W: ${constraints.maxWidth}, H: ${constraints.maxHeight}");
-          Provider.of<MyLayout>(
-            context,
-            listen: false,
-          ).setFields(constraints.maxWidth, constraints.maxHeight);
-          if (constraints.isCompact) {
-            myRoutingConfig.value = compactRouteConfig;
-          } else {
-            myRoutingConfig.value = largeScreenRouteConfig(
-              context.read<SharedPreferences>(),
-            );
-          }
-          return app;
-        },
+      child: MediaQuery.fromView(
+        view: View.of(context),
+        child: Builder(
+          builder: (context) {
+            final size = MediaQuery.sizeOf(context);
+            logger.d("W: ${size.width}, H: ${size.height}");
+            context.read<MyLayout>().setFields(size.width, size.height);
+            if (size.isCompact) {
+              myRoutingConfig.value = compactRouteConfig;
+            } else {
+              myRoutingConfig.value = largeScreenRouteConfig(
+                context.read<SharedPreferences>(),
+              );
+            }
+            return app;
+          },
+        ),
       ),
     );
   }

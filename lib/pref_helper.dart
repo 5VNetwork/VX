@@ -1344,4 +1344,37 @@ extension PrefHelperExtension on SharedPreferences {
   void setInstalledWindowsServiceVersion(String version) {
     setString('installedWindowsServiceVersion', version);
   }
+
+  String? get fileTransferSaveDir {
+    final v = getString('fileTransferSaveDir');
+    if (v == null || v.trim().isEmpty) return null;
+    return v;
+  }
+
+  void setFileTransferSaveDir(String path) {
+    setString('fileTransferSaveDir', path.trim());
+  }
+
+  String? get fileTransferAuth => getString('fileTransferAuth');
+
+  void setFileTransferAuth(String auth) {
+    setString('fileTransferAuth', auth);
+  }
+
+  String? get fileTransferHysteriaConfigBase64 =>
+      getString('fileTransferHysteriaConfigBase64');
+
+  void setFileTransferHysteriaConfigBase64(String value) {
+    setString('fileTransferHysteriaConfigBase64', value);
+  }
+
+  String? get fileTransferShareUrl {
+    final v = getString('fileTransferShareUrl');
+    if (v == null || v.trim().isEmpty) return null;
+    return v;
+  }
+
+  void setFileTransferShareUrl(String url) {
+    setString('fileTransferShareUrl', url.trim());
+  }
 }

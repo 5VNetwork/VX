@@ -1886,6 +1886,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disableCoreDatabaseDesc => 'Core does not share database with UI. Turn this on if database corruption happens.';
 
   @override
+  String get bindToDefaultNic => 'Bind to default network';
+
+  @override
+  String get bindToDefaultNicDesc => 'Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return 'If this happens again, turn on \"$option\" under $settings → $advanced.';
   }
@@ -3037,4 +3043,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get realmDecryptFailed => 'Wrong password or invalid encrypted Realm URL';
+
+  @override
+  String get fileTransfer => 'File transfer';
+
+  @override
+  String get fileTransferHomeHint => 'Send or receive files over Realm';
+
+  @override
+  String get fileTransferReceive => 'Receive';
+
+  @override
+  String get fileTransferSend => 'Send';
+
+  @override
+  String get fileTransferReceiveHint => 'Click \"Start receiving\" to start receiving files. Incoming files are saved automatically. When the transfer is complete, click \"Stop receiving\".';
+
+  @override
+  String get fileTransferSendHint => 'Pick a synced device or paste the receiver’s Realm address, then choose a file.';
+
+  @override
+  String get fileTransferStartReceive => 'Start receiving';
+
+  @override
+  String get fileTransferStopReceive => 'Stop receiving';
+
+  @override
+  String get fileTransferSaveFolder => 'Save folder';
+
+  @override
+  String get fileTransferChooseFolder => 'Change';
+
+  @override
+  String get fileTransferShareUrl => 'Share this address';
+
+  @override
+  String get fileTransferRegenerateUrl => 'Regenerate';
+
+  @override
+  String get fileTransferRegenerateUrlTitle => 'Regenerate address';
+
+  @override
+  String get fileTransferRegenerateUrlDesc => 'Choose the realm server embedded in the share address. Receiving restarts if it is already running.';
+
+  @override
+  String get fileTransferCustomRealmServer => 'Custom server';
+
+  @override
+  String get fileTransferCustomRealmServerHint => 'host or host:port';
+
+  @override
+  String get fileTransferInvalidRealmServer => 'Enter a valid realm server';
+
+  @override
+  String get fileTransferPasteAddress => 'Realm address';
+
+  @override
+  String get fileTransferAddressHint => 'hysteria2+realm://…';
+
+  @override
+  String get fileTransferPickFile => 'File';
+
+  @override
+  String get fileTransferNoFileSelected => 'No file selected';
+
+  @override
+  String get fileTransferSendMissing => 'Enter the Realm address and pick a file';
+
+  @override
+  String get fileTransferStarting => 'Starting…';
+
+  @override
+  String get fileTransferWaiting => 'Waiting for sender…';
+
+  @override
+  String get fileTransferConnecting => 'Connecting…';
+
+  @override
+  String get fileTransferTransferring => 'Transferring…';
+
+  @override
+  String get fileTransferCompleted => 'Completed';
+
+  @override
+  String get fileTransferFailed => 'Failed';
+
+  @override
+  String get fileTransferCancelled => 'Cancelled';
+
+  @override
+  String fileTransferReceivedAs(String path) {
+    return 'Saved to $path';
+  }
+
+  @override
+  String get fileTransferMinimize => 'Minimize';
+
+  @override
+  String get fileTransferYourDevices => 'Your devices';
+
+  @override
+  String get fileTransferRefreshDevices => 'Refresh devices';
+
+  @override
+  String get fileTransferNoSyncedDevices => 'No other devices have uploaded a File Transfer address yet. On that device, start receiving and upload the address.';
+
+  @override
+  String get fileTransferSignInToSyncDevices => 'Sign in to load File Transfer addresses from your other devices.';
+
+  @override
+  String get fileTransferStartReceiveToUpload => 'Start receiving first so there is an address to upload.';
+
+  @override
+  String get fileTransferUrlUploaded => 'Address uploaded. Other signed-in devices can select it when sending.';
+
+  @override
+  String get fileTransferUrlDeleted => 'Address removed from your account.';
+
+  @override
+  String get fileTransferDeleteUrlConfirm => 'Remove this device’s File Transfer address from your account? Other devices will no longer see it.';
+
+  @override
+  String get fileTransferUploadUrlToCloud => 'Upload URL to cloud';
+
+  @override
+  String get fileTransferDeleteCloudUrl => 'Delete cloud URL';
 }

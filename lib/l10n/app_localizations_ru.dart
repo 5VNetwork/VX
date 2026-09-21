@@ -1886,6 +1886,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get disableCoreDatabaseDesc => 'Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.';
 
   @override
+  String get bindToDefaultNic => 'Привязка к сети по умолчанию';
+
+  @override
+  String get bindToDefaultNicDesc => 'Привязать тесты узлов и API-трафик к сетевому интерфейсу по умолчанию. Отключите, если тесты узлов не работают. После изменения перезапустите приложение.';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return 'Если это повторится, включите «$option» в разделе $settings → $advanced.';
   }
@@ -3043,4 +3049,129 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get realmDecryptFailed => 'Неверный пароль или недействительный зашифрованный Realm URL';
+
+  @override
+  String get fileTransfer => 'Передача файлов';
+
+  @override
+  String get fileTransferHomeHint => 'Отправка и получение файлов через Realm';
+
+  @override
+  String get fileTransferReceive => 'Получить';
+
+  @override
+  String get fileTransferSend => 'Отправить';
+
+  @override
+  String get fileTransferReceiveHint => 'Запустите Realm-слушатель. Файлы сохраняются автоматически. Адрес можно загрузить, чтобы другие ваши устройства могли его выбрать.';
+
+  @override
+  String get fileTransferSendHint => 'Выберите синхронизированное устройство или вставьте Realm-адрес получателя, затем выберите файл. VPN не требуется.';
+
+  @override
+  String get fileTransferStartReceive => 'Начать приём';
+
+  @override
+  String get fileTransferStopReceive => 'Остановить приём';
+
+  @override
+  String get fileTransferSaveFolder => 'Папка сохранения';
+
+  @override
+  String get fileTransferChooseFolder => 'Изменить';
+
+  @override
+  String get fileTransferShareUrl => 'Поделиться адресом';
+
+  @override
+  String get fileTransferRegenerateUrl => 'Создать заново';
+
+  @override
+  String get fileTransferRegenerateUrlTitle => 'Создать адрес заново';
+
+  @override
+  String get fileTransferRegenerateUrlDesc => 'Выберите сервер Realm для адреса. Если приём уже идёт, он будет перезапущен.';
+
+  @override
+  String get fileTransferCustomRealmServer => 'Свой сервер';
+
+  @override
+  String get fileTransferCustomRealmServerHint => 'хост или хост:порт';
+
+  @override
+  String get fileTransferInvalidRealmServer => 'Введите корректный сервер Realm';
+
+  @override
+  String get fileTransferPasteAddress => 'Адрес Realm';
+
+  @override
+  String get fileTransferAddressHint => 'hysteria2+realm://…';
+
+  @override
+  String get fileTransferPickFile => 'Файл';
+
+  @override
+  String get fileTransferNoFileSelected => 'Файл не выбран';
+
+  @override
+  String get fileTransferSendMissing => 'Введите адрес Realm и выберите файл';
+
+  @override
+  String get fileTransferStarting => 'Запуск…';
+
+  @override
+  String get fileTransferWaiting => 'Ожидание отправителя…';
+
+  @override
+  String get fileTransferConnecting => 'Подключение…';
+
+  @override
+  String get fileTransferTransferring => 'Передача…';
+
+  @override
+  String get fileTransferCompleted => 'Готово';
+
+  @override
+  String get fileTransferFailed => 'Ошибка';
+
+  @override
+  String get fileTransferCancelled => 'Отменено';
+
+  @override
+  String fileTransferReceivedAs(String path) {
+    return 'Сохранено в $path';
+  }
+
+  @override
+  String get fileTransferMinimize => 'Свернуть';
+
+  @override
+  String get fileTransferYourDevices => 'Ваши устройства';
+
+  @override
+  String get fileTransferRefreshDevices => 'Обновить устройства';
+
+  @override
+  String get fileTransferNoSyncedDevices => 'Другие устройства ещё не загрузили адрес передачи файлов. На том устройстве запустите приём и загрузите адрес.';
+
+  @override
+  String get fileTransferSignInToSyncDevices => 'Войдите, чтобы загрузить адреса передачи файлов с других устройств.';
+
+  @override
+  String get fileTransferStartReceiveToUpload => 'Сначала запустите приём, чтобы появился адрес для загрузки.';
+
+  @override
+  String get fileTransferUrlUploaded => 'Адрес загружен. Другие устройства в аккаунте смогут выбрать его при отправке.';
+
+  @override
+  String get fileTransferUrlDeleted => 'Адрес удалён из аккаунта.';
+
+  @override
+  String get fileTransferDeleteUrlConfirm => 'Удалить адрес передачи файлов этого устройства из аккаунта? Другие устройства больше не увидят его.';
+
+  @override
+  String get fileTransferUploadUrlToCloud => 'Загрузить URL в облако';
+
+  @override
+  String get fileTransferDeleteCloudUrl => 'Удалить облачный URL';
 }

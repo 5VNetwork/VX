@@ -794,6 +794,8 @@
   "hysteriaRejectQuic": "Истерия отвергает QUIC",
   "disableCoreDatabase": "Ядро не использует базу данных",
   "disableCoreDatabaseDesc": "Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.",
+  "bindToDefaultNic": "Привязка к сети по умолчанию",
+  "bindToDefaultNicDesc": "Привязать тесты узлов и API-трафик к сетевому интерфейсу по умолчанию. Отключите, если тесты узлов не работают. После изменения перезапустите приложение.",
   "databaseIssueTurnOnDisableCoreDatabase": "Если это повторится, включите «{option}» в разделе {settings} → {advanced}.",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -1226,5 +1228,53 @@
   "enterRealmCloudEncryptionPassword": "Введите пароль шифрования для облака",
   "realmDecryptPassword": "Пароль расшифровки",
   "realmDecryptPasswordDesc": "Введите пароль, переданный владельцем устройства, чтобы расшифровать Realm URL.",
-  "realmDecryptFailed": "Неверный пароль или недействительный зашифрованный Realm URL"
+  "realmDecryptFailed": "Неверный пароль или недействительный зашифрованный Realm URL",
+  "fileTransfer": "Передача файлов",
+  "fileTransferHomeHint": "Отправка и получение файлов через Realm",
+  "fileTransferReceive": "Получить",
+  "fileTransferSend": "Отправить",
+  "fileTransferReceiveHint": "Запустите Realm-слушатель. Файлы сохраняются автоматически. Адрес можно загрузить, чтобы другие ваши устройства могли его выбрать.",
+  "fileTransferSendHint": "Выберите синхронизированное устройство или вставьте Realm-адрес получателя, затем выберите файл. VPN не требуется.",
+  "fileTransferStartReceive": "Начать приём",
+  "fileTransferStopReceive": "Остановить приём",
+  "fileTransferSaveFolder": "Папка сохранения",
+  "fileTransferChooseFolder": "Изменить",
+  "fileTransferShareUrl": "Поделиться адресом",
+  "fileTransferRegenerateUrl": "Создать заново",
+  "fileTransferRegenerateUrlTitle": "Создать адрес заново",
+  "fileTransferRegenerateUrlDesc": "Выберите сервер Realm для адреса. Если приём уже идёт, он будет перезапущен.",
+  "fileTransferCustomRealmServer": "Свой сервер",
+  "fileTransferCustomRealmServerHint": "хост или хост:порт",
+  "fileTransferInvalidRealmServer": "Введите корректный сервер Realm",
+  "fileTransferPasteAddress": "Адрес Realm",
+  "fileTransferAddressHint": "hysteria2+realm://…",
+  "fileTransferPickFile": "Файл",
+  "fileTransferNoFileSelected": "Файл не выбран",
+  "fileTransferSendMissing": "Введите адрес Realm и выберите файл",
+  "fileTransferStarting": "Запуск…",
+  "fileTransferWaiting": "Ожидание отправителя…",
+  "fileTransferConnecting": "Подключение…",
+  "fileTransferTransferring": "Передача…",
+  "fileTransferCompleted": "Готово",
+  "fileTransferFailed": "Ошибка",
+  "fileTransferCancelled": "Отменено",
+  "fileTransferReceivedAs": "Сохранено в {path}",
+  "@fileTransferReceivedAs": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "fileTransferMinimize": "Свернуть",
+  "fileTransferYourDevices": "Ваши устройства",
+  "fileTransferRefreshDevices": "Обновить устройства",
+  "fileTransferNoSyncedDevices": "Другие устройства ещё не загрузили адрес передачи файлов. На том устройстве запустите приём и загрузите адрес.",
+  "fileTransferSignInToSyncDevices": "Войдите, чтобы загрузить адреса передачи файлов с других устройств.",
+  "fileTransferStartReceiveToUpload": "Сначала запустите приём, чтобы появился адрес для загрузки.",
+  "fileTransferUrlUploaded": "Адрес загружен. Другие устройства в аккаунте смогут выбрать его при отправке.",
+  "fileTransferUrlDeleted": "Адрес удалён из аккаунта.",
+  "fileTransferDeleteUrlConfirm": "Удалить адрес передачи файлов этого устройства из аккаунта? Другие устройства больше не увидят его.",
+  "fileTransferUploadUrlToCloud": "Загрузить URL в облако",
+  "fileTransferDeleteCloudUrl": "Удалить облачный URL"
 }

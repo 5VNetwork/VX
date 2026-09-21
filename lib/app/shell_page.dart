@@ -23,6 +23,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:path/path.dart' hide context;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vx/app/file_transfer/file_transfer_page.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/app/control.dart';
@@ -47,8 +48,19 @@ class ShellPage extends StatefulWidget {
   State<ShellPage> createState() => _ShellPageState();
 }
 
+enum _ShellLayout { superLarge, medium, compact }
+
+_ShellLayout _shellLayoutFor(Size size) {
+  if (size.isSuperLarge) return _ShellLayout.superLarge;
+  if (size.isMedium || size.isExpanded || size.isLarge) {
+    return _ShellLayout.medium;
+  }
+  return _ShellLayout.compact;
+}
+
 class _ShellPageState extends State<ShellPage> {
   NaviDestination? naviDestination;
+  _ShellLayout? _layout;
   Widget? cache;
 
   @override
@@ -137,236 +149,234 @@ class _ShellPageState extends State<ShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final layout = _shellLayoutFor(MediaQuery.sizeOf(context));
     final newNaviDestination = NaviDestination.fromPath(widget.state.fullPath);
-    if (cache != null && newNaviDestination == naviDestination) {
+    if (cache != null &&
+        newNaviDestination == naviDestination &&
+        layout == _layout) {
       return cache!;
     }
     naviDestination = newNaviDestination;
-    cache = LayoutBuilder(
-      builder: (ctx, c) {
-        if (c.isSuperLarge) {
-          Widget body = Row(
-            children: [
-              Container(
-                color: Theme.of(context).colorScheme.surface,
-                child: MyNavigationDrawer(
-                  naviDestination: naviDestination,
-                  showButton: true,
-                ),
+    _layout = layout;
+    cache = Stack(
+      children: [
+        Positioned.fill(child: _buildShell(context, layout)),
+        const FileTransferMiniBar(),
+      ],
+    );
+    return cache!;
+  }
+
+  Widget _buildShell(BuildContext context, _ShellLayout layout) {
+    if (layout == _ShellLayout.superLarge) {
+      Widget body = Row(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.surface,
+            child: MyNavigationDrawer(
+              naviDestination: naviDestination,
+              showButton: true,
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: widget.child,
+            ),
+          ),
+          const ControlDrawer(),
+        ],
+      );
+      if (Platform.isWindows || Platform.isLinux) {
+        body = Row(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.surface,
+              child: MyNavigationDrawer(
+                naviDestination: naviDestination,
+                showButton: true,
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: widget.child,
-                ),
-              ),
-              const ControlDrawer(),
-            ],
-          );
-          if (Platform.isWindows || Platform.isLinux) {
-            body = Row(
-              children: [
-                Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: MyNavigationDrawer(
-                    naviDestination: naviDestination,
-                    showButton: true,
-                  ),
-                ),
-                verticalDivider,
-                Expanded(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 48,
-                        child: MoveWindow(
-                          child: const Align(
-                            alignment: Alignment.centerRight,
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: WindowButtons(),
-                            ),
-                          ),
+            ),
+            verticalDivider,
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 48,
+                    child: MoveWindow(
+                      child: const Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: WindowButtons(),
                         ),
-                      ),
-                      divider,
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: widget.child,
-                              ),
-                            ),
-                            verticalDivider,
-                            const ControlDrawer(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }
-          return Scaffold(body: body);
-        } else if (c.isMedium || c.isExpanded || c.isLarge) {
-          if (Platform.isAndroid) {
-            return Scaffold(
-              endDrawer: const ControlDrawer(),
-              appBar: AppBar(
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 24.0),
-                  child: GlobalQuicActionMenuAnchor(
-                    child: Center(
-                      child: Image.asset(
-                        'assets/icons/V.png',
-                        width: 24,
-                        height: 24,
-                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
-                ),
-                actions: [
-                  if (widget.state.fullPath == '/home') const HomeEditButton(),
-
-                  Builder(
-                    builder: (context) {
-                      return IconButton(
-                        onPressed: () {
-                          Scaffold.of(context).openEndDrawer();
-                        },
-                        icon: const Icon(Icons.tune_rounded),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              body: Row(
-                children: [
-                  MyNavigationRail(naviDestination: naviDestination),
-                  Expanded(child: widget.child),
-                ],
-              ),
-            );
-          }
-          return Scaffold(
-            endDrawer: const ControlDrawer(),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  TopBar(isHomeRoute: widget.state.fullPath == '/home'),
+                  divider,
                   Expanded(
                     child: Row(
                       children: [
-                        MyNavigationRail(naviDestination: naviDestination),
-                        // VerticalDivider(),
-                        Expanded(child: widget.child),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: widget.child,
+                          ),
+                        ),
+                        verticalDivider,
+                        const ControlDrawer(),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        } else {
-          // compact
-          // Widget? title;
-          // bool showingAd = false;
-          // if (!isPro && (Platform.isAndroid || Platform.isIOS)) {
-          //   showingAd = true;
-          //   title = MyBannderAdWidget(adSize: AdSize.banner);
-          // }
-          Widget? leading;
-          if (Platform.isWindows || (!Platform.isMacOS)) {
-            leading = GlobalQuicActionMenuAnchor(
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
+          ],
+        );
+      }
+      return Scaffold(body: body);
+    }
+    if (layout == _ShellLayout.medium) {
+      if (Platform.isAndroid) {
+        return Scaffold(
+          endDrawer: const ControlDrawer(),
+          appBar: AppBar(
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 24.0),
+              child: GlobalQuicActionMenuAnchor(
+                child: Center(
                   child: Image.asset(
                     'assets/icons/V.png',
-                    width: 20,
-                    height: 20,
+                    width: 24,
+                    height: 24,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
-            );
-          }
-
-          return Scaffold(
-            // drawer: MyNavigationDrawer(naviDestination: naviDestination),
-            endDrawer: const ControlDrawer(),
-            appBar: Platform.isWindows
-                ? null
-                : AppBar(
-                    forceMaterialTransparency: true,
-                    leading: leading,
-                    actions: [
-                      if (widget.state.fullPath == '/home')
-                        const HomeEditButton(),
-                      IconButton(
-                        onPressed: () {
-                          context.push('/setting');
-                        },
-                        icon: const Icon(Icons.settings_rounded),
-                      ),
-                      if (Platform.isMacOS) const SyncButton(),
-                      Builder(
-                        builder: (context) {
-                          return IconButton(
-                            onPressed: () {
-                              Scaffold.of(context).openEndDrawer();
-                            },
-                            icon: const Icon(Icons.tune_rounded),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: naviDestination?.index ?? 0,
-              onDestinationSelected: (index) {
-                context.go(destination[index].path);
-              },
-              destinations: destination
-                  .sublist(0, destination.length - 1)
-                  .map(
-                    (e) => NavigationDestination(
-                      icon: e.outlinedIcon,
-                      selectedIcon: e.filledIcon,
-                      label: e.label(context),
-                    ),
-                  )
-                  .toList(),
             ),
-            floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (Platform.isAndroid) const SystemManagedVpnNotice(),
-                const StartCloseButton(
-                  size: StartCloseButtonSize.middle,
-                  floating: true,
+            actions: [
+              if (widget.state.fullPath == '/home') const HomeEditButton(),
+              Builder(
+                builder: (context) {
+                  return IconButton(
+                    onPressed: () {
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                    icon: const Icon(Icons.tune_rounded),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: Row(
+            children: [
+              MyNavigationRail(naviDestination: naviDestination),
+              Expanded(child: widget.child),
+            ],
+          ),
+        );
+      }
+      return Scaffold(
+        endDrawer: const ControlDrawer(),
+        body: SafeArea(
+          child: Column(
+            children: [
+              TopBar(isHomeRoute: widget.state.fullPath == '/home'),
+              Expanded(
+                child: Row(
+                  children: [
+                    MyNavigationRail(naviDestination: naviDestination),
+                    Expanded(child: widget.child),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget? leading;
+    if (Platform.isWindows || (!Platform.isMacOS)) {
+      leading = GlobalQuicActionMenuAnchor(
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: Image.asset(
+              'assets/icons/V.png',
+              width: 20,
+              height: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      endDrawer: const ControlDrawer(),
+      appBar: Platform.isWindows
+          ? null
+          : AppBar(
+              forceMaterialTransparency: true,
+              leading: leading,
+              actions: [
+                if (widget.state.fullPath == '/home') const HomeEditButton(),
+                IconButton(
+                  onPressed: () {
+                    context.push('/setting');
+                  },
+                  icon: const Icon(Icons.settings_rounded),
+                ),
+                if (Platform.isMacOS) const SyncButton(),
+                Builder(
+                  builder: (context) {
+                    return IconButton(
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                      icon: const Icon(Icons.tune_rounded),
+                    );
+                  },
                 ),
               ],
             ),
-            body: Platform.isWindows
-                ? Column(
-                    children: [
-                      TopBar(isHomeRoute: widget.state.fullPath == '/home'),
-                      Expanded(child: widget.child),
-                    ],
-                  )
-                : widget.child,
-          );
-        }
-      },
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: naviDestination?.index ?? 0,
+        onDestinationSelected: (index) {
+          context.go(destination[index].path);
+        },
+        destinations: destination
+            .sublist(0, destination.length - 1)
+            .map(
+              (e) => NavigationDestination(
+                icon: e.outlinedIcon,
+                selectedIcon: e.filledIcon,
+                label: e.label(context),
+              ),
+            )
+            .toList(),
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (Platform.isAndroid) const SystemManagedVpnNotice(),
+          const StartCloseButton(
+            size: StartCloseButtonSize.middle,
+            floating: true,
+          ),
+        ],
+      ),
+      body: Platform.isWindows
+          ? Column(
+              children: [
+                TopBar(isHomeRoute: widget.state.fullPath == '/home'),
+                Expanded(child: widget.child),
+              ],
+            )
+          : widget.child,
     );
-    return cache!;
   }
 }

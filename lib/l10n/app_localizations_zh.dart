@@ -1836,6 +1836,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get disableCoreDatabaseDesc => '核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项';
 
   @override
+  String get bindToDefaultNic => '绑定默认网卡';
+
+  @override
+  String get bindToDefaultNicDesc => '将节点测试和 API 流量绑定到默认网络接口。如果遇到节点测试全部失败的问题，请关闭此选项。更改后需重启应用。';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return '如果再次出现此问题，请在「$settings → $advanced」中开启「$option」。';
   }
@@ -2986,4 +2992,129 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get realmDecryptFailed => '密码错误或加密 Realm URL 无效';
+
+  @override
+  String get fileTransfer => '闪电文件直传';
+
+  @override
+  String get fileTransferHomeHint => '通过 Realm 发送或接收文件';
+
+  @override
+  String get fileTransferReceive => '接收';
+
+  @override
+  String get fileTransferSend => '发送';
+
+  @override
+  String get fileTransferReceiveHint => '点击“开始接受”以开始接收文件。收到的文件会自动保存。传输结束后，请点击“停止接收”。';
+
+  @override
+  String get fileTransferSendHint => '选择已同步的设备，或粘贴接收方的 Realm 地址，然后选择文件。';
+
+  @override
+  String get fileTransferStartReceive => '开始接收';
+
+  @override
+  String get fileTransferStopReceive => '停止接收';
+
+  @override
+  String get fileTransferSaveFolder => '保存文件夹';
+
+  @override
+  String get fileTransferChooseFolder => '更改';
+
+  @override
+  String get fileTransferShareUrl => '分享此地址';
+
+  @override
+  String get fileTransferRegenerateUrl => '重新生成';
+
+  @override
+  String get fileTransferRegenerateUrlTitle => '重新生成地址';
+
+  @override
+  String get fileTransferRegenerateUrlDesc => '选择分享地址使用的 Realm 服务器。如果正在接收，将会重新开始。';
+
+  @override
+  String get fileTransferCustomRealmServer => '自定义服务器';
+
+  @override
+  String get fileTransferCustomRealmServerHint => '主机名或 主机:端口';
+
+  @override
+  String get fileTransferInvalidRealmServer => '请输入有效的 Realm 服务器';
+
+  @override
+  String get fileTransferPasteAddress => 'Realm 地址';
+
+  @override
+  String get fileTransferAddressHint => 'hysteria2+realm://…';
+
+  @override
+  String get fileTransferPickFile => '文件';
+
+  @override
+  String get fileTransferNoFileSelected => '未选择文件';
+
+  @override
+  String get fileTransferSendMissing => '请输入 Realm 地址并选择文件';
+
+  @override
+  String get fileTransferStarting => '正在启动…';
+
+  @override
+  String get fileTransferWaiting => '等待发送方…';
+
+  @override
+  String get fileTransferConnecting => '正在连接…';
+
+  @override
+  String get fileTransferTransferring => '正在传输…';
+
+  @override
+  String get fileTransferCompleted => '已完成';
+
+  @override
+  String get fileTransferFailed => '失败';
+
+  @override
+  String get fileTransferCancelled => '已取消';
+
+  @override
+  String fileTransferReceivedAs(String path) {
+    return '已保存到 $path';
+  }
+
+  @override
+  String get fileTransferMinimize => '最小化';
+
+  @override
+  String get fileTransferYourDevices => '你的设备';
+
+  @override
+  String get fileTransferRefreshDevices => '刷新设备';
+
+  @override
+  String get fileTransferNoSyncedDevices => '还没有其他设备上传文件传输地址。请在那台设备上开始接收并上传地址。';
+
+  @override
+  String get fileTransferSignInToSyncDevices => '登录后即可从其他设备同步文件传输地址。';
+
+  @override
+  String get fileTransferStartReceiveToUpload => '请先开始接收，再上传地址。';
+
+  @override
+  String get fileTransferUrlUploaded => '地址已上传。其他已登录设备发送时可选择它。';
+
+  @override
+  String get fileTransferUrlDeleted => '已从账户中删除该地址。';
+
+  @override
+  String get fileTransferDeleteUrlConfirm => '从账户中移除此设备的文件传输地址？其他设备将无法再看到它。';
+
+  @override
+  String get fileTransferUploadUrlToCloud => '上传地址到云端';
+
+  @override
+  String get fileTransferDeleteCloudUrl => '删除云端地址';
 }
