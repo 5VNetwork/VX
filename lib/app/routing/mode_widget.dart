@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide RouterConfig;
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tm/protos/vx/common/net/net.pb.dart';
 import 'package:tm/protos/vx/dns/dns.pb.dart';
 import 'package:vx/app/layout_provider.dart';
 import 'package:vx/app/log/log_page.dart';
@@ -703,25 +704,57 @@ const ruleNameRuBlockProxyIp = 'RU-Block模式代理IP';
 const ruleNameRuBlockAllProxyDomain = 'RU-Block(All)模式代理域名';
 const ruleNameRuBlockAllProxyIp = 'RU-Block(All)模式代理IP';
 
+String _formatPortRange(PortRange range) {
+  if (range.from == range.to) {
+    return '${range.from}';
+  }
+  return '${range.from}-${range.to}';
+}
+
+String _networkLabel(Network network) {
+  if (network == Network.TCP) {
+    return 'TCP';
+  }
+  if (network == Network.UDP) {
+    return 'UDP';
+  }
+  return network.name.isEmpty ? network.value.toString() : network.name;
+}
+
 extension ConditionExtension on Condition {
   List<Widget> conditionChildren(BuildContext context) {
     final ret = <Widget>[];
+    final l10n = AppLocalizations.of(context)!;
+    final style = Theme.of(context).textTheme.labelSmall;
 
-    if (inboundTags.isNotEmpty) {
+    void addText(String text) {
+      ret.add(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(text, style: style),
+          ),
+        ),
+      );
+    }
+
+    void addLabeled(String label, Iterable<String> values) {
+      final items = values.where((e) => e.isNotEmpty).toList();
+      if (items.isEmpty) {
+        return;
+      }
       ret.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Text(
-                '${AppLocalizations.of(context)!.inbound}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
+              Text('$label:', style: style),
               const Gap(5),
-              ...inboundTags.indexed.map(
+              ...items.indexed.map(
                 (e) => Text(
-                  '${e.$2}${e.$1 == inboundTags.length - 1 ? '' : ', '}',
-                  style: Theme.of(context).textTheme.labelSmall,
+                  '${e.$2}${e.$1 == items.length - 1 ? '' : ', '}',
+                  style: style,
                 ),
               ),
             ],
@@ -729,154 +762,55 @@ extension ConditionExtension on Condition {
         ),
       );
     }
+
+    addLabeled(l10n.inbound, inboundTags);
     if (fakeIp) {
-      ret.add(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Fake IP',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        ),
-      );
+      addText('Fake IP');
     }
     if (hasNoDomain) {
-      ret.add(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              AppLocalizations.of(context)!.hasNoDomain,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        ),
-      );
+      addText(l10n.hasNoDomain);
     }
-    if (domainTags.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.domainSet}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...domainTags.map(
-                (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
-              ),
-            ],
-          ),
-        ),
-      );
+    if (ipv6) {
+      addText('IPv6');
     }
-    if (geoDomains.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.domain}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...geoDomains.map(
-                (e) => Text(
-                  '(${e.type.toLocalString(context)})${e.value} ',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+    addLabeled(l10n.network, networks.map(_networkLabel));
+    addLabeled(l10n.domainSet, domainTags);
+    addLabeled(
+      l10n.domain,
+      geoDomains.map((e) => '(${e.type.toLocalString(context)})${e.value}'),
+    );
+    if (skipSniff) {
+      addText(l10n.skipSniff);
     }
-    if (appTags.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.appSet}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...appTags.map(
-                (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
-              ),
-            ],
-          ),
-        ),
-      );
+    addLabeled(l10n.appSet, appTags);
+    addLabeled(
+      l10n.app,
+      appIds.map((e) => '(${e.type.toLocalString(context)})${e.value}'),
+    );
+    addLabeled('${l10n.destination} IP', dstCidrs);
+    addLabeled(l10n.dstIpSet, dstIpTags);
+    if (resolveDomain) {
+      addText(l10n.resolveDomain);
     }
-    if (appIds.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.app}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...appIds.map(
-                (e) => Text(
-                  '(${e.type.toLocalString(context)})${e.value}',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+    if (resolveSoftRewrite) {
+      addText('Resolve domain (soft, rewrite)');
     }
-    if (dstIpTags.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.dstIpSet}:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...dstIpTags.map(
-                (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
-              ),
-            ],
-          ),
-        ),
-      );
+    if (resolveSoftNoRewrite) {
+      addText('Resolve domain (soft, no rewrite)');
     }
-    if (allTags.isNotEmpty) {
-      ret.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.domain}/IP:',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const Gap(5),
-              ...allTags.map(
-                (e) => Text(e, style: Theme.of(context).textTheme.labelSmall),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    addLabeled('${l10n.source} IP', srcCidrs);
+    addLabeled('${l10n.source} ${l10n.ipSet}', srcIpTags);
+    addLabeled('${l10n.domain}/IP', allTags);
+    addLabeled(
+      '${l10n.source} ${l10n.port}',
+      srcPortRanges.map(_formatPortRange),
+    );
+    addLabeled(
+      '${l10n.destination} ${l10n.port}',
+      dstPortRanges.map(_formatPortRange),
+    );
+    addLabeled(l10n.protocol, protocols);
+    addLabeled('User', usernames);
     return ret;
   }
 }
@@ -897,8 +831,21 @@ extension RuleConfigExtension on RuleConfig {
         geoDomains: geoDomains,
         appTags: appTags,
         appIds: appIds,
+        dstCidrs: dstCidrs,
         dstIpTags: dstIpTags,
         allTags: allTags,
+        networks: networks,
+        skipSniff: skipSniff,
+        resolveDomain: resolveDomain,
+        resolveSoftRewrite: resolveSoftRewrite,
+        resolveSoftNoRewrite: resolveSoftNoRewrite,
+        srcCidrs: srcCidrs,
+        srcIpTags: srcIpTags,
+        srcPortRanges: srcPortRanges,
+        dstPortRanges: dstPortRanges,
+        usernames: usernames,
+        protocols: protocols,
+        ipv6: ipv6,
       ),
     ];
   }
@@ -966,21 +913,22 @@ extension RuleConfigExtension on RuleConfig {
       );
     } else {
       final conditions = _displayConditions;
-      if (conditions.length > 1) {
-        ret.add(
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                l10n.conditionsCount(conditions.length),
-                style: Theme.of(context).textTheme.labelSmall,
+      for (var i = 0; i < conditions.length; i++) {
+        if (conditions.length > 1) {
+          ret.add(
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '${l10n.condition} ${i + 1}',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
               ),
             ),
-          ),
-        );
-      } else if (conditions.isNotEmpty) {
-        ret.addAll(conditions.first.conditionChildren(context));
+          );
+        }
+        ret.addAll(conditions[i].conditionChildren(context));
       }
     }
     if (fallbacks.isNotEmpty) {
