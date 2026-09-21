@@ -1212,6 +1212,7 @@ class XController implements MessageFlutterApi {
             ChangeRoutingModeRequest(
               geoConfig: config.geo,
               routerConfig: config.router,
+              dnsConfig: config.dns,
             ),
           );
         } catch (e) {
