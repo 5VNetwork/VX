@@ -38,8 +38,18 @@ import 'package:vx/app/navigation.dart';
 import 'package:vx/common/common.dart';
 
 class GlobalQuicActionMenuAnchor extends StatelessWidget {
-  const GlobalQuicActionMenuAnchor({super.key, required this.child});
-  final Widget child;
+  const GlobalQuicActionMenuAnchor({super.key, required this.child})
+    : _icon = null;
+
+  const GlobalQuicActionMenuAnchor.iconButton({
+    super.key,
+    IconData icon = Icons.more_vert,
+  }) : child = null,
+       _icon = icon;
+
+  final Widget? child;
+  final IconData? _icon;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -50,6 +60,7 @@ class GlobalQuicActionMenuAnchor extends StatelessWidget {
         : transfer.isReceiveTransferring
         ? l10n.fileTransferTransferring
         : l10n.fileTransferWaiting;
+    final tooltip = receiveSubtitle ?? l10n.fileTransfer;
     return MenuAnchor(
       menuChildren: [
         MenuItemButton(
@@ -80,9 +91,28 @@ class GlobalQuicActionMenuAnchor extends StatelessWidget {
           },
         ),
       ],
-      builder: (context, c, child) {
+      builder: (context, controller, menuChild) {
+        final badge = Badge(
+          alignment: const Alignment(1.5, -1.2),
+          isLabelVisible: receiving,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          child: menuChild ?? Icon(_icon ?? Icons.more_vert),
+        );
+        if (_icon != null) {
+          return IconButton(
+            tooltip: tooltip,
+            onPressed: () {
+              if (controller.isOpen) {
+                controller.close();
+              } else {
+                controller.open();
+              }
+            },
+            icon: badge,
+          );
+        }
         return Tooltip(
-          message: receiveSubtitle ?? l10n.fileTransfer,
+          message: tooltip,
           waitDuration: const Duration(milliseconds: 400),
           child: Container(
             width: 80,
@@ -96,18 +126,11 @@ class GlobalQuicActionMenuAnchor extends StatelessWidget {
               ).colorScheme.onSurface.withValues(alpha: 0.08),
               onTapDown: (_) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (c.isOpen) return;
-                  c.open();
+                  if (controller.isOpen) return;
+                  controller.open();
                 });
               },
-              child: Center(
-                child: Badge(
-                  alignment: Alignment(1.5, -1.2),
-                  isLabelVisible: receiving,
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  child: child,
-                ),
-              ),
+              child: Center(child: badge),
             ),
           ),
         );
@@ -152,6 +175,10 @@ class TopBar extends StatelessWidget {
                 },
                 icon: const Icon(Icons.upload),
               ),
+            if (Platform.isMacOS) Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: const GlobalQuicActionMenuAnchor.iconButton(),
+            ),
             IconButton(
               onPressed: () {
                 Scaffold.of(context).openEndDrawer();

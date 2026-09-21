@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vx/app/start_close_button.dart';
+import 'package:vx/app/top_bar.dart';
 import 'package:vx/auth/auth_bloc.dart';
 import 'package:vx/data/sync.dart';
 import 'package:vx/l10n/app_localizations.dart';
@@ -177,8 +178,6 @@ class _MyNavigationRailState extends State<MyNavigationRail> {
                 ),
               ],
             )
-          : Platform.isMacOS
-          ? const SyncButton()
           : null,
       leading: _leading,
       backgroundColor: Theme.of(context).colorScheme.surface,
