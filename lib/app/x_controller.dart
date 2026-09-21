@@ -1204,8 +1204,7 @@ class XController implements MessageFlutterApi {
   ) async {
     await waitForConnectedIfConnecting();
     if (Tm.instance.state == TmStatus.connected) {
-      if (oldRouteMode is DefaultRouteMode &&
-          newRouteMode is DefaultRouteMode) {
+      if (true) {
         try {
           final config = await _getTmConfig();
           final client = await getXClient();
