@@ -105,11 +105,6 @@ class AppDatabase extends _$AppDatabase {
       // for your app.
       final file = File(path);
 
-      // Also work around limitations on old Android versions
-      if (Platform.isAndroid) {
-        await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-      }
-
       try {
         // Make sqlite3 pick a more suitable location for temporary files - the
         // one from the system may be inaccessible due to sandboxing.
@@ -281,7 +276,9 @@ class AppDatabase extends _$AppDatabase {
       // runs after migration
       beforeOpen: (details) async {
         try {
-          await customStatement('PRAGMA journal_mode = WAL');
+          if (!Platform.isAndroid) {
+            await customStatement('PRAGMA journal_mode = WAL');
+          }
         } catch (e) {
           reportError("beforeOpen journal_mode setup", e);
         }
