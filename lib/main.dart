@@ -667,7 +667,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       if (databaseRecoveryMessage != null) {
         fatalMessageDialog(
           _withAndroidDisableCoreDatabaseHint(
-            context,
+            rootNavigationKey.currentContext!,
             databaseRecoveryMessage!,
             isDatabaseIssue: true,
           ),
