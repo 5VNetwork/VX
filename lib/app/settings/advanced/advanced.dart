@@ -127,6 +127,8 @@ class AdvancedScreen extends StatelessWidget {
             if (Platform.isAndroid) ...[
               const Divider(),
               const DisableCoreDatabaseSetting(),
+              const Divider(),
+              const BindToDefaultNicSetting(),
             ],
             const Divider(),
             const DialerSetting(),
@@ -750,6 +752,65 @@ class _DisableCoreDatabaseSettingState
           const Gap(5),
           Text(
             AppLocalizations.of(context)!.disableCoreDatabaseDesc,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Android only: bind API dials to the default NIC for node tests, etc.
+class BindToDefaultNicSetting extends StatefulWidget {
+  const BindToDefaultNicSetting({super.key});
+
+  @override
+  State<BindToDefaultNicSetting> createState() =>
+      _BindToDefaultNicSettingState();
+}
+
+class _BindToDefaultNicSettingState extends State<BindToDefaultNicSetting> {
+  bool _bindToDefaultNic = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _bindToDefaultNic = context.read<SharedPreferences>().bindToDefaultNic;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.bindToDefaultNic,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              const Gap(10),
+              Switch(
+                value: _bindToDefaultNic,
+                onChanged: (value) {
+                  context.read<SharedPreferences>().setBindToDefaultNic(value);
+                  setState(() {
+                    _bindToDefaultNic = value;
+                  });
+                },
+              ),
+            ],
+          ),
+          const Gap(5),
+          Text(
+            AppLocalizations.of(context)!.bindToDefaultNicDesc,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

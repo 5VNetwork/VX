@@ -895,6 +895,16 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('disableCoreDatabase', disable);
   }
 
+  /// Android only: bind API dials to the default NIC.
+  /// Some devices fail node tests when this is enabled; default is true.
+  bool get bindToDefaultNic {
+    return getBool('bindToDefaultNic') ?? true;
+  }
+
+  void setBindToDefaultNic(bool enable) {
+    setBool('bindToDefaultNic', enable);
+  }
+
   String get coreRemoteDbSecret {
     return getString('coreRemoteDbSecret') ?? '';
   }

@@ -114,8 +114,9 @@ class XApiClient {
           logConfig: logConfig,
           // dbPath: await getDbPath(_pref),
           listenAddr: listenAddress,
-          bindToDefaultNic:
-              (Platform.isIOS || Platform.isMacOS || Platform.isLinux),
+          bindToDefaultNic: Platform.isAndroid
+              ? _pref.bindToDefaultNic
+              : (Platform.isIOS || Platform.isMacOS || Platform.isLinux),
           tunName: Platform.isIOS || Platform.isMacOS
               ? "utun"
               : XConfigHelper.tunName,
