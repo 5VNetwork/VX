@@ -718,6 +718,9 @@ String _networkLabel(Network network) {
   if (network == Network.UDP) {
     return 'UDP';
   }
+  if (network == Network.ICMP) {
+    return 'ICMP';
+  }
   return network.name.isEmpty ? network.value.toString() : network.name;
 }
 

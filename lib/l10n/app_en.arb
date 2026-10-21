@@ -802,6 +802,12 @@
   "disableCoreDatabaseDesc": "Core does not share database with UI. Turn this on if database corruption happens.",
   "bindToDefaultNic": "Bind to default network",
   "bindToDefaultNicDesc": "Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.",
+  "androidSplitTunnel": "App split tunnel",
+  "androidSplitTunnelDesc": "",
+  "androidSplitTunnelBlacklistDirect": "Direct apps → blacklist",
+  "androidSplitTunnelBlacklistDirectDesc": "Apps in the Direct app set bypass VX.",
+  "androidSplitTunnelWhitelistProxy": "Proxy apps → whitelist",
+  "androidSplitTunnelWhitelistProxyDesc": "Only apps in the Proxy app set go through VX.",
   "databaseIssueTurnOnDisableCoreDatabase": "If this happens again, turn on \"{option}\" under {settings} → {advanced}.",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -883,7 +889,7 @@
   "internalDnsDesc": "Internal DNS servers are mainly used to resolve domains when outbounds are dialing. They will be used from left to right until one of them succeeds.",
   "nodeSetDesc": "There is a small domain set named \"__node__\" which contains domains and SNIs of all nodes. There is also a small IP set named \"__node__\" which contains IPs of all nodes.",
   "dnsNameDesc": "A DNS server's name can be referenced in the inbound condition to specify which node it uses.",
-  "directAppSetDesc": "On Android, applications in the direct app set will not go through VX (Split Tunnel)",
+  "directAppSetDesc": "On Android, choose under Advanced whether Direct apps are blacklisted (bypass VX) or Proxy apps are whitelisted (only they use VX)",
   "deleteDebugLogs": "Delete Debug Logs",
   "conditionDesc": "When a connection does not have IP info, IP condition will be false and the rule will not match. Similarly, when a connection does not have domain info, domain condition will be false and the rule will not match.",
   "lookupEch": "Lookup ECH",

@@ -119,11 +119,18 @@ class LogBloc extends Bloc<LogEvent, LogState> {
   final SharedPreferences _pref;
   final Tm _tm = Tm.instance;
   ResponseStream<UserLogMessage>? _logStream;
+  StreamSubscription<UserLogMessage>? _logSubscription;
+  bool _subscribeInFlight = false;
+  bool _subscribeErrorNotified = false;
+  Timer? _subscribeRetryTimer;
   // all collected logs, not logs being shown. Logsbeing shown are subset of _logs.
   late final CircularBuffer<XLog> _logs;
   final LruCache<String, Uint8List> _appIconCache = LruCache(1000);
   late final OutboundRepo _outboundRepo;
   final XController _xController;
+  DateTime? _lastRealtimeUsageEmit;
+  static const _realtimeUsageEmitInterval = Duration(milliseconds: 250);
+  static const _subscribeRetryDelay = Duration(seconds: 1);
 
   @override
   void onTransition(Transition<LogEvent, LogState> transition) {
@@ -148,12 +155,14 @@ class LogBloc extends Bloc<LogEvent, LogState> {
             if (state.enableLog) {
               _subscribe();
             }
+            break;
           case TmStatus.disconnecting:
-            _disconnectLogStream();
           case TmStatus.disconnected:
             _disconnectLogStream();
+            break;
           case TmStatus.reconnecting:
           case TmStatus.unknown:
+            // Keep the stream across reconnect; resubscribe on connected if it died.
             return state;
         }
         final newLog = XStatusLog(
@@ -238,36 +247,84 @@ class LogBloc extends Bloc<LogEvent, LogState> {
     return null;
   }
 
-  Future<void> _subscribe() async {
-    logger.d('subscribing to log stream');
-    try {
-      _logStream ??= await _xController.userLogStream();
-    } catch (e) {
-      logger.e('subscribe error: $e');
-      snack(e.toString());
+  bool get _shouldHaveLogStream =>
+      _tm.state == TmStatus.connected && _pref.enableLog;
+
+  void _scheduleSubscribeRetry() {
+    _subscribeRetryTimer?.cancel();
+    if (!_shouldHaveLogStream || isClosed) {
       return;
     }
-    logger.d('log stream connected');
-    _logStream!.listen(
-      (l) {
-        add(_NewLogEvent(l));
-      },
-      onDone: () {
-        _disconnectLogStream();
-        logger.d('log stream done');
-      },
-      onError: (e) async {
-        if (e is GrpcError && e.code == StatusCode.cancelled) {
-          return;
+    _subscribeRetryTimer = Timer(_subscribeRetryDelay, () {
+      _subscribeRetryTimer = null;
+      if (_shouldHaveLogStream && !isClosed) {
+        _subscribe();
+      }
+    });
+  }
+
+  Future<void> _subscribe() async {
+    if (_logSubscription != null || _subscribeInFlight || isClosed) {
+      return;
+    }
+    if (!_shouldHaveLogStream) {
+      return;
+    }
+    _subscribeRetryTimer?.cancel();
+    _subscribeRetryTimer = null;
+    _subscribeInFlight = true;
+    try {
+      logger.d('subscribing to log stream');
+      try {
+        _logStream ??= await _xController.userLogStream();
+      } catch (e) {
+        logger.e('subscribe error: $e');
+        if (!_subscribeErrorNotified) {
+          _subscribeErrorNotified = true;
+          snack(e.toString());
         }
-        logger.e('log stream error: $e');
-        _disconnectLogStream();
-        await Future.delayed(const Duration(seconds: 1));
-        if (_tm.state == TmStatus.connected && _pref.enableLog) {
-          _subscribe();
-        }
-      },
-    );
+        // Still connected with logging on — keep trying.
+        _scheduleSubscribeRetry();
+        return;
+      }
+      if (!_shouldHaveLogStream || isClosed) {
+        _logStream?.cancel();
+        _logStream = null;
+        return;
+      }
+      final stream = _logStream;
+      if (_logSubscription != null || stream == null) {
+        return;
+      }
+      logger.d('log stream connected');
+      _subscribeErrorNotified = false;
+      _logSubscription = stream.listen(
+        (l) {
+          add(_NewLogEvent(l));
+        },
+        onDone: () {
+          logger.d('log stream done');
+          _clearLogStream();
+          // Stream ended while still connected — resubscribe.
+          _scheduleSubscribeRetry();
+        },
+        onError: (e) {
+          if (e is GrpcError && e.code == StatusCode.cancelled) {
+            _clearLogStream();
+            return;
+          }
+          logger.e('log stream error: $e');
+          _clearLogStream();
+          _scheduleSubscribeRetry();
+        },
+      );
+    } finally {
+      _subscribeInFlight = false;
+      // If listen never attached (race/disconnect) but we still need a stream.
+      if (_logSubscription == null && _shouldHaveLogStream && !isClosed) {
+        _scheduleSubscribeRetry();
+      }
+    }
   }
 
   Future<void> _onLogEvent(_NewLogEvent event, Emitter<LogState> emit) async {
@@ -325,6 +382,13 @@ class LogBloc extends Bloc<LogEvent, LogState> {
             );
             _logs[indexUsage] = updated;
             if (state.showRealtimeUsage) {
+              final now = DateTime.now();
+              final last = _lastRealtimeUsageEmit;
+              if (last != null &&
+                  now.difference(last) < _realtimeUsageEmitInterval) {
+                return;
+              }
+              _lastRealtimeUsageEmit = now;
               if (state.filter.showAll()) {
                 emit(state.copyWith(logs: _logs));
               } else {
@@ -528,9 +592,18 @@ class LogBloc extends Bloc<LogEvent, LogState> {
     _onFilterChanged(state.filter.copyWith(substring: event.substring), emit);
   }
 
-  void _disconnectLogStream() async {
+  void _clearLogStream() {
+    _logSubscription?.cancel();
+    _logSubscription = null;
     _logStream?.cancel();
     _logStream = null;
+  }
+
+  /// Intentional teardown (disconnect / logging off / bloc close). No retry.
+  void _disconnectLogStream() {
+    _subscribeRetryTimer?.cancel();
+    _subscribeRetryTimer = null;
+    _clearLogStream();
   }
 
   void _onLogSwitchPressedEvent(
@@ -548,6 +621,12 @@ class LogBloc extends Bloc<LogEvent, LogState> {
         await _xController.resetUserLogging(false, false, false, false);
       }
     }
+  }
+
+  @override
+  Future<void> close() {
+    _disconnectLogStream();
+    return super.close();
   }
 }
 

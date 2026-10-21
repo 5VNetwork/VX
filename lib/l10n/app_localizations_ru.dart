@@ -1892,6 +1892,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bindToDefaultNicDesc => 'Привязать тесты узлов и API-трафик к сетевому интерфейсу по умолчанию. Отключите, если тесты узлов не работают. После изменения перезапустите приложение.';
 
   @override
+  String get androidSplitTunnel => 'Раздельное туннелирование приложений';
+
+  @override
+  String get androidSplitTunnelDesc => 'Как наборы приложений маршрутизации сопоставляются с чёрным/белым списком VPN Android при включённом TUN.';
+
+  @override
+  String get androidSplitTunnelBlacklistDirect => 'Прямые приложения → чёрный список';
+
+  @override
+  String get androidSplitTunnelBlacklistDirectDesc => 'Приложения из набора Direct обходят VX.';
+
+  @override
+  String get androidSplitTunnelWhitelistProxy => 'Прокси-приложения → белый список';
+
+  @override
+  String get androidSplitTunnelWhitelistProxyDesc => 'Только приложения из набора Proxy проходят через VX.';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return 'Если это повторится, включите «$option» в разделе $settings → $advanced.';
   }
@@ -2079,7 +2097,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dnsNameDesc => 'A DNS server\'s name can be referenced in the inbound condition to specify which node it uses.';
 
   @override
-  String get directAppSetDesc => 'On Android, applications in the direct app set will not go through VX (Split Tunnel)';
+  String get directAppSetDesc => 'On Android, choose under Advanced whether Direct apps are blacklisted (bypass VX) or Proxy apps are whitelisted (only they use VX)';
 
   @override
   String get deleteDebugLogs => 'Delete Debug Logs';

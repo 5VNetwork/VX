@@ -707,6 +707,17 @@ class _RouteConditionEditorState extends State<_RouteConditionEditor> {
                       _onChanged();
                     },
                   ),
+                  const Gap(10),
+                  FilterChip(
+                    label: const Text('ICMP'),
+                    selected: condition.networks.contains(Network.ICMP),
+                    onSelected: (value) {
+                      value
+                          ? condition.networks.add(Network.ICMP)
+                          : condition.networks.remove(Network.ICMP);
+                      _onChanged();
+                    },
+                  ),
                 ],
               ),
               const Gap(10),

@@ -937,6 +937,10 @@ class XController implements MessageFlutterApi {
   StreamSubscription<List<GreatIpSet>>? _greatIpSetsSub;
 
   void _listenGeoRoute() async {
+    // Reconnect can fire connected again without a disconnected event;
+    // cancel existing watchers first to avoid stacking listeners.
+    _cancelListenGeoRoute();
+
     void updateGeo() async {
       try {
         final config = await _getTmConfig();

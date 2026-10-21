@@ -35,7 +35,6 @@ class InboundCubit extends Cubit<InboundMode> {
     } catch (e) {
       logger.e('changeInboundMode error', error: e);
       snack(rootLocalizations()?.failedToChangeInboundMode);
-      // await reportError(e, StackTrace.current);
     }
   }
 }

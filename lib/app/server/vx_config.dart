@@ -83,7 +83,6 @@ class _Config extends StatelessWidget {
     return BlocBuilder<VXBloc, VXState>(
       buildWhen: (previous, current) {
         if (previous is VXInstalledState && current is VXInstalledState) {
-          print(previous.config != current.config);
           return previous.config != current.config;
         }
         return false;

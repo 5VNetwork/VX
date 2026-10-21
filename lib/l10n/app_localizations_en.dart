@@ -1892,6 +1892,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bindToDefaultNicDesc => 'Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.';
 
   @override
+  String get androidSplitTunnel => 'App split tunnel';
+
+  @override
+  String get androidSplitTunnelDesc => '';
+
+  @override
+  String get androidSplitTunnelBlacklistDirect => 'Direct apps → blacklist';
+
+  @override
+  String get androidSplitTunnelBlacklistDirectDesc => 'Apps in the Direct app set bypass VX.';
+
+  @override
+  String get androidSplitTunnelWhitelistProxy => 'Proxy apps → whitelist';
+
+  @override
+  String get androidSplitTunnelWhitelistProxyDesc => 'Only apps in the Proxy app set go through VX.';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return 'If this happens again, turn on \"$option\" under $settings → $advanced.';
   }
@@ -2079,7 +2097,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dnsNameDesc => 'A DNS server\'s name can be referenced in the inbound condition to specify which node it uses.';
 
   @override
-  String get directAppSetDesc => 'On Android, applications in the direct app set will not go through VX (Split Tunnel)';
+  String get directAppSetDesc => 'On Android, choose under Advanced whether Direct apps are blacklisted (bypass VX) or Proxy apps are whitelisted (only they use VX)';
 
   @override
   String get deleteDebugLogs => 'Delete Debug Logs';

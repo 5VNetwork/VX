@@ -91,8 +91,15 @@ class _SelectorsWidgetState extends State<SelectorsWidget> {
     _selectorSubscription = Provider.of<SelectorRepo>(context, listen: true)
         .getSelectorsStream()
         .listen((values) {
+          if (!mounted) return;
           setState(() {
-            _configs = values;
+            // Keep existing SelectorConfig instances so in-flight edits and the
+            // per-widget write queue are not orphaned by stream reloads (which
+            // would otherwise let a stale whole-blob write wipe newer fields).
+            final existingByTag = {for (final c in _configs) c.tag: c};
+            _configs = [
+              for (final fresh in values) existingByTag[fresh.tag] ?? fresh,
+            ];
           });
         });
   }
@@ -312,10 +319,30 @@ class _SelectorConfigWidgetState extends State<SelectorConfigWidget>
     with AutomaticKeepAliveClientMixin<SelectorConfigWidget> {
   late final SelectorRepo _repo;
 
-  /// To delete deleted handlers from the selector
+  /// Serializes whole-config blob writes so concurrent edits cannot overwrite
+  /// each other (last-write-wins with a stale deepCopy).
+  Future<void> _writeQueue = Future.value();
+
+  Future<void> _persistConfig() {
+    final done = Completer<void>();
+    _writeQueue = _writeQueue
+        .catchError((_) {})
+        .then((_) async {
+          try {
+            await _repo.updateSelector(widget.config);
+            if (!done.isCompleted) done.complete();
+          } catch (e, st) {
+            if (!done.isCompleted) done.completeError(e, st);
+          }
+        });
+    return done.future;
+  }
+
+  /// Remove selector↔handler relations for handlers that no longer exist.
   void _checkDeletedHandlerIds() async {
     final outboundRepo = context.read<OutboundRepo>();
-    for (var handlerId in widget.config.filter.handlerIds) {
+    final ids = List<Int64>.from(widget.config.filter.handlerIds);
+    for (final handlerId in ids) {
       final handler = await outboundRepo.getHandlerById(handlerId.toInt());
       if (handler == null) {
         await _repo.removeHandlerFromSelector(
@@ -323,7 +350,7 @@ class _SelectorConfigWidgetState extends State<SelectorConfigWidget>
           handlerId.toInt(),
         );
         widget.config.filter.handlerIds.remove(handlerId);
-        setState(() {});
+        if (mounted) setState(() {});
       }
     }
   }
@@ -339,48 +366,67 @@ class _SelectorConfigWidgetState extends State<SelectorConfigWidget>
   bool get wantKeepAlive => true;
 
   void _onAllChange(bool value) async {
-    final config = widget.config;
-    final copy = widget.config.deepCopy();
-    copy.filter.all = value;
-    await _repo.updateSelector(copy);
-    setState(() {
-      config.filter.all = value;
-    });
-    widget.onFilterChange();
+    widget.config.filter.all = value;
+    try {
+      await _persistConfig();
+      if (mounted) setState(() {});
+      widget.onFilterChange();
+    } catch (e) {
+      logger.e('Error updating selector all flag', error: e);
+      snack(e.toString());
+    }
   }
 
   void _onSelectStrategyChange(
     SelectorConfig_SelectingStrategy strategy,
   ) async {
-    final config = widget.config;
-    final copy = widget.config.deepCopy();
-    copy.strategy = strategy;
-    await _repo.updateSelector(copy);
-    setState(() {
-      config.strategy = strategy;
-    });
-    widget.onStrategyOrLandHandlersChange();
+    final previous = widget.config.strategy;
+    widget.config.strategy = strategy;
+    try {
+      await _persistConfig();
+      if (mounted) setState(() {});
+      widget.onStrategyOrLandHandlersChange();
+    } catch (e) {
+      widget.config.strategy = previous;
+      if (mounted) setState(() {});
+      logger.e('Error updating selector strategy', error: e);
+      snack(e.toString());
+    }
   }
 
   void _onBalanceStrategyChange(SelectorConfig_BalanceStrategy strategy) async {
-    final config = widget.config;
-    final copy = widget.config.deepCopy();
-    copy.balanceStrategy = strategy;
-    await _repo.updateSelector(copy);
-    setState(() {
-      config.balanceStrategy = strategy;
-    });
-    widget.onBalanceStrategyChange();
+    final previous = widget.config.balanceStrategy;
+    widget.config.balanceStrategy = strategy;
+    try {
+      await _persistConfig();
+      if (mounted) setState(() {});
+      widget.onBalanceStrategyChange();
+    } catch (e) {
+      widget.config.balanceStrategy = previous;
+      if (mounted) setState(() {});
+      logger.e('Error updating selector balance strategy', error: e);
+      snack(e.toString());
+    }
   }
 
   void _onLandHandlerChange(int handlerId, bool add) async {
-    await _repo.updateSelector(widget.config);
-    widget.onStrategyOrLandHandlersChange();
+    try {
+      await _persistConfig();
+      widget.onStrategyOrLandHandlersChange();
+    } catch (e) {
+      logger.e('Error updating land handlers', error: e);
+      snack(e.toString());
+    }
   }
 
   void _onLandHandlerReplace(int oldId, int newId) async {
-    await _repo.updateSelector(widget.config);
-    widget.onStrategyOrLandHandlersChange();
+    try {
+      await _persistConfig();
+      widget.onStrategyOrLandHandlersChange();
+    } catch (e) {
+      logger.e('Error replacing land handler', error: e);
+      snack(e.toString());
+    }
   }
 
   @override
@@ -423,6 +469,7 @@ class _SelectorConfigWidgetState extends State<SelectorConfigWidget>
           _SelectorFilter(
             config: widget.config,
             selectorRepo: _repo,
+            persistConfig: _persistConfig,
             onFilterChange: widget.onFilterChange,
           ),
         const Gap(10),
@@ -545,11 +592,13 @@ class _SelectorFilter extends StatefulWidget {
   const _SelectorFilter({
     required this.config,
     required this.selectorRepo,
+    required this.persistConfig,
     required this.onFilterChange,
   });
 
   final SelectorConfig config;
   final SelectorRepo selectorRepo;
+  final Future<void> Function() persistConfig;
   final Function() onFilterChange;
   @override
   State<_SelectorFilter> createState() => _SelectorFilterState();
@@ -726,50 +775,71 @@ class _SelectorFilterState extends State<_SelectorFilter> {
     widget.onFilterChange();
   }
 
-  void _onPrefixChange(
+  /// [persistConfig] writes the whole config blob, so the in-memory list must
+  /// be updated first; restore the snapshot only if persistence fails.
+  Future<void> _toggleFilterString(
+    List<String> values,
+    String value,
+    bool selected,
+    void Function(void Function()) setState,
+  ) async {
+    final previous = List<String>.from(values);
+    if (selected) {
+      values.add(value);
+    } else {
+      values.remove(value);
+    }
+    try {
+      await widget.persistConfig();
+    } catch (e) {
+      values
+        ..clear()
+        ..addAll(previous);
+      logger.e('Error updating selector filter', error: e);
+      snack(e.toString());
+      return;
+    }
+    setState(() {});
+    try {
+      widget.onFilterChange();
+    } catch (e) {
+      logger.e('Error applying selector filter to runtime', error: e);
+      snack(e.toString());
+    }
+  }
+
+  Future<void> _onPrefixChange(
     String prefix,
     bool selected,
     Function(void Function()) setState,
-  ) async {
-    if (selected) {
-      widget.config.filter.prefixes.add(prefix);
-    } else {
-      widget.config.filter.prefixes.remove(prefix);
-    }
-    await widget.selectorRepo.updateSelector(widget.config);
-    setState(() {});
-    widget.onFilterChange();
-  }
+  ) => _toggleFilterString(
+    widget.config.filter.prefixes,
+    prefix,
+    selected,
+    setState,
+  );
 
-  void _onSubStringChange(
+  Future<void> _onSubStringChange(
     String subString,
     bool selected,
     Function(void Function()) setState,
-  ) async {
-    if (selected) {
-      widget.config.filter.subStrings.add(subString);
-    } else {
-      widget.config.filter.subStrings.remove(subString);
-    }
-    await widget.selectorRepo.updateSelector(widget.config);
-    setState(() {});
-    widget.onFilterChange();
-  }
+  ) => _toggleFilterString(
+    widget.config.filter.subStrings,
+    subString,
+    selected,
+    setState,
+  );
 
-  void _onAreaChange(
+  Future<void> _onAreaChange(
     String area,
     bool selected,
     Function(void Function()) setState,
-  ) async {
-    if (selected) {
-      widget.config.filter.countryCodes.add(area);
-    } else {
-      widget.config.filter.countryCodes.remove(area);
-    }
-    await widget.selectorRepo.updateSelector(widget.config);
-    setState(() {});
-    widget.onFilterChange();
-  }
+  ) => _toggleFilterString(
+    widget.config.filter.countryCodes,
+    area,
+    selected,
+    setState,
+  );
 
   @override
   Widget build(BuildContext context) {

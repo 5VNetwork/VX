@@ -251,31 +251,27 @@ class _AppSetWidgetState extends State<AppSetWidget> {
         snack(AppLocalizations.of(context)!.setNameDuplicate);
         return;
       }
-      setState(() {
+      try {
         if (appSet == null) {
-          _appSets.add(newAppSet);
+          await repo.addAppSet(newAppSet);
         } else {
-          final index = _appSets.indexWhere((e) => e.name == appSet.name);
-          if (index != -1) {
-            _appSets[index] = newAppSet;
+          await repo.updateAppSet(
+            appSet.name,
+            clashRuleUrls: newAppSet.clashRuleUrls,
+            newName: newAppSet.name != appSet.name ? newAppSet.name : null,
+          );
+          if (mounted && _selectedAppSet?.name == appSet.name) {
+            setState(() {
+              _selectedAppSet = newAppSet;
+            });
           }
         }
-      });
-      if (appSet == null) {
-        await repo.addAppSet(newAppSet);
-      } else {
-        await repo.updateAppSet(
-          appSet.name,
-          clashRuleUrls: newAppSet.clashRuleUrls,
-          newName: newAppSet.name != appSet.name ? newAppSet.name : null,
-        );
-        if (_selectedAppSet?.name == appSet.name) {
-          setState(() {
-            _selectedAppSet = newAppSet;
-          });
+        if (mounted) {
+          context.read<GeoDataHelper>().makeGeoDataAvailable();
         }
+      } catch (e) {
+        snack(e.toString());
       }
-      context.read<GeoDataHelper>().makeGeoDataAvailable();
     }
   }
 
@@ -437,11 +433,14 @@ class _DomainSetWidgetState extends State<DomainSetWidget> {
                 return MenuAnchor(
                   menuChildren: [
                     MenuItemButton(
-                      onPressed: () {
-                        setState(() {
-                          _domainSets.remove(e);
-                        });
-                        context.read<SetRepo>().removeGreatDomainSet(e.name);
+                      onPressed: () async {
+                        try {
+                          await context.read<SetRepo>().removeGreatDomainSet(
+                            e.name,
+                          );
+                        } catch (err) {
+                          snack(err.toString());
+                        }
                       },
                       child: Text(AppLocalizations.of(context)!.delete),
                     ),
@@ -585,10 +584,13 @@ class _DomainSetWidgetState extends State<DomainSetWidget> {
                   onDelete: cannotDelete
                       ? null
                       : () async {
-                          setState(() {
-                            _atomicDomainSets.remove(e);
-                          });
-                          context.read<SetRepo>().removeAtomicDomainSet(e.name);
+                          try {
+                            await context.read<SetRepo>().removeAtomicDomainSet(
+                              e.name,
+                            );
+                          } catch (err) {
+                            snack(err.toString());
+                          }
                         },
                   onEdit: () {
                     _onAtomicDomainSetTap(e, !cannotDelete);
@@ -815,11 +817,14 @@ class _IPSetWidgetState extends State<IPSetWidget> {
                 return MenuAnchor(
                   menuChildren: [
                     MenuItemButton(
-                      onPressed: () {
-                        setState(() {
-                          _ipSets.remove(e);
-                        });
-                        context.read<SetRepo>().removeGreatIpSet(e.name);
+                      onPressed: () async {
+                        try {
+                          await context.read<SetRepo>().removeGreatIpSet(
+                            e.name,
+                          );
+                        } catch (err) {
+                          snack(err.toString());
+                        }
                       },
                       child: Text(AppLocalizations.of(context)!.delete),
                     ),
@@ -950,10 +955,13 @@ class _IPSetWidgetState extends State<IPSetWidget> {
                   onDelete: cannotDelete
                       ? null
                       : () async {
-                          setState(() {
-                            _atomicIpSets.remove(e);
-                          });
-                          context.read<SetRepo>().removeAtomicIpSet(e.name);
+                          try {
+                            await context.read<SetRepo>().removeAtomicIpSet(
+                              e.name,
+                            );
+                          } catch (err) {
+                            snack(err.toString());
+                          }
                         },
                   onEdit: () {
                     _onAtomicIpSetTap(e, !cannotDelete);

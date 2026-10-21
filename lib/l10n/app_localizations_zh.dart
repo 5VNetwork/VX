@@ -1842,6 +1842,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bindToDefaultNicDesc => '将节点测试和 API 流量绑定到默认网络接口。如果遇到节点测试全部失败的问题，请关闭此选项。更改后需重启应用。';
 
   @override
+  String get androidSplitTunnel => '应用分流';
+
+  @override
+  String get androidSplitTunnelDesc => '';
+
+  @override
+  String get androidSplitTunnelBlacklistDirect => '直连应用 → 黑名单';
+
+  @override
+  String get androidSplitTunnelBlacklistDirectDesc => '让直连应用集合中的应用不经过 VX，其他经过VX处理。';
+
+  @override
+  String get androidSplitTunnelWhitelistProxy => '代理应用 → 白名单';
+
+  @override
+  String get androidSplitTunnelWhitelistProxyDesc => '让代理应用集合中的应用经过 VX，其他不经过VX处理。当需要仅代理某个特定应用的时候，开启此项，并将应用添加进代理集合';
+
+  @override
   String databaseIssueTurnOnDisableCoreDatabase(String option, String settings, String advanced) {
     return '如果再次出现此问题，请在「$settings → $advanced」中开启「$option」。';
   }
@@ -2029,7 +2047,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dnsNameDesc => 'DNS服务器名称可以在入站条件那里引用，以指定它所使用的节点。';
 
   @override
-  String get directAppSetDesc => '在安卓上，直连应用集合内的应用不会经过VX（Split Tunnel）';
+  String get directAppSetDesc => '在安卓上，可在高级设置中选择：将直连应用加入黑名单（不经过 VX），或将代理应用加入白名单（仅它们经过 VX）';
 
   @override
   String get deleteDebugLogs => '删除日志文件';

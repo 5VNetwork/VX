@@ -35,6 +35,15 @@ import 'package:vx/utils/logger.dart';
 
 enum PingMode { Real, Rtt }
 
+/// Android TUN split-tunnel strategy for app sets.
+enum AndroidSplitTunnelMode {
+  /// Apps in the direct app set are excluded from the VPN (blacklist).
+  blacklistDirect,
+
+  /// Only apps in the proxy app set go through the VPN (whitelist).
+  whitelistProxy,
+}
+
 enum Language {
   zh(Locale('zh', 'CN'), '简体中文(中国)', aiTranslated: false),
   en(Locale('en'), 'English(United States)', aiTranslated: false),
@@ -887,8 +896,15 @@ extension PrefHelperExtension on SharedPreferences {
     setBool('rejectQuicHysteria', enable);
   }
 
+  /// When true, the VPN core does not open the SQLite file directly; the UI
+  /// owns the DB and the core reads via gRPC (Android remote DB).
+  ///
+  /// Default is **true on Android**: sharing one SQLite file between the UI
+  /// process and the VPN core causes lost writes / corruption after the app
+  /// has been running for a while (matches user reports of subscription and
+  /// selector changes reverting after force-stop).
   bool get disableCoreDatabase {
-    return getBool('disableCoreDatabase') ?? false;
+    return getBool('disableCoreDatabase') ?? Platform.isAndroid;
   }
 
   void setDisableCoreDatabase(bool disable) {
@@ -903,6 +919,19 @@ extension PrefHelperExtension on SharedPreferences {
 
   void setBindToDefaultNic(bool enable) {
     setBool('bindToDefaultNic', enable);
+  }
+
+  /// Android only: how direct/proxy app sets map to TUN black/white lists.
+  AndroidSplitTunnelMode get androidSplitTunnelMode {
+    final i = getInt('androidSplitTunnelMode');
+    if (i == null || i < 0 || i >= AndroidSplitTunnelMode.values.length) {
+      return AndroidSplitTunnelMode.blacklistDirect;
+    }
+    return AndroidSplitTunnelMode.values[i];
+  }
+
+  void setAndroidSplitTunnelMode(AndroidSplitTunnelMode mode) {
+    setInt('androidSplitTunnelMode', mode.index);
   }
 
   String get coreRemoteDbSecret {

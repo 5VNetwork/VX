@@ -30,7 +30,9 @@ import 'package:vx/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:vx/app/settings/advanced/proxy_share.dart';
 import 'package:vx/app/settings/advanced/hysteria_realm.dart';
+import 'package:vx/main.dart';
 import 'package:vx/pref_helper.dart';
+import 'package:vx/utils/logger.dart';
 
 class AdvancedScreen extends StatelessWidget {
   const AdvancedScreen({super.key, this.showAppBar = true});
@@ -129,6 +131,8 @@ class AdvancedScreen extends StatelessWidget {
               const DisableCoreDatabaseSetting(),
               const Divider(),
               const BindToDefaultNicSetting(),
+              const Divider(),
+              const AndroidSplitTunnelSetting(),
             ],
             const Divider(),
             const DialerSetting(),
@@ -158,12 +162,17 @@ class _SniffSettingState extends State<SniffSetting> {
     _sniffing = context.read<SharedPreferences>().sniff;
   }
 
-  void _toggleSniffing(bool value) {
+  void _toggleSniffing(bool value) async {
     context.read<SharedPreferences>().setSniff(value);
     setState(() {
       _sniffing = value;
     });
-    context.read<XController>().restart();
+    try {
+      await context.read<XController>().restart();
+    } catch (e) {
+      logger.e('Failed to apply sniff setting', error: e);
+      snack(e.toString());
+    }
   }
 
   @override
@@ -219,26 +228,43 @@ class _FallbackSettingState extends State<FallbackSetting> {
   }
 
   void _toggleAutomaticallyAddFallbackDomain(bool value) async {
+    final pref = context.read<SharedPreferences>();
+    final setRepo = context.read<SetRepo>();
+    final xController = context.read<XController>();
+    pref.setAutomaticallyAddFallbackDomain(value);
     setState(() {
       _automaticallyAddFallbackDomain = value;
     });
-    context.read<SharedPreferences>().setAutomaticallyAddFallbackDomain(value);
-    // update database
-    final setRepo = context.read<SetRepo>();
-    if (await setRepo.getAtomicDomainSet('Fallback') == null) {
-      setRepo.addAtomicDomainSet(
-        AtomicDomainSet(name: 'Fallback', useBloomFilter: false),
-      );
+    try {
+      if (await setRepo.getAtomicDomainSet('Fallback') == null) {
+        await setRepo.addAtomicDomainSet(
+          AtomicDomainSet(name: 'Fallback', useBloomFilter: false),
+        );
+      }
+    } catch (e) {
+      logger.e('Failed to persist fallback domain setting', error: e);
+      snack(e.toString());
+      return;
     }
-    context.read<XController>().restart();
+    try {
+      await xController.restart();
+    } catch (e) {
+      logger.e('Failed to apply fallback domain setting', error: e);
+      snack(e.toString());
+    }
   }
 
-  void _toggleChangeIpv6ToDomain(bool value) {
+  void _toggleChangeIpv6ToDomain(bool value) async {
     context.read<SharedPreferences>().setChangeIpv6ToDomain(value);
     setState(() {
       _changeIpv6ToDomain = value;
     });
-    context.read<XController>().restart();
+    try {
+      await context.read<XController>().restart();
+    } catch (e) {
+      logger.e('Failed to apply changeIpv6ToDomain', error: e);
+      snack(e.toString());
+    }
   }
 
   @override
@@ -333,7 +359,7 @@ class _ChangeDomainToIpSettingState extends State<ChangeDomainToIpSetting> {
     _changeDomainToIpv4 = pref.changeDomainToIpv4;
   }
 
-  void _toggleChangeDomainToIpv6(bool value) {
+  void _toggleChangeDomainToIpv6(bool value) async {
     final pref = context.read<SharedPreferences>();
     pref.setChangeDomainToIpv6(value);
     if (value && _changeDomainToIpv4) {
@@ -345,10 +371,15 @@ class _ChangeDomainToIpSettingState extends State<ChangeDomainToIpSetting> {
         _changeDomainToIpv4 = false;
       }
     });
-    context.read<XController>().restart();
+    try {
+      await context.read<XController>().restart();
+    } catch (e) {
+      logger.e('Failed to apply changeDomainToIpv6', error: e);
+      snack(e.toString());
+    }
   }
 
-  void _toggleChangeDomainToIpv4(bool value) {
+  void _toggleChangeDomainToIpv4(bool value) async {
     final pref = context.read<SharedPreferences>();
     pref.setChangeDomainToIpv4(value);
     if (value && _changeDomainToIpv6) {
@@ -360,7 +391,12 @@ class _ChangeDomainToIpSettingState extends State<ChangeDomainToIpSetting> {
         _changeDomainToIpv6 = false;
       }
     });
-    context.read<XController>().restart();
+    try {
+      await context.read<XController>().restart();
+    } catch (e) {
+      logger.e('Failed to apply changeDomainToIpv4', error: e);
+      snack(e.toString());
+    }
   }
 
   @override
@@ -684,12 +720,17 @@ class _RejectQuicHysteriaSettingState extends State<RejectQuicHysteriaSetting> {
           const Gap(10),
           Switch(
             value: _rejectQuicHysteria,
-            onChanged: (value) {
+            onChanged: (value) async {
               context.read<SharedPreferences>().setRejectQuicHysteria(value);
               setState(() {
                 _rejectQuicHysteria = value;
               });
-              context.read<XController>().restart();
+              try {
+                await context.read<XController>().restart();
+              } catch (e) {
+                logger.e('Failed to apply rejectQuicHysteria', error: e);
+                snack(e.toString());
+              }
             },
           ),
         ],
@@ -737,14 +778,19 @@ class _DisableCoreDatabaseSettingState
               const Gap(10),
               Switch(
                 value: _disableCoreDatabase,
-                onChanged: (value) {
+                onChanged: (value) async {
                   context.read<SharedPreferences>().setDisableCoreDatabase(
                     value,
                   );
                   setState(() {
                     _disableCoreDatabase = value;
                   });
-                  context.read<XController>().restart();
+                  try {
+                    await context.read<XController>().restart();
+                  } catch (e) {
+                    logger.e('Failed to apply disableCoreDatabase', error: e);
+                    snack(e.toString());
+                  }
                 },
               ),
             ],
@@ -814,6 +860,79 @@ class _BindToDefaultNicSettingState extends State<BindToDefaultNicSetting> {
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Android only: map direct/proxy app sets to TUN black/white lists.
+class AndroidSplitTunnelSetting extends StatefulWidget {
+  const AndroidSplitTunnelSetting({super.key});
+
+  @override
+  State<AndroidSplitTunnelSetting> createState() =>
+      _AndroidSplitTunnelSettingState();
+}
+
+class _AndroidSplitTunnelSettingState extends State<AndroidSplitTunnelSetting> {
+  late AndroidSplitTunnelMode _mode;
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = context.read<SharedPreferences>().androidSplitTunnelMode;
+  }
+
+  Future<void> _setMode(AndroidSplitTunnelMode? mode) async {
+    if (mode == null || mode == _mode) return;
+    context.read<SharedPreferences>().setAndroidSplitTunnelMode(mode);
+    setState(() {
+      _mode = mode;
+    });
+    try {
+      await context.read<XController>().restart();
+    } catch (e) {
+      logger.e('Failed to apply androidSplitTunnelMode', error: e);
+      snack(e.toString());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final al = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            al.androidSplitTunnel,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const Gap(5),
+          // Text(
+          //   al.androidSplitTunnelDesc,
+          //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+          //     color: Theme.of(context).colorScheme.onSurfaceVariant,
+          //   ),
+          // ),
+          RadioListTile<AndroidSplitTunnelMode>(
+            contentPadding: EdgeInsets.zero,
+            title: Text(al.androidSplitTunnelBlacklistDirect),
+            subtitle: Text(al.androidSplitTunnelBlacklistDirectDesc),
+            value: AndroidSplitTunnelMode.blacklistDirect,
+            groupValue: _mode,
+            onChanged: _setMode,
+          ),
+          RadioListTile<AndroidSplitTunnelMode>(
+            contentPadding: EdgeInsets.zero,
+            title: Text(al.androidSplitTunnelWhitelistProxy),
+            subtitle: Text(al.androidSplitTunnelWhitelistProxyDesc),
+            value: AndroidSplitTunnelMode.whitelistProxy,
+            groupValue: _mode,
+            onChanged: _setMode,
           ),
         ],
       ),

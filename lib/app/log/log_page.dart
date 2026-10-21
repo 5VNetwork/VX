@@ -69,7 +69,6 @@ class _LogPageState extends State<LogPage> {
   late TextEditingController _searchController;
   late SearchBar _searchBar;
   late Text _logText;
-  BlocBuilder<LogBloc, LogState>? _menuAnchor;
   late Widget _goToBottomButton;
 
   @override
@@ -92,7 +91,6 @@ class _LogPageState extends State<LogPage> {
             },
           ),
           builder: (context, child) {
-            print(_searchController.text);
             if (_searchController.text.isNotEmpty) {
               return child!;
             }
@@ -111,77 +109,6 @@ class _LogPageState extends State<LogPage> {
         maxHeight: 40,
         maxWidth: 360,
       ),
-    );
-    _menuAnchor = BlocBuilder<LogBloc, LogState>(
-      builder: (context, state) {
-        return MenuAnchor(
-          menuChildren: [
-            if (!Platform.isIOS)
-              MenuItemButton(
-                onPressed: () => context.read<LogBloc>().add(
-                  AppPressedEvent(!state.showApp),
-                ),
-                child: Text(
-                  state.showApp
-                      ? AppLocalizations.of(context)!.hideApp
-                      : AppLocalizations.of(context)!.showApp,
-                ),
-              ),
-            MenuItemButton(
-              onPressed: () => context.read<LogBloc>().add(
-                HandlerPressedEvent(!state.showHandler),
-              ),
-              child: Text(
-                state.showHandler
-                    ? AppLocalizations.of(context)!.hideHandler
-                    : AppLocalizations.of(context)!.showHandler,
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () => context.read<LogBloc>().add(
-                SessionOngoingPressedEvent(!state.showSessionOngoing),
-              ),
-              child: Text(
-                state.showSessionOngoing
-                    ? AppLocalizations.of(context)!.hideSessionOngoingIndicator
-                    : AppLocalizations.of(context)!.showSessionOngoingIndicator,
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () => context.read<LogBloc>().add(
-                RealtimeUsagePressedEvent(!state.showRealtimeUsage),
-              ),
-              child: Text(
-                state.showRealtimeUsage
-                    ? AppLocalizations.of(context)!.hideRealtimeUsage
-                    : AppLocalizations.of(context)!.showRealtimeUsage,
-              ),
-            ),
-            MenuItemButton(
-              onPressed: () => context.read<LogBloc>().add(
-                DismissSameRoutePressedEvent(!state.dismissSameRoute),
-              ),
-              child: Text(
-                state.dismissSameRoute
-                    ? AppLocalizations.of(context)!.showSameDestination
-                    : AppLocalizations.of(context)!.dismissSameDestination,
-              ),
-            ),
-          ],
-          builder: (context, controller, child) {
-            return IconButton(
-              onPressed: () {
-                if (controller.isOpen) {
-                  controller.close();
-                } else {
-                  controller.open();
-                }
-              },
-              icon: const Icon(Icons.more_vert_rounded),
-            );
-          },
-        );
-      },
     );
     _goToBottomButton = IconButton(
       onPressed: () => _logListKey.currentState?.scrollController.animateTo(
@@ -237,7 +164,7 @@ class _LogPageState extends State<LogPage> {
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 0),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 800),
+            constraints: const BoxConstraints(maxWidth: 1200),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
@@ -309,6 +236,10 @@ class _LogPageState extends State<LogPage> {
                     ),
                   ],
                 );
+                final displayOptionsButton = IconButton(
+                  onPressed: () => _showDisplayOptions(context),
+                  icon: const Icon(Icons.more_vert_rounded),
+                );
                 late final Widget filter;
                 if (MediaQuery.of(context).size.width < 700) {
                   filter = Center(
@@ -319,17 +250,12 @@ class _LogPageState extends State<LogPage> {
                           children: [
                             Expanded(child: _searchBar),
                             const Gap(5),
-                            if (_menuAnchor != null) _menuAnchor!,
+                            displayOptionsButton,
                             _goToBottomButton,
                           ],
                         ),
                         const Gap(5),
-                        _menuAnchor != null
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [chips],
-                              )
-                            : chips,
+                        chips,
                       ],
                     ),
                   );
@@ -339,7 +265,7 @@ class _LogPageState extends State<LogPage> {
                       Expanded(child: _searchBar),
                       const Gap(10),
                       chips,
-                      if (_menuAnchor != null) _menuAnchor!,
+                      displayOptionsButton,
                       _goToBottomButton,
                     ],
                   );
@@ -394,6 +320,97 @@ class _LogPageState extends State<LogPage> {
       ),
     );
   }
+
+  void _showDisplayOptions(BuildContext context) {
+    final logBloc = context.read<LogBloc>();
+    final content = BlocProvider.value(
+      value: logBloc,
+      child: BlocBuilder<LogBloc, LogState>(
+        builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!Platform.isIOS)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.showApp),
+                  value: state.showApp,
+                  onChanged: (v) =>
+                      context.read<LogBloc>().add(AppPressedEvent(v)),
+                ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.showHandler),
+                value: state.showHandler,
+                onChanged: (v) =>
+                    context.read<LogBloc>().add(HandlerPressedEvent(v)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.showSessionOngoingIndicator),
+                value: state.showSessionOngoing,
+                onChanged: (v) => context.read<LogBloc>().add(
+                  SessionOngoingPressedEvent(v),
+                ),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.showRealtimeUsage),
+                value: state.showRealtimeUsage,
+                onChanged: (v) =>
+                    context.read<LogBloc>().add(RealtimeUsagePressedEvent(v)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.dismissSameDestination),
+                value: state.dismissSameRoute,
+                onChanged: (v) => context.read<LogBloc>().add(
+                  DismissSameRoutePressedEvent(v),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (context.read<MyLayout>().isCompact) {
+      showModalBottomSheet(
+        context: context,
+        useRootNavigator: true,
+        useSafeArea: true,
+        constraints: const BoxConstraints(maxWidth: 500),
+        builder: (ctx) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: 8,
+              ),
+              child: content,
+            ),
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        useRootNavigator: true,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.settings),
+            content: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: content,
+            ),
+          );
+        },
+      );
+    }
+  }
 }
 
 const chipBorderRadius = RoundedRectangleBorder(
@@ -413,6 +430,7 @@ class _LogListState extends State<LogList> {
   late Chip _vChip;
   final ScrollController scrollController = ScrollController();
   bool _isScrolledToBottom = true;
+  bool _scrollAdjustScheduled = false;
   late Text _directText;
   late Text _proxyText;
   // late Text _errorText;
@@ -421,10 +439,12 @@ class _LogListState extends State<LogList> {
   late Chip _proxyChip;
   late Chip _rejectChip;
   final double extent = desktopPlatforms ? 36 : 40;
+  late OutboundRepo _outboundRepo;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _outboundRepo = context.read<OutboundRepo>();
     _directText = Text(
       AppLocalizations.of(context)!.direct,
       style: Theme.of(context).textTheme.labelLarge!.copyWith(
@@ -491,11 +511,22 @@ class _LogListState extends State<LogList> {
   }
 
   void _adgustScrollPosition() {
+    _scrollAdjustScheduled = false;
     if (!scrollController.hasClients) return;
-    // print(_scrollController.position.pixels);
     if (_isScrolledToBottom) {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     }
+  }
+
+  void _scheduleScrollAdjust() {
+    if (_scrollAdjustScheduled) {
+      logger.d('skip scroll adjust');
+      return;
+    }
+    _scrollAdjustScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _adgustScrollPosition();
+    });
   }
 
   @override
@@ -1567,9 +1598,7 @@ class _LogListState extends State<LogList> {
         // print(constraints.maxWidth);
         return BlocBuilder<LogBloc, LogState>(
           builder: (context, state) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _adgustScrollPosition();
-            });
+            _scheduleScrollAdjust();
             // To maintain a static view when a user is viewing log history
             if (!_isScrolledToBottom &&
                 !scrollController.position.isScrollingNotifier.value &&
@@ -1646,7 +1675,13 @@ class _LogListState extends State<LogList> {
                                 child: SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: Image.memory(l.icon!),
+                                  child: Image.memory(
+                                    l.icon!,
+                                    gaplessPlayback: true,
+                                    cacheWidth: 48,
+                                    cacheHeight: 48,
+                                    filterQuality: FilterQuality.low,
+                                  ),
                                 ),
                               ),
                             if (l.abnormal)
@@ -1909,7 +1944,7 @@ class _LogListState extends State<LogList> {
                   ),
                 )
               : FutureBuilder(
-                  future: context.read<OutboundRepo>().getHandlerName(tag!),
+                  future: _outboundRepo.getHandlerName(tag!),
                   builder: (context, snapshot) {
                     return Text(
                       snapshot.data ?? tag,

@@ -128,24 +128,18 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     Emitter<ProxySelectorState> emit,
   ) async {
     final oldRouteMode = state.routeMode;
-    // if (e.routeMode is DefaultRouteMode) {
-    //   emit(state.copyWith(routeMode: e.routeMode, showProxySelector: true));
-    //   _pref.setRoutingMode(e.routeMode as DefaultRouteMode);
-    // } else {
     emit(
       state.copyWith(
-        showProxySelector: (e.routeMode).hasDefaultProxySelector,
+        showProxySelector: e.routeMode.hasDefaultProxySelector,
         routeMode: e.routeMode.name,
       ),
     );
     _pref.setRoutingMode(e.routeMode.name);
-    // }
     try {
       await _xController.routingModeChange(oldRouteMode, e.routeMode.name);
     } catch (e) {
       logger.e('routingModeChange error', error: e);
       snack(rootLocalizations()?.failedToChangeRoutingMode);
-      // await reportError(e, StackTrace.current);
     }
   }
 
@@ -183,14 +177,19 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
   ) async {
     _pref.setProxySelectorMode(e.mode);
     emit(state.copyWith(outboundMode: e.mode));
-    if (e.mode == ProxySelectorMode.manual) {
-      await _xController.selectorSelectStrategyOrLandhandlerChange(
-        _pref.manualSelectorConfig,
-      );
-    } else {
-      await _xController.selectorSelectStrategyOrLandhandlerChange(
-        state.autoNodeSetting!,
-      );
+    try {
+      if (e.mode == ProxySelectorMode.manual) {
+        await _xController.selectorSelectStrategyOrLandhandlerChange(
+          _pref.manualSelectorConfig,
+        );
+      } else {
+        await _xController.selectorSelectStrategyOrLandhandlerChange(
+          state.autoNodeSetting!,
+        );
+      }
+    } catch (err) {
+      logger.e('proxySelectorChange error', error: err);
+      snack(err.toString());
     }
   }
 
@@ -206,10 +205,15 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     _pref.setProxySelectorManualMode(e.mode);
     // if single, routeModeChange is called by outboundBloc
     if (e.mode == ProxySelectorManualNodeSelectionMode.multiple) {
-      await _xController.selectorBalancingStrategyChange(
-        defaultProxySelectorTag,
-        _pref.proxySelectorManualMultipleBalanceStrategy,
-      );
+      try {
+        await _xController.selectorBalancingStrategyChange(
+          defaultProxySelectorTag,
+          _pref.proxySelectorManualMultipleBalanceStrategy,
+        );
+      } catch (err) {
+        logger.e('manualNodeModeChange error', error: err);
+        snack(err.toString());
+      }
     }
   }
 
@@ -225,10 +229,15 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
       ),
     );
     _pref.setProxySelectorManualMultipleBalanceStrategy(e.strategy);
-    await _xController.selectorBalancingStrategyChange(
-      defaultProxySelectorTag,
-      e.strategy,
-    );
+    try {
+      await _xController.selectorBalancingStrategyChange(
+        defaultProxySelectorTag,
+        e.strategy,
+      );
+    } catch (err) {
+      logger.e('manualNodeBalanceStrategyChange error', error: err);
+      snack(err.toString());
+    }
   }
 
   void _manualModeLandHandlersChange(

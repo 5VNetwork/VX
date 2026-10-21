@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:drift/drift.dart';
 import 'package:flutter_common/common.dart';
@@ -55,6 +56,7 @@ import 'package:vx/common/common.dart';
 import 'package:vx/data/realm_server_config.dart';
 import 'package:vx/data/database.dart';
 import 'package:vx/data/database_provider.dart';
+import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/main.dart';
 import 'package:vx/pref_helper.dart';
 import 'package:vx/utils/download.dart';
@@ -321,39 +323,13 @@ class XConfigHelper {
     // }
 
     final List<String> blackListApps = [];
+    final List<String> whiteListApps = [];
     if (Platform.isAndroid) {
-      bool directAppSetUsed = false;
-      for (final rule in routerConfig.rules) {
-        if (rule.appTags.contains(directAppSetName) ||
-            rule.allTags.contains(directAppSetName)) {
-          directAppSetUsed = true;
-          break;
-        }
-      }
-      if (directAppSetUsed) {
-        // blackListApps.add(androidPackageNme);
-        final apps = await _databaseProvider.database
-            .select(_databaseProvider.database.apps)
-            .get();
-        final futures = <Future>[];
-        for (final app in apps) {
-          if (app.appSetName == directAppSetName &&
-              app.appId.type == AppId_Type.Exact) {
-            futures.add(
-              InstalledApps.isAppInstalled(app.appId.value).then((installed) {
-                if (installed != null && installed) {
-                  blackListApps.add(app.appId.value);
-                } else {
-                  logger.d(
-                    "App ${app.appId.value} is not installed, not adding to blacklist",
-                  );
-                }
-              }),
-            );
-          }
-        }
-        await Future.wait(futures);
-      }
+      await _fillAndroidSplitTunnelApps(
+        routerConfig: routerConfig,
+        blackListApps: blackListApps,
+        whiteListApps: whiteListApps,
+      );
     }
 
     return TunConfig(
@@ -374,8 +350,78 @@ class XConfigHelper {
         routes6: _persistentStateRepo.tunRoutes6List,
         path: await getWintunDir(),
         blackListApps: blackListApps,
+        whiteListApps: whiteListApps,
       ),
     );
+  }
+
+  /// Android VpnService split tunnel: either exclude direct apps (blacklist)
+  /// or only allow proxy apps (whitelist), based on user preference.
+  Future<void> _fillAndroidSplitTunnelApps({
+    required RouterConfig routerConfig,
+    required List<String> blackListApps,
+    required List<String> whiteListApps,
+  }) async {
+    final mode = _persistentStateRepo.androidSplitTunnelMode;
+    final locale =
+        _persistentStateRepo.language?.locale ??
+        PlatformDispatcher.instance.locale;
+    final al = lookupAppLocalizations(locale);
+    final targetSetName = switch (mode) {
+      AndroidSplitTunnelMode.blacklistDirect => al.direct,
+      AndroidSplitTunnelMode.whitelistProxy => al.proxy,
+    };
+
+    bool setUsed(String name) {
+      for (final rule in routerConfig.rules) {
+        for (final condition in loadConditionsFromRuleConfig(rule)) {
+          if (condition.appTags.contains(name) ||
+              condition.allTags.contains(name)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    if (!setUsed(targetSetName)) return;
+
+    final targetList = switch (mode) {
+      AndroidSplitTunnelMode.blacklistDirect => blackListApps,
+      AndroidSplitTunnelMode.whitelistProxy => whiteListApps,
+    };
+    final listLabel = switch (mode) {
+      AndroidSplitTunnelMode.blacklistDirect => 'blacklist',
+      AndroidSplitTunnelMode.whitelistProxy => 'whitelist',
+    };
+
+    // for whiteList, add the package name of the app. Or system stack 
+    // won't work
+    if (mode == AndroidSplitTunnelMode.whitelistProxy) {
+      targetList.add(androidPackageNme);
+    }
+
+    final apps = await _databaseProvider.database
+        .select(_databaseProvider.database.apps)
+        .get();
+    final futures = <Future>[];
+    for (final app in apps) {
+      if (app.appSetName == targetSetName &&
+          app.appId.type == AppId_Type.Exact) {
+        futures.add(
+          InstalledApps.isAppInstalled(app.appId.value).then((installed) {
+            if (installed != null && installed) {
+              targetList.add(app.appId.value);
+            } else {
+              logger.d(
+                'App ${app.appId.value} is not installed, not adding to $listLabel',
+              );
+            }
+          }),
+        );
+      }
+    }
+    await Future.wait(futures);
   }
 
   Future<InboundManagerConfig> _getInboundConfig() async {

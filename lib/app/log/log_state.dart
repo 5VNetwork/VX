@@ -104,23 +104,38 @@ class LogFilter {
       if (log.tag != 'direct' && !showProxy) {
         return false;
       }
-      if (substring.isNotEmpty) {
-        if (!log.displayDst.contains(substring)) {
-          return false;
-        }
+      if (substring.isNotEmpty &&
+          !_matchesSubstring(
+            log.displayDst,
+            log.appName,
+            log.app,
+            log.ipToDomain,
+          )) {
+        return false;
       }
       if (errorOnly && !log.abnormal) {
         return false;
       }
       return true;
     } else if (log is RejectMessage && showReject) {
-      if (substring.isNotEmpty) {
-        if (!log.displayDst.contains(substring)) {
-          return false;
-        }
+      if (substring.isNotEmpty &&
+          !_matchesSubstring(log.displayDst, log.appName, log.app)) {
+        return false;
       }
       return true;
     }
     return false;
+  }
+
+  bool _matchesSubstring(
+    String displayDst,
+    String appName,
+    String app, [
+    String ipToDomain = '',
+  ]) {
+    return displayDst.contains(substring) ||
+        appName.contains(substring) ||
+        app.contains(substring) ||
+        ipToDomain.contains(substring);
   }
 }

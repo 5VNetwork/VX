@@ -796,6 +796,12 @@
   "disableCoreDatabaseDesc": "Ядро не использует базу данных. Только UI использует базу данных. Включите при повреждении базы данных.",
   "bindToDefaultNic": "Привязка к сети по умолчанию",
   "bindToDefaultNicDesc": "Привязать тесты узлов и API-трафик к сетевому интерфейсу по умолчанию. Отключите, если тесты узлов не работают. После изменения перезапустите приложение.",
+  "androidSplitTunnel": "Раздельное туннелирование приложений",
+  "androidSplitTunnelDesc": "",
+  "androidSplitTunnelBlacklistDirect": "Прямые приложения → чёрный список",
+  "androidSplitTunnelBlacklistDirectDesc": "Приложения из набора Direct обходят VX.",
+  "androidSplitTunnelWhitelistProxy": "Прокси-приложения → белый список",
+  "androidSplitTunnelWhitelistProxyDesc": "Только приложения из набора Proxy проходят через VX.",
   "databaseIssueTurnOnDisableCoreDatabase": "Если это повторится, включите «{option}» в разделе {settings} → {advanced}.",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -874,7 +880,7 @@
   "internalDnsDesc": "Internal DNS servers are mainly used to resolve domains when outbounds are dialing. They will be used from left to right until one of them succeeds.",
   "nodeSetDesc": "There is a small domain set named \"__node__\" which contains domains and SNIs of all nodes. There is also a small IP set named \"__node__\" which contains IPs of all nodes.",
   "dnsNameDesc": "A DNS server's name can be referenced in the inbound condition to specify which node it uses.",
-  "directAppSetDesc": "On Android, applications in the direct app set will not go through VX (Split Tunnel)",
+  "directAppSetDesc": "On Android, choose under Advanced whether Direct apps are blacklisted (bypass VX) or Proxy apps are whitelisted (only they use VX)",
   "deleteDebugLogs": "Delete Debug Logs",
   "conditionDesc": "Если у соединения отсутствует информация об IP-адресе, условие IP будет ложным, и правило не будет выполнено. Аналогично, если у соединения отсутствует информация о домене, условие домена будет ложным, и правило не будет выполнено.",
   "lookupEch": "Поиск ECH",

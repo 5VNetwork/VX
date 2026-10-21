@@ -3523,6 +3523,42 @@ abstract class AppLocalizations {
   /// **'Bind node tests and API traffic to the default network interface. Turn this off if node tests fail on your device. Restart the app after changing.'**
   String get bindToDefaultNicDesc;
 
+  /// No description provided for @androidSplitTunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'App split tunnel'**
+  String get androidSplitTunnel;
+
+  /// No description provided for @androidSplitTunnelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **''**
+  String get androidSplitTunnelDesc;
+
+  /// No description provided for @androidSplitTunnelBlacklistDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct apps → blacklist'**
+  String get androidSplitTunnelBlacklistDirect;
+
+  /// No description provided for @androidSplitTunnelBlacklistDirectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps in the Direct app set bypass VX.'**
+  String get androidSplitTunnelBlacklistDirectDesc;
+
+  /// No description provided for @androidSplitTunnelWhitelistProxy.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy apps → whitelist'**
+  String get androidSplitTunnelWhitelistProxy;
+
+  /// No description provided for @androidSplitTunnelWhitelistProxyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Only apps in the Proxy app set go through VX.'**
+  String get androidSplitTunnelWhitelistProxyDesc;
+
   /// No description provided for @databaseIssueTurnOnDisableCoreDatabase.
   ///
   /// In en, this message translates to:
@@ -3892,7 +3928,7 @@ abstract class AppLocalizations {
   /// No description provided for @directAppSetDesc.
   ///
   /// In en, this message translates to:
-  /// **'On Android, applications in the direct app set will not go through VX (Split Tunnel)'**
+  /// **'On Android, choose under Advanced whether Direct apps are blacklisted (bypass VX) or Proxy apps are whitelisted (only they use VX)'**
   String get directAppSetDesc;
 
   /// No description provided for @deleteDebugLogs.

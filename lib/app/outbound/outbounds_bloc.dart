@@ -183,7 +183,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
             return state;
           }
           if (handlerBeingUsed.tags.length != 1) {
-            return state.copyWith(using4: 0, using6: 0);
+            return state.copyWith(using4: 0);
           }
           final tag = handlerBeingUsed.tags.first;
           late final int handlerBeingUsedId4;
@@ -211,10 +211,13 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
           // logger.d(
           //   'handler being used, ${handlerBeingUsedId4}, ${handlerBeingUsedId6}',
           // );
+          if (handlerBeingUsedId4 == state.using4 &&
+              identical(newHandlers, state.handlers)) {
+            return state;
+          }
           return state.copyWith(
             handlers: newHandlers,
             using4: handlerBeingUsedId4,
-            using6: handlerBeingUsedId6,
           );
         },
       ),
@@ -306,7 +309,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     Emitter<OutboundState> emit,
   ) {
     if (e.mode == ProxySelectorMode.manual) {
-      emit(state.copyWith(using4: 0, using6: 0));
+      emit(state.copyWith(using4: 0));
     }
   }
 
@@ -508,21 +511,22 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     await _xController.handlersRemoved(e.ids);
   }
 
-  void _onDeleteUnusable(DeleteUnusableEvent e, Emitter<OutboundState> emit) {
-    final newHandlers = <OutboundHandler>[];
-    final handlersToDelete = <OutboundHandler>[];
-    for (var handler in state.handlers) {
-      if (handler.ok == 1) {
-        newHandlers.add(handler);
-      } else {
-        handlersToDelete.add(handler);
-      }
-    }
-    emit(state.copyWith(handlers: newHandlers));
-    _outboundRepo.removeHandlersByIds(
-      handlersToDelete.map((h) => h.id).toList(),
+  Future<void> _onDeleteUnusable(
+    DeleteUnusableEvent e,
+    Emitter<OutboundState> emit,
+  ) async {
+    final ids = state.handlers
+        .where((handler) => handler.ok != 1)
+        .map((h) => h.id)
+        .toList();
+    if (ids.isEmpty) return;
+    await _outboundRepo.removeHandlersByIds(ids);
+    emit(
+      state.copyWith(
+        handlers: _sortHandlers(await _getHandlers(), state.sortCol),
+      ),
     );
-    _xController.handlersRemoved(handlersToDelete.map((h) => h.id).toList());
+    await _xController.handlersRemoved(ids);
   }
 
   // Future<void> _onEnableDisableHandler(
@@ -657,13 +661,13 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     HandlerEdittedEvent e,
     Emitter<OutboundState> emit,
   ) async {
+    await _outboundRepo.replaceHandler(e.handler);
     final handlers = List<OutboundHandler>.from(state.handlers);
     final index = handlers.indexWhere((h) => h.id == e.handler.id);
     if (index >= 0) {
       handlers[index] = e.handler;
       emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
     }
-    await _outboundRepo.replaceHandler(e.handler);
     _xController.handlerUpdated(e.handler);
     await updateCountry([e.handler], emit);
   }
@@ -1055,19 +1059,24 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     SubscriptionDeleteEvent e,
     Emitter<OutboundState> emit,
   ) async {
-    if (state.selected?.name == e.sub.name) {
-      emit(state.copyWith(selected: () => null));
-      _pref.setNodeGroup(null);
-    }
+    final wasSelected = state.selected?.name == e.sub.name;
     try {
       await _outboundRepo.removeSubscription(e.sub.id);
     } catch (e) {
       logger.e('removeSubscription', error: e);
       rethrow;
     }
+    if (wasSelected) {
+      _pref.setNodeGroup(null);
+    }
     _xController.subscriptionUpdated();
     final handlers = _sortHandlers(await _getHandlers(), state.sortCol);
-    emit(state.copyWith(handlers: handlers));
+    emit(
+      state.copyWith(
+        handlers: handlers,
+        selected: wasSelected ? () => null : null,
+      ),
+    );
   }
 
   Future<void> _onSubscriptionPlaceOnTop(
@@ -1308,14 +1317,14 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     _pref.setOutboundViewMode(newMode);
   }
 
-  void _onAddSelectedHandlersToGroup(
+  Future<void> _onAddSelectedHandlersToGroup(
     AddSelectedHandlersToGroupEvent e,
     Emitter<OutboundState> emit,
-  ) {
+  ) async {
     final handlers = state.handlers
         .where((h) => h.selectedInMultipleSelect)
         .toList();
-    _outboundRepo.addHandlerToGroup(
+    await _outboundRepo.addHandlerToGroup(
       e.groupName,
       handlers.map((h) => h.id).toList(),
     );
@@ -1639,7 +1648,6 @@ class OutboundState {
     List<NodeGroup>? gs,
     List<OutboundHandler>? handlers,
     int? using4,
-    int? using6,
     bool? testingArea,
     ValueGetter<(Col, SortOrder)?>? sortCol,
     bool? multiSelect,

@@ -799,6 +799,12 @@
   "disableCoreDatabaseDesc": "核心不再与UI共享数据库。如果你遇到了数据库损坏的问题，请开启此选项",
   "bindToDefaultNic": "绑定默认网卡",
   "bindToDefaultNicDesc": "将节点测试和 API 流量绑定到默认网络接口。如果遇到节点测试全部失败的问题，请关闭此选项。更改后需重启应用。",
+  "androidSplitTunnel": "应用分流",
+  "androidSplitTunnelDesc": "",
+  "androidSplitTunnelBlacklistDirect": "直连应用 → 黑名单",
+  "androidSplitTunnelBlacklistDirectDesc": "让直连应用集合中的应用不经过 VX，其他经过VX处理。",
+  "androidSplitTunnelWhitelistProxy": "代理应用 → 白名单",
+  "androidSplitTunnelWhitelistProxyDesc": "让代理应用集合中的应用经过 VX，其他不经过VX处理。当需要仅代理某个特定应用的时候，开启此项，并将应用添加进代理集合",
   "databaseIssueTurnOnDisableCoreDatabase": "如果再次出现此问题，请在「{settings} → {advanced}」中开启「{option}」。",
   "@databaseIssueTurnOnDisableCoreDatabase": {
     "placeholders": {
@@ -880,7 +886,7 @@
   "internalDnsDesc": "内部DNS服务器主要用于在出站拨号时解析域名，它们会从左到右依次被使用，直到解析成功为止",
   "nodeSetDesc": "\"__node__\"为包含所有节点域名/IP的域名小集合/IP小集合。它主要被用于让VX节点测试走直连。节点域名包括它的地址和SNI",
   "dnsNameDesc": "DNS服务器名称可以在入站条件那里引用，以指定它所使用的节点。",
-  "directAppSetDesc": "在安卓上，直连应用集合内的应用不会经过VX（Split Tunnel）",
+  "directAppSetDesc": "在安卓上，可在高级设置中选择：将直连应用加入黑名单（不经过 VX），或将代理应用加入白名单（仅它们经过 VX）",
   "deleteDebugLogs": "删除日志文件",
   "conditionDesc": "当一个连接没有IP信息时，IP条件不会成立，因此规则不会匹配。同样，当一个连接没有域名信息时，域名条件不会成立，因此规则也不会匹配。",
   "lookupEch": "查询ECH",
