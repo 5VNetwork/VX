@@ -104,7 +104,6 @@ Future<LocalRealmServerConfig> buildProRealmServerConfig({
   final certResponse = await generateCert(sni);
 
   final hysteria = getDefaultHysteriaServerConfig();
-  hysteria.bandwidth = BandwidthConfig(maxRx: 30, maxTx: 30);
   hysteria.tlsConfig = TlsConfig(
     serverName: sni,
     certificates: [
@@ -133,7 +132,6 @@ Future<LocalRealmServerConfig> buildPublicRealmServerConfig({
   final certResponse = await generateCert(sni);
 
   final hysteria = getDefaultHysteriaServerConfig();
-  hysteria.bandwidth = BandwidthConfig(maxRx: 30, maxTx: 30);
   hysteria.tlsConfig = TlsConfig(
     serverName: sni,
     certificates: [

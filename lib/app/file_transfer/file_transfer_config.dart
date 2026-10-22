@@ -106,7 +106,6 @@ Future<ProxyInboundConfig> buildFileTransferInbound({
     hysteria = getDefaultHysteriaServerConfig();
   }
   hysteria.ignoreClientBandwidth = true;
-  hysteria.bandwidth = BandwidthConfig(maxRx: 1000, maxTx: 1000);
 
   if (!hysteria.hasTlsConfig() || hysteria.tlsConfig.certificates.isEmpty) {
     final sni = generateRealisticDomain();
@@ -187,7 +186,6 @@ Future<String?> resolveFileTransferShareUrl({
   if (out.hasProtocol()) {
     final hysteria = Hysteria2ClientConfig();
     out.protocol.unpackInto(hysteria);
-    hysteria.bandwidth = BandwidthConfig(maxRx: 1000, maxTx: 1000);
     out.protocol = Any.pack(hysteria);
   }
   final response = await api.toUrl([out]);

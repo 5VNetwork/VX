@@ -208,7 +208,7 @@ class BasicQuickDeploy extends QuickDeployOption {
             protocol: Any.pack(
               Hysteria2ClientConfig(
                 auth: uuid,
-                bandwidth: BandwidthConfig(maxRx: 10, maxTx: 10),
+                bandwidth: BandwidthConfig(maxRxMbps: 80),
                 tlsConfig: TlsConfig(
                   allowInsecure: true,
                   serverName: domain,

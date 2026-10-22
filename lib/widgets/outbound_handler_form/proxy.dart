@@ -1234,6 +1234,12 @@ class _HysteriaClientState extends State<HysteriaClient> {
   }
 }
 
+String? _bandwidthMbpsText({required int mbps, required int mb}) {
+  if (mbps != 0) return mbps.toString();
+  if (mb != 0) return (mb * 8).toString();
+  return null;
+}
+
 /// the constructor parameters will be modified directly.
 class Hysteria extends StatefulWidget {
   const Hysteria({
@@ -1321,14 +1327,16 @@ class _HysteriaState extends State<Hysteria> {
       text: widget.quicConfig.disablePathMtuDiscovery.toString(),
     );
     _maxTxController = TextEditingController(
-      text: widget.bandwidthConfig.maxTx == 0
-          ? null
-          : widget.bandwidthConfig.maxTx.toString(),
+      text: _bandwidthMbpsText(
+        mbps: widget.bandwidthConfig.maxTxMbps,
+        mb: widget.bandwidthConfig.maxTx,
+      ),
     );
     _maxRxController = TextEditingController(
-      text: widget.bandwidthConfig.maxRx == 0
-          ? null
-          : widget.bandwidthConfig.maxRx.toString(),
+      text: _bandwidthMbpsText(
+        mbps: widget.bandwidthConfig.maxRxMbps,
+        mb: widget.bandwidthConfig.maxRx,
+      ),
     );
     _salamanderPasswordController = TextEditingController(
       text: widget.obfsConfig.salamander.password,
@@ -1534,7 +1542,7 @@ class _HysteriaState extends State<Hysteria> {
                 controller: _maxTxController,
                 decoration: const InputDecoration(
                   labelText: 'Tx',
-                  suffixText: 'MB',
+                  suffixText: 'Mb',
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -1542,12 +1550,14 @@ class _HysteriaState extends State<Hysteria> {
                   if (value != null && value.isNotEmpty) {
                     final i = int.tryParse(value);
                     if (i != null) {
-                      widget.bandwidthConfig.maxTx = i;
+                      widget.bandwidthConfig.maxTxMbps = i;
+                      widget.bandwidthConfig.clearMaxTx();
                     } else {
                       return 'Invalid number';
                     }
                   } else {
-                    widget.bandwidthConfig.maxTx = 0;
+                    widget.bandwidthConfig.clearMaxTxMbps();
+                    widget.bandwidthConfig.clearMaxTx();
                   }
                   return null;
                 },
@@ -1559,7 +1569,7 @@ class _HysteriaState extends State<Hysteria> {
                 controller: _maxRxController,
                 decoration: const InputDecoration(
                   labelText: 'Rx',
-                  suffixText: 'MB',
+                  suffixText: 'Mb',
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -1567,12 +1577,14 @@ class _HysteriaState extends State<Hysteria> {
                   if (value != null && value.isNotEmpty) {
                     final i = int.tryParse(value);
                     if (i != null) {
-                      widget.bandwidthConfig.maxRx = i;
+                      widget.bandwidthConfig.maxRxMbps = i;
+                      widget.bandwidthConfig.clearMaxRx();
                     } else {
                       return 'Invalid number';
                     }
                   } else {
-                    widget.bandwidthConfig.maxRx = 0;
+                    widget.bandwidthConfig.clearMaxRxMbps();
+                    widget.bandwidthConfig.clearMaxRx();
                   }
                   return null;
                 },
