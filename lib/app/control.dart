@@ -26,6 +26,7 @@ import 'package:vx/app/blocs/inbound.dart';
 import 'package:vx/app/home/home.dart';
 import 'package:vx/app/routing/default.dart';
 import 'package:vx/app/routing/selector_being_used.dart';
+import 'package:vx/app/routing/selector_cubit.dart';
 import 'package:vx/app/routing/selector_test_fields_form.dart';
 import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/x_controller.dart';
@@ -343,29 +344,14 @@ class DefaultProxySelector extends StatelessWidget {
               const ManualModeCard(),
             if (state.proxySelectorMode == ProxySelectorMode.auto &&
                 state.autoNodeSetting != null)
-              SelectorConfigWidget(
+              SelectorScope(
                 config: state.autoNodeSetting!,
-                onFilterChange: () {
-                  context.read<ProxySelectorBloc>().add(
-                    const AutoNodeSelectorConfigChangeEvent(
-                      filterLandHandlers: true,
-                    ),
-                  );
-                },
-                onBalanceStrategyChange: () {
-                  context.read<ProxySelectorBloc>().add(
-                    const AutoNodeSelectorConfigChangeEvent(
-                      balancingStragegy: true,
-                    ),
-                  );
-                },
-                onStrategyOrLandHandlersChange: () {
-                  context.read<ProxySelectorBloc>().add(
-                    const AutoNodeSelectorConfigChangeEvent(
-                      selectorStrategyOrLandHandlers: true,
-                    ),
-                  );
-                },
+                child: BlocListener<SelectorCubit, SelectorConfig>(
+                  listener: (context, config) => context
+                      .read<ProxySelectorBloc>()
+                      .add(AutoNodeSettingChangedEvent(config)),
+                  child: const SelectorConfigView(),
+                ),
               ),
           ],
         );
@@ -397,7 +383,7 @@ class _DefaultProxySelectorControlState
     final state = context.read<ProxySelectorBloc>().state;
     final config = state.autoNodeSetting;
     if (config == null) return;
-    final edited = await showSelectorTestFieldsForm(context, config);
+    final edited = await showSelectorTestFieldsForm(context, config.deepCopy());
     if (edited == null || !mounted) return;
     context.read<ProxySelectorBloc>().add(
       TestParametersChangeEvent(config: edited),
@@ -628,27 +614,9 @@ class ManualModeCard extends StatelessWidget {
             const SizedBox(height: 5, width: double.infinity),
             LandHandlerSelect(
               landHandlers: r.landHandlers,
-              onAdd: (handlerId) {
-                context.read<ProxySelectorBloc>().add(
-                  const ManualModeLandHandlersChangeEvent(
-                    // [...r.landHandlers, handlerId]
-                  ),
-                );
-              },
-              onRemove: (handlerId) {
-                context.read<ProxySelectorBloc>().add(
-                  const ManualModeLandHandlersChangeEvent(
-                    // r.landHandlers.where((e) => e != handlerId).toList()
-                  ),
-                );
-              },
-              onReplace: (p0, p1) {
-                context.read<ProxySelectorBloc>().add(
-                  const ManualModeLandHandlersChangeEvent(
-                    // r.landHandlers.map((e) => e == p0 ? p1 : e).toList()
-                  ),
-                );
-              },
+              onChanged: (landHandlers) => context
+                  .read<ProxySelectorBloc>()
+                  .add(ManualModeLandHandlersChangeEvent(landHandlers)),
             ),
           ],
         );

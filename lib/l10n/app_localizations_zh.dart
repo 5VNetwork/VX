@@ -2112,10 +2112,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addRouteMode => '添加路由模式';
 
   @override
-  String get setNameProxyApp => 'Proxy';
+  String get setNameProxyApp => '代理';
 
   @override
-  String get setNameDirectApp => 'Direct';
+  String get setNameDirectApp => '直连';
 
   @override
   String get defaultSelectorTag => '代理';

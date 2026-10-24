@@ -69,6 +69,7 @@ Future<SelectorConfig?> showSelectorTestFieldsForm(
                           labelText: l10n.selectorTestSpeedTestSizeLabel,
                           suffixText: l10n.selectorTestByteSuffix,
                           helperText: l10n.selectorTestSpeedTestSizeHelper,
+                          helperMaxLines: 5,
                           hintText: '1000000',
                           errorText: speedSizeError,
                           hintMaxLines: 5,

@@ -1895,7 +1895,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get androidSplitTunnel => 'Раздельное туннелирование приложений';
 
   @override
-  String get androidSplitTunnelDesc => 'Как наборы приложений маршрутизации сопоставляются с чёрным/белым списком VPN Android при включённом TUN.';
+  String get androidSplitTunnelDesc => '';
 
   @override
   String get androidSplitTunnelBlacklistDirect => 'Прямые приложения → чёрный список';
@@ -1959,19 +1959,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get selectorTestMinutesSuffix => 'мин';
 
   @override
-  String get selectorTestSpeedTestIntervalHelper => 'Periodically test speed of all filtered handlers';
+  String get selectorTestSpeedTestIntervalHelper => 'Периодически тестировать скорость всех отфильтрованных обработчиков';
 
   @override
   String get selectorTestPingTestIntervalLabel => 'Интервал ping-теста';
 
   @override
-  String get selectorTestPingTestIntervalHelper => 'Periodically test ping of all filtered handlers';
+  String get selectorTestPingTestIntervalHelper => 'Периодически тестировать ping всех отфильтрованных обработчиков';
 
   @override
   String get selectorTestUnusableTestIntervalLabel => 'Интервал проверки недоступных';
 
   @override
-  String get selectorTestUnusableTestIntervalHelper => 'Periodically test filtered but unusable handlers whether they are usable or not';
+  String get selectorTestUnusableTestIntervalHelper => 'Периодически проверять отфильтрованные, но недоступные обработчики на доступность';
 
   @override
   String get selectorTestMustBeNonNegativeInteger => 'Должно быть целым числом ≥ 0';
@@ -2696,45 +2696,45 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get policyTimeout => 'Policy Timeout';
+  String get policyTimeout => 'Таймаут политики';
 
   @override
-  String get policyTimeoutNoTimeoutHint => '-1 means no timeout';
+  String get policyTimeoutNoTimeoutHint => '-1 означает отсутствие таймаута';
 
   @override
   String policyTimeoutDefault(int seconds) {
-    return 'Default: ${seconds}s';
+    return 'По умолчанию: $secondsс';
   }
 
   @override
-  String get policyTcpIdleTimeout => 'TCP Idle Timeout';
+  String get policyTcpIdleTimeout => 'Таймаут простоя TCP';
 
   @override
-  String get policyTcpIdleTimeoutDesc => 'If uplink or downlink data is absent during this period, the connection will be closed.';
+  String get policyTcpIdleTimeoutDesc => 'Если в течение этого периода нет данных ни по uplink, ни по downlink, соединение будет закрыто.';
 
   @override
-  String get policyUdpIdleTimeout => 'UDP Idle Timeout';
+  String get policyUdpIdleTimeout => 'Таймаут простоя UDP';
 
   @override
-  String get policyUdpIdleTimeoutDesc => 'If no uplink data is received during this period, the connection will be closed.';
+  String get policyUdpIdleTimeoutDesc => 'Если в течение этого периода не получено данных по uplink, соединение будет закрыто.';
 
   @override
-  String get policyUpLinkOnlyTimeout => 'UpLink Only Timeout';
+  String get policyUpLinkOnlyTimeout => 'Таймаут только uplink';
 
   @override
-  String get policyUpLinkOnlyTimeoutDesc => 'If a TCP connection\'s downlink stream is done, the idle timeout switches to this value.';
+  String get policyUpLinkOnlyTimeoutDesc => 'Если downlink-поток TCP-соединения завершён, таймаут простоя переключается на это значение.';
 
   @override
-  String get policyDownLinkOnlyTimeout => 'DownLink Only Timeout';
+  String get policyDownLinkOnlyTimeout => 'Таймаут только downlink';
 
   @override
-  String get policyDownLinkOnlyTimeoutDesc => 'If a TCP connection\'s uplink stream is done, the idle timeout switches to this value.';
+  String get policyDownLinkOnlyTimeoutDesc => 'Если uplink-поток TCP-соединения завершён, таймаут простоя переключается на это значение.';
 
   @override
   String get tutorial => 'Учебное пособие';
 
   @override
-  String get selectGroup => 'Select Group';
+  String get selectGroup => 'Выбрать группу';
 
   @override
   String get addConcurrentDnsServer => 'Добавить параллельный DNS-сервер';
@@ -2836,13 +2836,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get maxUsersOnly => 'Эти функции доступны только пользователям Max.';
 
   @override
-  String get cnDomainsGoDirectRule => 'CN domains go direct';
+  String get cnDomainsGoDirectRule => 'CN-домены напрямую';
 
   @override
-  String get cnIpsGoDirectRule => 'CN IPs go direct';
+  String get cnIpsGoDirectRule => 'CN IP напрямую';
 
   @override
-  String get cnExcludeGfwDomains => 'CN Domains Exclude GFW';
+  String get cnExcludeGfwDomains => 'CN-домены без GFW';
 
   @override
   String get hysteriaRealm => 'Hysteria Realm';

@@ -67,7 +67,9 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     on<ManualSelectionModeChangeEvent>(_manualNodeModeChange);
     on<ManualNodeBalanceStrategyChangeEvent>(_manualNodeBalanceStrategyChange);
     on<ManualModeLandHandlersChangeEvent>(_manualModeLandHandlersChange);
-    on<AutoNodeSelectorConfigChangeEvent>(_autoNodeSelectorConfigChange);
+    on<AutoNodeSettingChangedEvent>(
+      (e, emit) => emit(state.copyWith(autoNodeSetting: e.config)),
+    );
     on<TestParametersChangeEvent>(_testParametersChange);
     {}
   }
@@ -244,30 +246,21 @@ class ProxySelectorBloc extends Bloc<ProxySelectorEvent, ProxySelectorState> {
     ManualModeLandHandlersChangeEvent e,
     Emitter<ProxySelectorState> emit,
   ) async {
-    // emit(state.copyWith(
-    //     manualNodeSetting:
-    //         state.manualNodeSetting.copyWith(landHandlers: e.landHandlers)));
-    _pref.setProxySelectorLandHandlers(state.manualNodeSetting.landHandlers);
-    await _xController.selectorSelectStrategyOrLandhandlerChange(
-      _pref.manualSelectorConfig,
+    emit(
+      state.copyWith(
+        manualNodeSetting: state.manualNodeSetting.copyWith(
+          landHandlers: e.landHandlers,
+        ),
+      ),
     );
-  }
-
-  void _autoNodeSelectorConfigChange(
-    AutoNodeSelectorConfigChangeEvent e,
-    Emitter<ProxySelectorState> emit,
-  ) async {
-    if (e.selectorStrategyOrLandHandlers) {
+    _pref.setProxySelectorLandHandlers(e.landHandlers);
+    try {
       await _xController.selectorSelectStrategyOrLandhandlerChange(
-        state.autoNodeSetting!,
+        _pref.manualSelectorConfig,
       );
-    } else if (e.balancingStragegy) {
-      await _xController.selectorBalancingStrategyChange(
-        defaultProxySelectorTag,
-        state.autoNodeSetting!.balanceStrategy,
-      );
-    } else if (e.filterLandHandlers) {
-      await _xController.selectorFilterChange(state.autoNodeSetting!);
+    } catch (err) {
+      logger.e('manualModeLandHandlersChange error', error: err);
+      snack(err.toString());
     }
   }
 

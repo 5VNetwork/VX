@@ -13,1115 +13,440 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:async';
-
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vx/app/home/home.dart';
-import 'package:vx/app/outbound/outbound_repo.dart';
-import 'package:vx/app/routing/repo.dart';
-import 'package:vx/app/routing/selector_test_fields_form.dart';
-import 'package:vx/app/x_controller.dart';
-import 'package:vx/l10n/app_localizations.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gap/gap.dart';
-import 'package:provider/provider.dart';
 import 'package:tm/protos/vx/router/router.pb.dart';
 import 'package:vx/app/control.dart';
+import 'package:vx/app/home/home.dart';
 import 'package:vx/app/outbound/outbound_page.dart';
+import 'package:vx/app/outbound/outbound_repo.dart';
 import 'package:vx/app/outbound/outbounds_bloc.dart';
 import 'package:vx/app/outbound/subscription.dart';
-import 'package:vx/auth/auth_bloc.dart';
+import 'package:vx/app/routing/repo.dart';
 import 'package:vx/app/routing/routing_page.dart';
 import 'package:vx/app/routing/selector_being_used.dart';
+import 'package:vx/app/routing/selector_cubit.dart';
+import 'package:vx/app/routing/selector_test_fields_form.dart';
+import 'package:vx/app/x_controller.dart';
 import 'package:vx/data/database.dart';
+import 'package:vx/l10n/app_localizations.dart';
 import 'package:vx/main.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:vx/utils/geoip.dart';
 import 'package:vx/utils/logger.dart';
 import 'package:vx/widgets/form_dialog.dart';
 import 'package:vx/widgets/handler_picker.dart';
 import 'package:vx/widgets/info_widget.dart';
 
-class SelectorsWidget extends StatefulWidget {
+/// Grid of all selectors with controls to add, edit and delete them.
+class SelectorsWidget extends StatelessWidget {
   const SelectorsWidget({super.key});
 
   @override
-  State<SelectorsWidget> createState() => _SelectorsWidgetState();
-}
-
-class _SelectorsWidgetState extends State<SelectorsWidget> {
-  final width = 300;
-  List<SelectorConfig> _configs = [];
-  StreamSubscription? _selectorSubscription;
-
-  Future<void> _removeSelectorAt(int index) async {
-    final controller = context.read<XController>();
-    await context.read<SelectorRepo>().removeSelector(_configs[index].tag);
-    controller.selectorRemove(_configs[index].tag);
-    _configs.removeAt(index);
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<void> _showEditSelectorForm(int index) async {
-    final config = _configs[index];
-    final edited = await showSelectorTestFieldsForm(context, config);
-    if (edited == null) return;
-    await context.read<SelectorRepo>().updateSelector(edited);
-    if (!mounted) return;
-    setState(() {
-      _configs[index] = edited;
-    });
-    context.read<XController>().selectorSelectStrategyOrLandhandlerChange(
-      edited,
+  Widget build(BuildContext context) {
+    final repo = context.watch<SelectorRepo>();
+    return BlocProvider(
+      key: ObjectKey(repo),
+      create: (context) => SelectorsCubit(
+        selectorRepo: repo,
+        xController: context.read<XController>(),
+      ),
+      child: const _SelectorsView(),
     );
   }
+}
 
-  @override
-  void initState() {
-    super.initState();
-  }
+class _SelectorsView extends StatelessWidget {
+  const _SelectorsView();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _selectorSubscription?.cancel();
-    _selectorSubscription = Provider.of<SelectorRepo>(context, listen: true)
-        .getSelectorsStream()
-        .listen((values) {
-          if (!mounted) return;
-          setState(() {
-            // Keep existing SelectorConfig instances so in-flight edits and the
-            // per-widget write queue are not orphaned by stream reloads (which
-            // would otherwise let a stale whole-blob write wipe newer fields).
-            final existingByTag = {for (final c in _configs) c.tag: c};
-            _configs = [
-              for (final fresh in values) existingByTag[fresh.tag] ?? fresh,
-            ];
-          });
-        });
-  }
+  static const _cardWidth = 300;
 
-  @override
-  void dispose() {
-    _selectorSubscription?.cancel();
-    super.dispose();
-  }
-
-  void _onAdd() async {
-    final selectorRepo = Provider.of<SelectorRepo>(context, listen: false);
-    final controller = context.read<XController>();
+  Future<void> _onAdd(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final cubit = context.read<SelectorsCubit>();
     final name = await showStringForm(
       context,
-      title: AppLocalizations.of(context)!.addSelector,
-      helperText: AppLocalizations.of(context)!.selectorNameDuplicate,
+      title: l10n.addSelector,
+      helperText: l10n.selectorNameDuplicate,
     );
-    if (name != null) {
-      if (_configs.any((e) => e.tag == name)) {
-        snack(rootLocalizations()?.selectorNameDuplicate);
-        return;
-      }
-      final hs = SelectorConfig(
-        tag: name,
-        filter: SelectorConfig_Filter(all: true),
-      );
-      setState(() {
-        _configs.add(hs);
-      });
-      // final data = HandlerSelectorsCompanion(
-      //   name: Value(name),
-      //   config: Value(hs),
-      // );
-      // await database
-      //     .into(database.handlerSelectors)
-      //     .insert(data, mode: InsertMode.insertOrIgnore);
-      selectorRepo.addSelector(hs);
-      controller.selectorSelectStrategyOrLandhandlerChange(hs);
-    }
+    if (name == null) return;
+    if (!await cubit.add(name)) snack(l10n.selectorNameDuplicate);
+  }
+
+  void _showInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) =>
+          InfoDialog(children: [l10n.selectorDesc1, l10n.selectorDesc2]),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final count = constraints.maxWidth ~/ width;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                FilledButton.tonal(
-                  onPressed: _onAdd,
-                  child: Text(AppLocalizations.of(context)!.addSelector),
-                ),
-                const Gap(5),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => InfoDialog(
-                        children: [
-                          AppLocalizations.of(context)!.selectorDesc1,
-                          AppLocalizations.of(context)!.selectorDesc2,
-                        ],
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.info_outline_rounded),
-                ),
-              ],
-            ),
-            const Gap(5),
-            Expanded(
-              child: MasonryGridView.count(
-                padding: const EdgeInsets.only(bottom: 70),
-                crossAxisCount: count,
-                itemCount: _configs.length,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-                itemBuilder: (context, index) {
-                  if (_configs[index].tag == defaultProxySelectorTag) {
-                    return const DefaultProxySelectorControl(showName: true);
-                  }
-                  return Card(
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _configs[index].tag,
-                                style: Theme.of(context).textTheme.labelLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                              const Gap(5),
-                              BlocProvider(
-                                create: (context) => SelectorBeingUsedCubit(
-                                  selectorTag: _configs[index].tag,
-                                  xController: context.read<XController>(),
-                                  outboundRepo: context.read<OutboundRepo>(),
-                                ),
-                                child: const SelectorBeingUsedView(),
-                              ),
-                              const Gap(5),
-                              SelectorConfigWidget(
-                                config: _configs[index],
-                                onFilterChange: () {
-                                  context
-                                      .read<XController>()
-                                      .selectorFilterChange(_configs[index]);
-                                },
-                                onBalanceStrategyChange: () {
-                                  context
-                                      .read<XController>()
-                                      .selectorBalancingStrategyChange(
-                                        _configs[index].tag,
-                                        _configs[index].balanceStrategy,
-                                      );
-                                },
-                                onStrategyOrLandHandlersChange: () {
-                                  context
-                                      .read<XController>()
-                                      .selectorSelectStrategyOrLandhandlerChange(
-                                        _configs[index],
-                                      );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          right: 5,
-                          top: 5,
-                          child: MenuAnchor(
-                            menuChildren: [
-                              MenuItemButton(
-                                leadingIcon: const Icon(Icons.home_outlined),
-                                onPressed: () {
-                                  context
-                                      .read<HomeLayoutRepo>()
-                                      .addWidgetIdToHome(
-                                        'SELECTOR_${_configs[index].tag}',
-                                      );
-                                  snack(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.addToHomeScreen,
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!.addToHomeScreen,
-                                ),
-                              ),
-                              MenuItemButton(
-                                leadingIcon: const Icon(Icons.edit_outlined),
-                                onPressed: () => _showEditSelectorForm(index),
-                                child: const Text('Edit'),
-                              ),
-                              MenuItemButton(
-                                leadingIcon: const Icon(Icons.delete_outline),
-                                onPressed: () => _removeSelectorAt(index),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                            builder: (context, controller, child) => IconButton(
-                              onPressed: () {
-                                controller.isOpen
-                                    ? controller.close()
-                                    : controller.open();
-                              },
-                              icon: const Icon(Icons.more_vert),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-// config is changed directly, when it is changed, the callbacks are called
-class SelectorConfigWidget extends StatefulWidget {
-  const SelectorConfigWidget({
-    super.key,
-    required this.config,
-    required this.onStrategyOrLandHandlersChange,
-    required this.onFilterChange,
-    required this.onBalanceStrategyChange,
-  });
-  final SelectorConfig config;
-  final Function() onStrategyOrLandHandlersChange;
-  final Function() onFilterChange;
-  final Function() onBalanceStrategyChange;
-  @override
-  State<SelectorConfigWidget> createState() => _SelectorConfigWidgetState();
-}
-
-class _SelectorConfigWidgetState extends State<SelectorConfigWidget>
-    with AutomaticKeepAliveClientMixin<SelectorConfigWidget> {
-  late final SelectorRepo _repo;
-
-  /// Serializes whole-config blob writes so concurrent edits cannot overwrite
-  /// each other (last-write-wins with a stale deepCopy).
-  Future<void> _writeQueue = Future.value();
-
-  Future<void> _persistConfig() {
-    final done = Completer<void>();
-    _writeQueue = _writeQueue
-        .catchError((_) {})
-        .then((_) async {
-          try {
-            await _repo.updateSelector(widget.config);
-            if (!done.isCompleted) done.complete();
-          } catch (e, st) {
-            if (!done.isCompleted) done.completeError(e, st);
-          }
-        });
-    return done.future;
-  }
-
-  /// Remove selector↔handler relations for handlers that no longer exist.
-  void _checkDeletedHandlerIds() async {
-    final outboundRepo = context.read<OutboundRepo>();
-    final ids = List<Int64>.from(widget.config.filter.handlerIds);
-    for (final handlerId in ids) {
-      final handler = await outboundRepo.getHandlerById(handlerId.toInt());
-      if (handler == null) {
-        await _repo.removeHandlerFromSelector(
-          widget.config.tag,
-          handlerId.toInt(),
-        );
-        widget.config.filter.handlerIds.remove(handlerId);
-        if (mounted) setState(() {});
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _repo = Provider.of<SelectorRepo>(context, listen: false);
-    _checkDeletedHandlerIds();
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-
-  void _onAllChange(bool value) async {
-    widget.config.filter.all = value;
-    try {
-      await _persistConfig();
-      if (mounted) setState(() {});
-      widget.onFilterChange();
-    } catch (e) {
-      logger.e('Error updating selector all flag', error: e);
-      snack(e.toString());
-    }
-  }
-
-  void _onSelectStrategyChange(
-    SelectorConfig_SelectingStrategy strategy,
-  ) async {
-    final previous = widget.config.strategy;
-    widget.config.strategy = strategy;
-    try {
-      await _persistConfig();
-      if (mounted) setState(() {});
-      widget.onStrategyOrLandHandlersChange();
-    } catch (e) {
-      widget.config.strategy = previous;
-      if (mounted) setState(() {});
-      logger.e('Error updating selector strategy', error: e);
-      snack(e.toString());
-    }
-  }
-
-  void _onBalanceStrategyChange(SelectorConfig_BalanceStrategy strategy) async {
-    final previous = widget.config.balanceStrategy;
-    widget.config.balanceStrategy = strategy;
-    try {
-      await _persistConfig();
-      if (mounted) setState(() {});
-      widget.onBalanceStrategyChange();
-    } catch (e) {
-      widget.config.balanceStrategy = previous;
-      if (mounted) setState(() {});
-      logger.e('Error updating selector balance strategy', error: e);
-      snack(e.toString());
-    }
-  }
-
-  void _onLandHandlerChange(int handlerId, bool add) async {
-    try {
-      await _persistConfig();
-      widget.onStrategyOrLandHandlersChange();
-    } catch (e) {
-      logger.e('Error updating land handlers', error: e);
-      snack(e.toString());
-    }
-  }
-
-  void _onLandHandlerReplace(int oldId, int newId) async {
-    try {
-      await _persistConfig();
-      widget.onStrategyOrLandHandlersChange();
-    } catch (e) {
-      logger.e('Error replacing land handler', error: e);
-      snack(e.toString());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
+    final selectors = context.watch<SelectorsCubit>().state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)!.range,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const Gap(5),
         Row(
           children: [
-            ChoiceChip(
-              label: Text(AppLocalizations.of(context)!.allNodes),
-              selected: widget.config.filter.all,
-              onSelected: (value) async {
-                if (value) {
-                  _onAllChange(true);
-                }
-              },
+            FilledButton.tonal(
+              onPressed: () => _onAdd(context),
+              child: Text(AppLocalizations.of(context)!.addSelector),
             ),
             const Gap(5),
-            ChoiceChip(
-              label: Text(AppLocalizations.of(context)!.partialNodes),
-              selected: !widget.config.filter.all,
-              onSelected: (value) async {
-                if (value) {
-                  _onAllChange(false);
-                }
-              },
+            IconButton(
+              onPressed: () => _showInfo(context),
+              icon: const Icon(Icons.info_outline_rounded),
             ),
           ],
-        ),
-        if (!widget.config.filter.all)
-          _SelectorFilter(
-            config: widget.config,
-            selectorRepo: _repo,
-            persistConfig: _persistConfig,
-            onFilterChange: widget.onFilterChange,
-          ),
-        const Gap(10),
-        Text(
-          AppLocalizations.of(context)!.selectingStrategy,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
         ),
         const Gap(5),
-        Wrap(
-          spacing: 5,
-          runSpacing: 5,
-          children: [
-            ...SelectorConfig_SelectingStrategy.values.map(
-              (e) => ChoiceChip(
-                label: Text(e.toLocalString(context)),
-                selected: widget.config.strategy == e,
-                onSelected: (value) {
-                  if (value) {
-                    _onSelectStrategyChange(e);
-                  }
-                },
-              ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) => MasonryGridView.count(
+              padding: const EdgeInsets.only(bottom: 70),
+              crossAxisCount: constraints.maxWidth ~/ _cardWidth,
+              itemCount: selectors.length,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+              itemBuilder: (context, index) {
+                final config = selectors[index];
+                if (config.tag == defaultProxySelectorTag) {
+                  return const DefaultProxySelectorControl(
+                    key: ValueKey(defaultProxySelectorTag),
+                    showName: true,
+                  );
+                }
+                return _SelectorCard(key: ValueKey(config.tag), config: config);
+              },
             ),
-          ],
-        ),
-        if (widget.config.strategy == SelectorConfig_SelectingStrategy.ALL_OK ||
-            widget.config.strategy ==
-                SelectorConfig_SelectingStrategy.TOP_PING ||
-            widget.config.strategy ==
-                SelectorConfig_SelectingStrategy.TOP_THROUGHPUT ||
-            widget.config.strategy == SelectorConfig_SelectingStrategy.ALL)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Gap(10),
-              Text(
-                AppLocalizations.of(context)!.balanceStrategy,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Gap(5),
-              Row(
-                children: [
-                  ChoiceChip(
-                    label: Text(
-                      SelectorConfig_BalanceStrategy.RANDOM.toLocalString(
-                        context,
-                      ),
-                      // style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    selected:
-                        widget.config.balanceStrategy ==
-                        SelectorConfig_BalanceStrategy.RANDOM,
-                    onSelected: (value) {
-                      if (value) {
-                        _onBalanceStrategyChange(
-                          SelectorConfig_BalanceStrategy.RANDOM,
-                        );
-                      }
-                    },
-                  ),
-                  const Gap(5),
-                  ChoiceChip(
-                    label: Text(
-                      SelectorConfig_BalanceStrategy.MEMORY.toLocalString(
-                        context,
-                      ),
-                    ),
-                    selected:
-                        widget.config.balanceStrategy ==
-                        SelectorConfig_BalanceStrategy.MEMORY,
-                    onSelected: (value) {
-                      if (value) {
-                        _onBalanceStrategyChange(
-                          SelectorConfig_BalanceStrategy.MEMORY,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ],
           ),
-        const Gap(10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Tooltip(
-              preferBelow: false,
-              message: AppLocalizations.of(context)!.nodeChainDesc,
-              child: Text(
-                AppLocalizations.of(context)!.nodeChain,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            const SizedBox(height: 5, width: double.infinity),
-            LandHandlerSelect(
-              landHandlers: widget.config.landHandlers,
-              onAdd: (handlerId) {
-                _onLandHandlerChange(handlerId, true);
-              },
-              onRemove: (handlerId) {
-                _onLandHandlerChange(handlerId, false);
-              },
-              onReplace: _onLandHandlerReplace,
-            ),
-          ],
         ),
       ],
     );
   }
 }
 
-class _SelectorFilter extends StatefulWidget {
-  const _SelectorFilter({
-    required this.config,
-    required this.selectorRepo,
-    required this.persistConfig,
-    required this.onFilterChange,
-  });
+class _SelectorCard extends StatelessWidget {
+  const _SelectorCard({super.key, required this.config});
 
   final SelectorConfig config;
-  final SelectorRepo selectorRepo;
-  final Future<void> Function() persistConfig;
-  final Function() onFilterChange;
-  @override
-  State<_SelectorFilter> createState() => _SelectorFilterState();
-}
-
-class _SelectorFilterState extends State<_SelectorFilter> {
-  List<NodeGroup> _nodeMenuGroups = [];
-  Map<String, List<OutboundHandler>> _handlersByGroup = {};
-  bool _nodeMenuLoading = false;
-  List<NodeGroup> _nodeGroupMenuGroups = [];
-
-  Future<void> _loadNodeMenu() async {
-    if (_nodeMenuLoading) return;
-    setState(() {
-      _nodeMenuLoading = true;
-    });
-
-    final repo = context.read<OutboundRepo>();
-    final groups = context.read<OutboundBloc>().state.groups;
-    final handlersByGroup = <String, List<OutboundHandler>>{};
-    try {
-      for (final group in groups) {
-        final handlers = await repo.getHandlersByNodeGroup(group);
-        handlersByGroup[group.name] = handlers
-            .where((handler) => handler.config.hasOutbound())
-            .toList();
-      }
-      if (!mounted) return;
-      setState(() {
-        _nodeMenuGroups = groups;
-        _handlersByGroup = handlersByGroup;
-        _nodeMenuLoading = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _nodeMenuLoading = false;
-      });
-    }
-  }
-
-  Widget _buildNodeGroupSubmenu(
-    NodeGroup group,
-    List<OutboundHandler> handlers,
-  ) {
-    final valueListenable = ValueNotifier(0);
-    final selectedMap = <int, bool>{};
-    for (final handler in handlers) {
-      selectedMap[handler.id] = widget.config.filter.handlerIds.contains(
-        Int64(handler.id),
-      );
-      if (selectedMap[handler.id]!) {
-        valueListenable.value++;
-      }
-    }
-    return SubmenuButton(
-      leadingIcon: ValueListenableBuilder(
-        valueListenable: valueListenable,
-        builder: (context, value, child) {
-          return value > 0
-              ? const Icon(Icons.check_box_outlined)
-              : const Icon(Icons.check_box_outline_blank_rounded);
-        },
-      ),
-      menuChildren: handlers.map((e) {
-        return StatefulBuilder(
-          builder: (ctx, setState) {
-            return MenuItemButton(
-              leadingIcon: Checkbox(
-                value: selectedMap[e.id],
-                onChanged: (value) {
-                  _onHandlerChange(
-                    e.id,
-                    value ?? false,
-                    setState,
-                    valueListenable,
-                    selectedMap,
-                  );
-                },
-              ),
-              closeOnActivate: false,
-              onPressed: () {
-                _onHandlerChange(
-                  e.id,
-                  !selectedMap[e.id]!,
-                  setState,
-                  valueListenable,
-                  selectedMap,
-                );
-              },
-              child: Text(e.name),
-            );
-          },
-        );
-      }).toList(),
-      child: Text(groupNametoLocalizedName(context, group.name)),
-    );
-  }
-
-  void _onHandlerChange(
-    int handlerId,
-    bool selected,
-    Function(void Function()) setState,
-    ValueNotifier<int> valueListenable,
-    Map<int, bool> selectedMap,
-  ) async {
-    try {
-      if (selected) {
-        await widget.selectorRepo.addHandlerToSelector(
-          widget.config.tag,
-          handlerId,
-        );
-        widget.config.filter.handlerIds.add(Int64(handlerId));
-        valueListenable.value++;
-        selectedMap[handlerId] = true;
-      } else {
-        await widget.selectorRepo.removeHandlerFromSelector(
-          widget.config.tag,
-          handlerId,
-        );
-        widget.config.filter.handlerIds.remove(Int64(handlerId));
-        valueListenable.value--;
-        selectedMap[handlerId] = false;
-      }
-    } catch (e) {
-      logger.e('Error changing handler: $e');
-      snack(e.toString());
-    }
-    setState(() {});
-    widget.onFilterChange();
-  }
-
-  void _onHandlerGroupChange(
-    String groupName,
-    bool selected,
-    Function(void Function()) setState,
-  ) async {
-    if (selected) {
-      await widget.selectorRepo.addHandlerGroupToSelector(
-        widget.config.tag,
-        groupName,
-      );
-      widget.config.filter.groupTags.add(groupName);
-    } else {
-      await widget.selectorRepo.removeHandlerGroupFromSelector(
-        widget.config.tag,
-        groupName,
-      );
-      widget.config.filter.groupTags.remove(groupName);
-    }
-    setState(() {});
-    widget.onFilterChange();
-  }
-
-  void _onSubChange(
-    int subId,
-    bool selected,
-    Function(void Function()) setState,
-  ) async {
-    if (selected) {
-      await widget.selectorRepo.addSubscriptionToSelector(
-        widget.config.tag,
-        subId,
-      );
-      widget.config.filter.subIds.add(Int64(subId));
-    } else {
-      await widget.selectorRepo.removeSubscriptionFromSelector(
-        widget.config.tag,
-        subId,
-      );
-      widget.config.filter.subIds.remove(Int64(subId));
-    }
-    setState(() {});
-    widget.onFilterChange();
-  }
-
-  /// [persistConfig] writes the whole config blob, so the in-memory list must
-  /// be updated first; restore the snapshot only if persistence fails.
-  Future<void> _toggleFilterString(
-    List<String> values,
-    String value,
-    bool selected,
-    void Function(void Function()) setState,
-  ) async {
-    final previous = List<String>.from(values);
-    if (selected) {
-      values.add(value);
-    } else {
-      values.remove(value);
-    }
-    try {
-      await widget.persistConfig();
-    } catch (e) {
-      values
-        ..clear()
-        ..addAll(previous);
-      logger.e('Error updating selector filter', error: e);
-      snack(e.toString());
-      return;
-    }
-    setState(() {});
-    try {
-      widget.onFilterChange();
-    } catch (e) {
-      logger.e('Error applying selector filter to runtime', error: e);
-      snack(e.toString());
-    }
-  }
-
-  Future<void> _onPrefixChange(
-    String prefix,
-    bool selected,
-    Function(void Function()) setState,
-  ) => _toggleFilterString(
-    widget.config.filter.prefixes,
-    prefix,
-    selected,
-    setState,
-  );
-
-  Future<void> _onSubStringChange(
-    String subString,
-    bool selected,
-    Function(void Function()) setState,
-  ) => _toggleFilterString(
-    widget.config.filter.subStrings,
-    subString,
-    selected,
-    setState,
-  );
-
-  Future<void> _onAreaChange(
-    String area,
-    bool selected,
-    Function(void Function()) setState,
-  ) => _toggleFilterString(
-    widget.config.filter.countryCodes,
-    area,
-    selected,
-    setState,
-  );
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SelectorScope(
+      config: config,
+      child: Card(
+        elevation: 0,
+        color: theme.colorScheme.surfaceContainer,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    config.tag,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const Gap(5),
+                  BlocProvider(
+                    create: (context) => SelectorBeingUsedCubit(
+                      selectorTag: config.tag,
+                      xController: context.read<XController>(),
+                      outboundRepo: context.read<OutboundRepo>(),
+                    ),
+                    child: const SelectorBeingUsedView(),
+                  ),
+                  const Gap(5),
+                  const SelectorConfigView(),
+                ],
+              ),
+            ),
+            const Positioned(right: 5, top: 5, child: _SelectorCardMenu()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectorCardMenu extends StatelessWidget {
+  const _SelectorCardMenu();
+
+  Future<void> _edit(BuildContext context) async {
+    final cubit = context.read<SelectorCubit>();
+    final edited = await showSelectorTestFieldsForm(
+      context,
+      cubit.state.deepCopy(),
+    );
+    if (edited != null) await cubit.replace(edited);
+  }
+
+  void _addToHome(BuildContext context, String tag) {
+    final l10n = AppLocalizations.of(context)!;
+    context.read<HomeLayoutRepo>().addWidgetIdToHome('SELECTOR_$tag');
+    snack(l10n.addToHomeScreen);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tag = context.read<SelectorCubit>().tag;
+    return MenuAnchor(
+      menuChildren: [
+        MenuItemButton(
+          leadingIcon: const Icon(Icons.home_outlined),
+          onPressed: () => _addToHome(context, tag),
+          child: Text(AppLocalizations.of(context)!.addToHomeScreen),
+        ),
+        MenuItemButton(
+          leadingIcon: const Icon(Icons.edit_outlined),
+          onPressed: () => _edit(context),
+          child: const Text('Edit'),
+        ),
+        MenuItemButton(
+          leadingIcon: const Icon(Icons.delete_outline),
+          onPressed: () => context.read<SelectorsCubit>().remove(tag),
+          child: const Text('Delete'),
+        ),
+      ],
+      builder: (context, controller, child) => IconButton(
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+        icon: const Icon(Icons.more_vert),
+      ),
+    );
+  }
+}
+
+/// Provides a [SelectorCubit] for [config] to [child].
+class SelectorScope extends StatelessWidget {
+  const SelectorScope({super.key, required this.config, required this.child});
+
+  final SelectorConfig config;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final repo = context.watch<SelectorRepo>();
+    return BlocProvider(
+      key: ObjectKey(repo),
+      create: (context) => SelectorCubit(
+        initial: config,
+        selectorRepo: repo,
+        outboundRepo: context.read<OutboundRepo>(),
+        xController: context.read<XController>(),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Editor for the selector provided by the nearest [SelectorScope].
+class SelectorConfigView extends StatelessWidget {
+  const SelectorConfigView({super.key});
+
+  static const _balancedStrategies = {
+    SelectorConfig_SelectingStrategy.ALL_OK,
+    SelectorConfig_SelectingStrategy.TOP_PING,
+    SelectorConfig_SelectingStrategy.TOP_THROUGHPUT,
+    SelectorConfig_SelectingStrategy.ALL,
+  };
+
+  static const _balanceStrategies = [
+    SelectorConfig_BalanceStrategy.RANDOM,
+    SelectorConfig_BalanceStrategy.MEMORY,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final config = context.watch<SelectorCubit>().state;
+    final cubit = context.read<SelectorCubit>();
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionLabel(l10n.range),
+        const Gap(5),
+        Row(
+          children: [
+            ChoiceChip(
+              label: Text(l10n.allNodes),
+              selected: config.filter.all,
+              onSelected: (value) {
+                if (value) cubit.setAllNodes(true);
+              },
+            ),
+            const Gap(5),
+            ChoiceChip(
+              label: Text(l10n.partialNodes),
+              selected: !config.filter.all,
+              onSelected: (value) {
+                if (value) cubit.setAllNodes(false);
+              },
+            ),
+          ],
+        ),
+        if (!config.filter.all) _SelectorFilter(filter: config.filter),
+        const Gap(10),
+        _SectionLabel(l10n.selectingStrategy),
+        const Gap(5),
+        Wrap(
+          spacing: 5,
+          runSpacing: 5,
+          children: [
+            for (final strategy in SelectorConfig_SelectingStrategy.values)
+              ChoiceChip(
+                label: Text(strategy.toLocalString(context)),
+                selected: config.strategy == strategy,
+                onSelected: (value) {
+                  if (value) cubit.setStrategy(strategy);
+                },
+              ),
+          ],
+        ),
+        if (_balancedStrategies.contains(config.strategy)) ...[
+          const Gap(10),
+          _SectionLabel(l10n.balanceStrategy),
+          const Gap(5),
+          Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: [
+              for (final strategy in _balanceStrategies)
+                ChoiceChip(
+                  label: Text(strategy.toLocalString(context)),
+                  selected: config.balanceStrategy == strategy,
+                  onSelected: (value) {
+                    if (value) cubit.setBalanceStrategy(strategy);
+                  },
+                ),
+            ],
+          ),
+        ],
+        const Gap(10),
+        Tooltip(
+          preferBelow: false,
+          message: l10n.nodeChainDesc,
+          child: _SectionLabel(l10n.nodeChain),
+        ),
+        const SizedBox(height: 5, width: double.infinity),
+        LandHandlerSelect(
+          landHandlers: config.landHandlers,
+          onChanged: cubit.setLandHandlers,
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Text(
+      text,
+      style: theme.textTheme.labelMedium?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// Node / node group / other filters used when a selector does not cover all
+/// nodes.
+class _SelectorFilter extends StatelessWidget {
+  const _SelectorFilter({required this.filter});
+
+  final SelectorConfig_Filter filter;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<SelectorCubit>();
+    final groups = context.watch<OutboundBloc>().state.groups;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: Row(
+      child: Wrap(
+        spacing: 5,
+        runSpacing: 5,
         children: [
-          MenuAnchor(
-            consumeOutsideTap: true,
-            onClose: () {
-              setState(() {
-                _nodeMenuGroups = [];
-                _handlersByGroup = {};
-              });
-            },
-            menuChildren: _nodeMenuGroups.map((group) {
-              final handlers =
-                  _handlersByGroup[group.name] ?? const <OutboundHandler>[];
-              return _buildNodeGroupSubmenu(group, handlers);
-            }).toList(),
-            builder: (context, controller, child) {
-              return ActionChip(
-                label: Text(AppLocalizations.of(context)!.node),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                avatar: widget.config.filter.handlerIds.isNotEmpty
-                    ? const Icon(Icons.check_box_outlined)
-                    : const Icon(Icons.check_box_outline_blank_rounded),
-                onPressed: () async {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    await _loadNodeMenu();
-                    if (!mounted) return;
-                    controller.open();
-                  }
-                },
-              );
-            },
-          ),
-          const Gap(5),
-          MenuAnchor(
-            consumeOutsideTap: true,
-            menuChildren: _nodeGroupMenuGroups
-                .map(
-                  (e) => StatefulBuilder(
-                    builder: (context, setState) {
-                      late bool groupSelected;
-                      if (e is MySubscription) {
-                        groupSelected = widget.config.filter.subIds.contains(
-                          Int64(e.id),
-                        );
-                      } else {
-                        groupSelected = widget.config.filter.groupTags.contains(
-                          e.name,
-                        );
-                      }
-                      return MenuItemButton(
-                        leadingIcon: Checkbox(
-                          value: groupSelected,
-                          onChanged: (value) {
-                            if (value == true) {
-                              if (e is MySubscription) {
-                                _onSubChange(e.id, true, setState);
-                              } else {
-                                _onHandlerGroupChange(e.name, true, setState);
-                              }
-                            } else {
-                              if (e is MySubscription) {
-                                _onSubChange(e.id, false, setState);
-                              } else {
-                                _onHandlerGroupChange(e.name, false, setState);
-                              }
-                            }
-                          },
-                        ),
-                        closeOnActivate: false,
-                        onPressed: () {
-                          if (groupSelected) {
-                            if (e is MySubscription) {
-                              _onSubChange(e.id, false, setState);
-                            } else {
-                              _onHandlerGroupChange(e.name, false, setState);
-                            }
-                          } else {
-                            if (e is MySubscription) {
-                              _onSubChange(e.id, true, setState);
-                            } else {
-                              _onHandlerGroupChange(e.name, true, setState);
-                            }
-                          }
-                        },
-                        child: Text(groupNametoLocalizedName(context, e.name)),
-                      );
-                    },
-                  ),
-                )
-                .toList(),
-            builder: (context, controller, child) {
-              return ActionChip(
-                label: Text(AppLocalizations.of(context)!.nodeGroup),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                avatar:
-                    widget.config.filter.groupTags.isNotEmpty ||
-                        widget.config.filter.subIds.isNotEmpty
-                    ? const Icon(Icons.check_box_outlined)
-                    : const Icon(Icons.check_box_outline_blank_rounded),
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    setState(() {
-                      _nodeGroupMenuGroups = context
-                          .read<OutboundBloc>()
-                          .state
-                          .groups;
-                    });
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) controller.open();
-                    });
-                  }
-                },
-              );
-            },
-          ),
-          const Gap(5),
-          MenuAnchor(
+          _MenuChip(
+            label: l10n.node,
+            active: filter.handlerIds.isNotEmpty,
             menuChildren: [
-              StatefulBuilder(
-                builder: (ctx, setState0) {
-                  return SubmenuButton(
-                    leadingIcon: widget.config.filter.prefixes.isNotEmpty
-                        ? const Icon(Icons.check_box_outlined)
-                        : const Icon(Icons.check_box_outline_blank_rounded),
-                    menuChildren: [
-                      for (var prefix in widget.config.filter.prefixes)
-                        MenuItemButton(
-                          trailingIcon: const Icon(
-                            Icons.delete_outline_rounded,
-                          ),
-                          onPressed: () {
-                            _onPrefixChange(prefix, false, setState0);
-                          },
-                          closeOnActivate: false,
-                          child: Text(prefix),
-                        ),
-                      const Divider(),
-                      MenuItemButton(
-                        leadingIcon: const Icon(Icons.add_rounded),
-                        onPressed: () async {
-                          final value = await showStringForm(
-                            context,
-                            title: AppLocalizations.of(context)!.add,
-                          );
-                          if (value != null) {
-                            _onPrefixChange(value, true, setState);
-                          }
-                        },
-                        closeOnActivate: false,
-                        child: Text(AppLocalizations.of(context)!.add),
-                      ),
-                    ],
-                    child: Text(AppLocalizations.of(context)!.prefix),
-                  );
-                },
-              ),
-              StatefulBuilder(
-                builder: (ctx, setState0) {
-                  return SubmenuButton(
-                    leadingIcon: widget.config.filter.subStrings.isNotEmpty
-                        ? const Icon(Icons.check_box_outlined)
-                        : const Icon(Icons.check_box_outline_blank_rounded),
-                    menuChildren: [
-                      for (var subString in widget.config.filter.subStrings)
-                        MenuItemButton(
-                          closeOnActivate: false,
-                          leadingIcon: const Icon(Icons.delete_outline_rounded),
-                          onPressed: () {
-                            _onSubStringChange(subString, false, setState0);
-                          },
-                          child: Text(subString),
-                        ),
-                      const Divider(),
-                      MenuItemButton(
-                        leadingIcon: const Icon(Icons.add_rounded),
-                        onPressed: () async {
-                          final value = await showStringForm(
-                            context,
-                            title: AppLocalizations.of(context)!.add,
-                          );
-                          if (value != null) {
-                            _onSubStringChange(value, true, setState);
-                          }
-                        },
-                        closeOnActivate: false,
-                        child: Text(AppLocalizations.of(context)!.add),
-                      ),
-                    ],
-                    child: Text(AppLocalizations.of(context)!.subString),
-                  );
-                },
-              ),
-              FutureBuilder(
-                future: context.read<OutboundRepo>().getAllCountryCodes(),
-                builder: (ctx, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox.shrink();
-                  }
-                  final valueListenable = ValueNotifier(0);
-                  valueListenable.value =
-                      widget.config.filter.countryCodes.length;
-                  return SubmenuButton(
-                    leadingIcon: ValueListenableBuilder(
-                      valueListenable: valueListenable,
-                      builder: (context, value, child) {
-                        return value > 0
-                            ? const Icon(Icons.check_box_outlined)
-                            : const Icon(Icons.check_box_outline_blank_rounded);
-                      },
+              for (final group in groups)
+                _GroupHandlersSubmenu(
+                  group: group,
+                  leadingIconBuilder: (handlers) => _CheckIcon(
+                    handlers.any(
+                      (h) => filter.handlerIds.contains(Int64(h.id)),
                     ),
-                    menuChildren: [
-                      for (var countryCode in snapshot.data ?? [])
-                        StatefulBuilder(
-                          builder: (ctx, setState) {
-                            return MenuItemButton(
-                              closeOnActivate: false,
-                              leadingIcon: getCountryIcon(countryCode),
-                              trailingIcon: Checkbox(
-                                value: widget.config.filter.countryCodes
-                                    .contains(countryCode),
-                                onChanged: (value) {
-                                  _onAreaChange(
-                                    countryCode,
-                                    value ?? false,
-                                    setState,
-                                  );
-                                  valueListenable.value =
-                                      widget.config.filter.countryCodes.length;
-                                },
-                              ),
-                              onPressed: () {
-                                _onAreaChange(
-                                  countryCode,
-                                  !widget.config.filter.countryCodes.contains(
-                                    countryCode,
-                                  ),
-                                  setState,
-                                );
-                                valueListenable.value =
-                                    widget.config.filter.countryCodes.length;
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(countryCode),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                    child: Text(AppLocalizations.of(context)!.area),
-                  );
-                },
+                  ),
+                  itemBuilder: (handler) => _CheckMenuItem(
+                    checked: filter.handlerIds.contains(Int64(handler.id)),
+                    onChanged: (selected) =>
+                        cubit.setHandlerSelected(handler.id, selected),
+                    child: Text(handler.name),
+                  ),
+                ),
+            ],
+          ),
+          _MenuChip(
+            label: l10n.nodeGroup,
+            active: filter.groupTags.isNotEmpty || filter.subIds.isNotEmpty,
+            menuChildren: [
+              for (final group in groups)
+                if (group is MySubscription)
+                  _CheckMenuItem(
+                    checked: filter.subIds.contains(Int64(group.id)),
+                    onChanged: (selected) =>
+                        cubit.setSubscriptionSelected(group.id, selected),
+                    child: Text(groupNametoLocalizedName(context, group.name)),
+                  )
+                else
+                  _CheckMenuItem(
+                    checked: filter.groupTags.contains(group.name),
+                    onChanged: (selected) =>
+                        cubit.setGroupSelected(group.name, selected),
+                    child: Text(groupNametoLocalizedName(context, group.name)),
+                  ),
+            ],
+          ),
+          _MenuChip(
+            label: l10n.others,
+            active:
+                filter.prefixes.isNotEmpty ||
+                filter.subStrings.isNotEmpty ||
+                filter.countryCodes.isNotEmpty,
+            menuChildren: [
+              _StringListSubmenu(
+                label: l10n.prefix,
+                values: filter.prefixes,
+                onChanged: cubit.setPrefix,
+              ),
+              _StringListSubmenu(
+                label: l10n.subString,
+                values: filter.subStrings,
+                onChanged: cubit.setSubString,
+              ),
+              _CountryCodeSubmenu(
+                selected: filter.countryCodes,
+                onChanged: cubit.setCountryCode,
               ),
             ],
-            builder: (context, controller, child) {
-              return ActionChip(
-                label: Text(AppLocalizations.of(context)!.others),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                avatar:
-                    widget.config.filter.prefixes.isNotEmpty ||
-                        widget.config.filter.subStrings.isNotEmpty ||
-                        widget.config.filter.countryCodes.isNotEmpty
-                    ? const Icon(Icons.check_box_outlined)
-                    : const Icon(Icons.check_box_outline_blank_rounded),
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-              );
-            },
           ),
         ],
       ),
@@ -1129,25 +454,244 @@ class _SelectorFilterState extends State<_SelectorFilter> {
   }
 }
 
-/// this widget modify [landHanlers] and call the callback when it changes
-class LandHandlerSelect extends StatefulWidget {
+class _CheckIcon extends StatelessWidget {
+  const _CheckIcon(this.checked);
+
+  final bool checked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      checked
+          ? Icons.check_box_outlined
+          : Icons.check_box_outline_blank_rounded,
+    );
+  }
+}
+
+/// An [ActionChip] that toggles a dropdown menu.
+class _MenuChip extends StatelessWidget {
+  const _MenuChip({
+    required this.label,
+    required this.active,
+    required this.menuChildren,
+  });
+
+  final String label;
+  final bool active;
+  final List<Widget> menuChildren;
+
+  @override
+  Widget build(BuildContext context) {
+    return MenuAnchor(
+      consumeOutsideTap: true,
+      menuChildren: menuChildren,
+      builder: (context, controller, child) => ActionChip(
+        label: Text(label),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+        avatar: _CheckIcon(active),
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+      ),
+    );
+  }
+}
+
+/// A menu item with a checkbox that stays open when toggled.
+class _CheckMenuItem extends StatelessWidget {
+  const _CheckMenuItem({
+    required this.checked,
+    required this.onChanged,
+    required this.child,
+    this.icon,
+  });
+
+  final bool checked;
+  final ValueChanged<bool> onChanged;
+  final Widget child;
+
+  /// When set, it is shown as the leading icon and the checkbox moves to the
+  /// trailing side.
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final checkbox = Checkbox(
+      value: checked,
+      onChanged: (value) => onChanged(value ?? false),
+    );
+    return MenuItemButton(
+      closeOnActivate: false,
+      leadingIcon: icon ?? checkbox,
+      trailingIcon: icon == null ? null : checkbox,
+      onPressed: () => onChanged(!checked),
+      child: child,
+    );
+  }
+}
+
+/// Submenu listing the handlers of [group], loaded when the menu is opened.
+class _GroupHandlersSubmenu extends StatefulWidget {
+  const _GroupHandlersSubmenu({
+    required this.group,
+    required this.itemBuilder,
+    this.leadingIconBuilder,
+  });
+
+  final NodeGroup group;
+  final Widget Function(OutboundHandler handler) itemBuilder;
+  final Widget Function(List<OutboundHandler> handlers)? leadingIconBuilder;
+
+  @override
+  State<_GroupHandlersSubmenu> createState() => _GroupHandlersSubmenuState();
+}
+
+class _GroupHandlersSubmenuState extends State<_GroupHandlersSubmenu> {
+  List<OutboundHandler> _handlers = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(_GroupHandlersSubmenu oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.group.name != widget.group.name) _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final handlers = await context
+          .read<OutboundRepo>()
+          .getHandlersByNodeGroup(widget.group);
+      if (!mounted) return;
+      setState(() {
+        _handlers = handlers.where((h) => h.config.hasOutbound()).toList();
+      });
+    } catch (e) {
+      logger.e('Error loading handlers of ${widget.group.name}', error: e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SubmenuButton(
+      leadingIcon: widget.leadingIconBuilder?.call(_handlers),
+      menuChildren: _handlers.map(widget.itemBuilder).toList(),
+      child: Text(groupNametoLocalizedName(context, widget.group.name)),
+    );
+  }
+}
+
+/// Submenu to add and remove free-form strings.
+class _StringListSubmenu extends StatelessWidget {
+  const _StringListSubmenu({
+    required this.label,
+    required this.values,
+    required this.onChanged,
+  });
+
+  final String label;
+  final List<String> values;
+  final void Function(String value, bool selected) onChanged;
+
+  Future<void> _add(BuildContext context) async {
+    final value = await showStringForm(
+      context,
+      title: AppLocalizations.of(context)!.add,
+    );
+    if (value != null) onChanged(value, true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SubmenuButton(
+      leadingIcon: _CheckIcon(values.isNotEmpty),
+      menuChildren: [
+        for (final value in values)
+          MenuItemButton(
+            closeOnActivate: false,
+            trailingIcon: const Icon(Icons.delete_outline_rounded),
+            onPressed: () => onChanged(value, false),
+            child: Text(value),
+          ),
+        const Divider(),
+        MenuItemButton(
+          closeOnActivate: false,
+          leadingIcon: const Icon(Icons.add_rounded),
+          onPressed: () => _add(context),
+          child: Text(AppLocalizations.of(context)!.add),
+        ),
+      ],
+      child: Text(label),
+    );
+  }
+}
+
+/// Submenu to pick country codes among those of existing handlers.
+class _CountryCodeSubmenu extends StatefulWidget {
+  const _CountryCodeSubmenu({required this.selected, required this.onChanged});
+
+  final List<String> selected;
+  final void Function(String countryCode, bool selected) onChanged;
+
+  @override
+  State<_CountryCodeSubmenu> createState() => _CountryCodeSubmenuState();
+}
+
+class _CountryCodeSubmenuState extends State<_CountryCodeSubmenu> {
+  List<String> _countryCodes = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final codes = await context.read<OutboundRepo>().getAllCountryCodes();
+      if (mounted) setState(() => _countryCodes = codes);
+    } catch (e) {
+      logger.e('Error loading country codes', error: e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SubmenuButton(
+      leadingIcon: _CheckIcon(widget.selected.isNotEmpty),
+      menuChildren: [
+        for (final code in _countryCodes)
+          _CheckMenuItem(
+            icon: getCountryIcon(code),
+            checked: widget.selected.contains(code),
+            onChanged: (selected) => widget.onChanged(code, selected),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(code),
+            ),
+          ),
+      ],
+      child: Text(AppLocalizations.of(context)!.area),
+    );
+  }
+}
+
+/// Edits a node chain. Never mutates [landHandlers]; every edit reports a new
+/// list through [onChanged].
+class LandHandlerSelect extends StatelessWidget {
   const LandHandlerSelect({
     super.key,
     required this.landHandlers,
-    required this.onAdd,
-    required this.onRemove,
-    required this.onReplace,
+    required this.onChanged,
   });
+
   final List<Int64> landHandlers;
-  final Function(int) onAdd;
-  final Function(int) onRemove;
-  final Function(int, int) onReplace;
+  final ValueChanged<List<Int64>> onChanged;
 
-  @override
-  State<LandHandlerSelect> createState() => _LandHandlerSelectState();
-}
-
-class _LandHandlerSelectState extends State<LandHandlerSelect> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -1155,135 +699,124 @@ class _LandHandlerSelectState extends State<LandHandlerSelect> {
       spacing: 5,
       runSpacing: 5,
       children: [
-        for (var handlerId in widget.landHandlers)
-          FutureBuilder(
-            future: context.read<OutboundRepo>().getHandlerById(
-              handlerId.toInt(),
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(height: 32, width: 100);
-              }
-              return MenuAnchor(
-                menuChildren: [
-                  MenuItemButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.landHandlers.remove(handlerId);
-                      });
-                      widget.onRemove(handlerId.toInt());
-                    },
-                    child: Text(AppLocalizations.of(context)!.delete),
-                  ),
-                ],
-                child: MenuAnchor(
-                  menuChildren: context
-                      .read<OutboundBloc>()
-                      .state
-                      .groups
-                      .map(
-                        (e) => FutureBuilder(
-                          future: context
-                              .read<OutboundRepo>()
-                              .getHandlersByNodeGroup(e),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const SizedBox.shrink();
-                            }
-                            return SubmenuButton(
-                              menuChildren:
-                                  snapshot.data
-                                      ?.where((e) => e.config.hasOutbound())
-                                      .map(
-                                        (e) => MenuItemButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              widget.landHandlers[widget
-                                                  .landHandlers
-                                                  .indexOf(handlerId)] = Int64(
-                                                e.id,
-                                              );
-                                            });
-                                            widget.onReplace(
-                                              handlerId.toInt(),
-                                              e.id,
-                                            );
-                                          },
-                                          child: Text(e.name),
-                                        ),
-                                      )
-                                      .toList() ??
-                                  [],
-                              child: Text(
-                                groupNametoLocalizedName(context, e.name),
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                      .toList(),
-                  builder: (context, controller, child) {
-                    return GestureDetector(
-                      onTap: () {
-                        controller.isOpen
-                            ? controller.close()
-                            : controller.open(position: const Offset(0, 26));
-                      },
-                      child: snapshot.data == null
-                          ? Chip(
-                              avatar: Icon(
-                                Icons.error_outline,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                              label: Text(
-                                AppLocalizations.of(context)!.deletedNode,
-                              ),
-                            )
-                          : Chip(
-                              deleteButtonTooltipMessage: '',
-                              onDeleted: () {
-                                controller.isOpen
-                                    ? controller.close()
-                                    : controller.open(
-                                        position: const Offset(0, 26),
-                                      );
-                              },
-                              deleteIcon: controller.isOpen
-                                  ? const Icon(Icons.arrow_drop_up)
-                                  : const Icon(Icons.arrow_drop_down),
-                              avatar: snapshot.data!.countryIcon,
-                              label: Text(snapshot.data!.name),
-                            ),
-                    );
-                  },
-                ),
-                builder: (context, controller, child) => GestureDetector(
-                  onSecondaryTapDown: (details) {
-                    controller.open(
-                      position: Offset(
-                        details.localPosition.dx,
-                        details.localPosition.dy,
-                      ),
-                    );
-                  },
-                  onLongPress: () {
-                    controller.open();
-                  },
-                  child: child,
-                ),
-              );
-            },
+        for (final (index, handlerId) in landHandlers.indexed)
+          _LandHandlerChip(
+            key: ValueKey((index, handlerId)),
+            handlerId: handlerId.toInt(),
+            onRemove: () => onChanged(List.of(landHandlers)..removeAt(index)),
+            onReplace: (newId) =>
+                onChanged(List.of(landHandlers)..[index] = Int64(newId)),
           ),
         HandlerPicker(
-          onPick: (handler) {
-            setState(() {
-              widget.landHandlers.add(Int64(handler.id));
-            });
-            widget.onAdd(handler.id);
-          },
+          onPick: (handler) => onChanged([...landHandlers, Int64(handler.id)]),
         ),
       ],
+    );
+  }
+}
+
+class _LandHandlerChip extends StatefulWidget {
+  const _LandHandlerChip({
+    super.key,
+    required this.handlerId,
+    required this.onRemove,
+    required this.onReplace,
+  });
+
+  final int handlerId;
+  final VoidCallback onRemove;
+  final ValueChanged<int> onReplace;
+
+  @override
+  State<_LandHandlerChip> createState() => _LandHandlerChipState();
+}
+
+class _LandHandlerChipState extends State<_LandHandlerChip> {
+  static const _menuOffset = Offset(0, 26);
+
+  bool _loading = true;
+  OutboundHandler? _handler;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(_LandHandlerChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.handlerId != widget.handlerId) _load();
+  }
+
+  Future<void> _load() async {
+    final handler = await context.read<OutboundRepo>().getHandlerById(
+      widget.handlerId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _handler = handler;
+      _loading = false;
+    });
+  }
+
+  void _toggle(MenuController controller) => controller.isOpen
+      ? controller.close()
+      : controller.open(position: _menuOffset);
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const SizedBox(height: 32, width: 100);
+    final handler = _handler;
+    final groups = context.watch<OutboundBloc>().state.groups;
+    final replaceMenu = MenuAnchor(
+      menuChildren: [
+        for (final group in groups)
+          _GroupHandlersSubmenu(
+            group: group,
+            itemBuilder: (h) => MenuItemButton(
+              onPressed: () => widget.onReplace(h.id),
+              child: Text(h.name),
+            ),
+          ),
+      ],
+      builder: (context, controller, child) => GestureDetector(
+        onTap: () => _toggle(controller),
+        child: handler == null
+            ? Chip(
+                avatar: Icon(
+                  Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                label: Text(AppLocalizations.of(context)!.deletedNode),
+              )
+            : Chip(
+                deleteButtonTooltipMessage: '',
+                onDeleted: () => _toggle(controller),
+                deleteIcon: Icon(
+                  controller.isOpen
+                      ? Icons.arrow_drop_up
+                      : Icons.arrow_drop_down,
+                ),
+                avatar: handler.countryIcon,
+                label: Text(handler.name),
+              ),
+      ),
+    );
+    return MenuAnchor(
+      menuChildren: [
+        MenuItemButton(
+          onPressed: widget.onRemove,
+          child: Text(AppLocalizations.of(context)!.delete),
+        ),
+      ],
+      builder: (context, controller, child) => GestureDetector(
+        onSecondaryTapDown: (details) =>
+            controller.open(position: details.localPosition),
+        onLongPress: controller.open,
+        child: child,
+      ),
+      child: replaceMenu,
     );
   }
 }

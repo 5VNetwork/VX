@@ -45,6 +45,10 @@ abstract class SelectorRepo {
 
   Future<List<SelectorConfig>> getAllSelectors();
   Stream<List<SelectorConfig>> getSelectorsStream();
+
+  /// Emits the selector's config whenever its row changes, or null if it
+  /// does not exist.
+  Stream<SelectorConfig?> watchSelector(String selectorName);
 }
 
 abstract class RouteRepo {
@@ -240,6 +244,15 @@ class DbHelper implements SelectorRepo, RouteRepo, SetRepo, DnsRepo {
             }),
           );
         });
+  }
+
+  @override
+  Stream<SelectorConfig?> watchSelector(String selectorName) {
+    final db = _databaseProvider.database;
+    return (db.select(db.handlerSelectors)
+          ..where((s) => s.name.equals(selectorName)))
+        .watchSingleOrNull()
+        .asyncMap((row) => row == null ? null : db.selectorToConfig(row));
   }
 
   @override

@@ -614,6 +614,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
       await _xController.handlerSelectedChange();
     } catch (e) {
       logger.e('switchHandler error', error: e);
+      snack(e.toString());
     } finally {
       final c = e.whenPersisted;
       if (c != null && !c.isCompleted) {

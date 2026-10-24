@@ -914,6 +914,8 @@
   "info": "说明",
   "selectAtleastOneSelector": "请选择至少一个选择器",
   "addRouteMode": "添加路由模式",
+  "setNameProxyApp": "代理",
+  "setNameDirectApp": "直连",
   "selectAtleastOneNode": "请选择至少一个节点",
   "insertDefaultError": "添加默认路由模式失败，请重启客户端后在路由页面点击添加。失败原因：{error}",
   "@insertDefaultError": {

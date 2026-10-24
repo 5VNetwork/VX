@@ -74,19 +74,21 @@ class ManualNodeBalanceStrategyChangeEvent extends ProxySelectorEvent {
 }
 
 class ManualModeLandHandlersChangeEvent extends ProxySelectorEvent {
-  const ManualModeLandHandlersChangeEvent();
+  const ManualModeLandHandlersChangeEvent(this.landHandlers);
+  final List<Int64> landHandlers;
+
+  @override
+  List<Object> get props => [landHandlers];
 }
 
-class AutoNodeSelectorConfigChangeEvent extends ProxySelectorEvent {
-  const AutoNodeSelectorConfigChangeEvent({
-    this.selectorStrategyOrLandHandlers = false,
-    this.balancingStragegy = false,
-    this.filterLandHandlers = false,
-  });
+/// The default proxy selector's config was changed, already persisted and
+/// applied by its SelectorCubit; only the state needs to follow.
+class AutoNodeSettingChangedEvent extends ProxySelectorEvent {
+  const AutoNodeSettingChangedEvent(this.config);
+  final SelectorConfig config;
 
-  final bool selectorStrategyOrLandHandlers;
-  final bool balancingStragegy;
-  final bool filterLandHandlers;
+  @override
+  List<Object> get props => [config];
 }
 
 class TestParametersChangeEvent extends ProxySelectorEvent {

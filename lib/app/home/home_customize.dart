@@ -287,29 +287,9 @@ class _SelectorByTag extends StatelessWidget {
             ],
           ),
           icon: Icons.filter_alt_outlined,
-          child: BlocProvider(
-            create: (context) => SelectorBeingUsedCubit(
-              selectorTag: tag,
-              xController: context.read<XController>(),
-              outboundRepo: context.read<OutboundRepo>(),
-            ),
-            child: SelectorConfigWidget(
-              config: config,
-              onFilterChange: () {
-                context.read<XController>().selectorFilterChange(config);
-              },
-              onBalanceStrategyChange: () {
-                context.read<XController>().selectorBalancingStrategyChange(
-                  tag,
-                  config.balanceStrategy,
-                );
-              },
-              onStrategyOrLandHandlersChange: () {
-                context
-                    .read<XController>()
-                    .selectorSelectStrategyOrLandhandlerChange(config);
-              },
-            ),
+          child: SelectorScope(
+            config: config,
+            child: const SelectorConfigView(),
           ),
         );
       },

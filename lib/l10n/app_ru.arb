@@ -837,8 +837,11 @@
   "selectorTestSpeedTestSizeHelper": "1000000 байт = 1 МБ",
   "selectorTestSpeedTestIntervalLabel": "Интервал теста скорости",
   "selectorTestMinutesSuffix": "мин",
+  "selectorTestSpeedTestIntervalHelper": "Периодически тестировать скорость всех отфильтрованных обработчиков",
   "selectorTestPingTestIntervalLabel": "Интервал ping-теста",
+  "selectorTestPingTestIntervalHelper": "Периодически тестировать ping всех отфильтрованных обработчиков",
   "selectorTestUnusableTestIntervalLabel": "Интервал проверки недоступных",
+  "selectorTestUnusableTestIntervalHelper": "Периодически проверять отфильтрованные, но недоступные обработчики на доступность",
   "selectorTestMustBeNonNegativeInteger": "Должно быть целым числом ≥ 0",
   "selectorTestMustBeAtMostUint32Max": "Не больше 4294967295",
   "serverKey": "Сервер/Ключ",
@@ -1116,7 +1119,26 @@
       }
     }
   },
+  "policyTimeout": "Таймаут политики",
+  "policyTimeoutNoTimeoutHint": "-1 означает отсутствие таймаута",
+  "policyTimeoutDefault": "По умолчанию: {seconds}с",
+  "@policyTimeoutDefault": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "policyTcpIdleTimeout": "Таймаут простоя TCP",
+  "policyTcpIdleTimeoutDesc": "Если в течение этого периода нет данных ни по uplink, ни по downlink, соединение будет закрыто.",
+  "policyUdpIdleTimeout": "Таймаут простоя UDP",
+  "policyUdpIdleTimeoutDesc": "Если в течение этого периода не получено данных по uplink, соединение будет закрыто.",
+  "policyUpLinkOnlyTimeout": "Таймаут только uplink",
+  "policyUpLinkOnlyTimeoutDesc": "Если downlink-поток TCP-соединения завершён, таймаут простоя переключается на это значение.",
+  "policyDownLinkOnlyTimeout": "Таймаут только downlink",
+  "policyDownLinkOnlyTimeoutDesc": "Если uplink-поток TCP-соединения завершён, таймаут простоя переключается на это значение.",
   "tutorial": "Учебное пособие",
+  "selectGroup": "Выбрать группу",
   "addConcurrentDnsServer": "Добавить параллельный DNS-сервер",
   "addSerialDnsServer": "Добавить последовательный DNS-сервер",
   "concurrentDnsServerType": "Параллельный DNS-сервер",
@@ -1160,6 +1182,9 @@
   },
   "resetSubscriptionLinkDesc": "После нажатия ссылка подписки будет сброшена. Новая ссылка будет использоваться для получения подписки. Это можно использовать для предотвращения утечки ссылки на подписку.",
   "maxUsersOnly": "Эти функции доступны только пользователям Max.",
+  "cnDomainsGoDirectRule": "CN-домены напрямую",
+  "cnIpsGoDirectRule": "CN IP напрямую",
+  "cnExcludeGfwDomains": "CN-домены без GFW",
   "hysteriaRealm": "Hysteria Realm",
   "enableRealmServer": "Включить Realm-сервер",
   "enableRealmServerDesc": "Запускать входящий Hysteria Realm, пока VX подключён",
