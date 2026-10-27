@@ -1242,15 +1242,14 @@ class XController implements MessageFlutterApi {
 
   void handlerAdded() async {
     await notifyHandlerChange();
-    if (!_androidUseRemoteDb()) {
-      return;
+    if (_androidUseRemoteDb()) {
+      await _syncHandlersToCore(
+        storeChange: ChangeHandlerStoreRequest(
+          deleteAll: true,
+          outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+        ),
+      );
     }
-    await _syncHandlersToCore(
-      storeChange: ChangeHandlerStoreRequest(
-        deleteAll: true,
-        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
-      ),
-    );
     await _replaceNodeSet();
   }
 
@@ -1264,54 +1263,50 @@ class XController implements MessageFlutterApi {
 
   Future<void> handlerSelectedChange() async {
     await notifyHandlerChange();
-    if (!_androidUseRemoteDb()) {
-      return;
+    if (_androidUseRemoteDb()) {
+      await _syncHandlersToCore(
+        storeChange: ChangeHandlerStoreRequest(
+          deleteAll: true,
+          outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+        ),
+      );
     }
-    await _syncHandlersToCore(
-      storeChange: ChangeHandlerStoreRequest(
-        deleteAll: true,
-        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
-      ),
-    );
   }
 
   Future<void> handlersRemoved(List<int> ids) async {
     await notifyHandlerChange();
-    if (!_androidUseRemoteDb()) {
-      return;
+    if (_androidUseRemoteDb()) {
+      final tags = ids.map((id) => '$id').toList();
+      await _syncHandlersToCore(
+        storeChange: ChangeHandlerStoreRequest(tags: tags),
+      );
     }
-    final tags = ids.map((id) => '$id').toList();
-    await _syncHandlersToCore(
-      storeChange: ChangeHandlerStoreRequest(tags: tags),
-    );
     await _replaceNodeSet();
   }
 
   void handlerUpdated(OutboundHandler handler) async {
     await notifyHandlerChange();
-    if (!_androidUseRemoteDb()) {
-      return;
+    if (_androidUseRemoteDb()) {
+      await _syncHandlersToCore(
+        storeChange: ChangeHandlerStoreRequest(
+          tags: ['${handler.id}'],
+          outboundHandlers: [await _xConfigHelper.outboundHandler(handler)],
+        ),
+      );
     }
-    await _syncHandlersToCore(
-      storeChange: ChangeHandlerStoreRequest(
-        tags: ['${handler.id}'],
-        outboundHandlers: [await _xConfigHelper.outboundHandler(handler)],
-      ),
-    );
     await _replaceNodeSet();
   }
 
   void subscriptionUpdated() async {
     await notifyHandlerChange();
-    if (!_androidUseRemoteDb()) {
-      return;
+    if (_androidUseRemoteDb()) {
+      await _syncHandlersToCore(
+        storeChange: ChangeHandlerStoreRequest(
+          deleteAll: true,
+          outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
+        ),
+      );
     }
-    await _syncHandlersToCore(
-      storeChange: ChangeHandlerStoreRequest(
-        deleteAll: true,
-        outboundHandlers: await _xConfigHelper.getOutboundHandlers(),
-      ),
-    );
     await _replaceNodeSet();
   }
 
