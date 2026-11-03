@@ -13,6 +13,14 @@ jobs:
     runs-on: macos-26
     environment: mac
     steps:
+      - name: Mask Sensitive info
+        env:
+          SI1: ${{ secrets.SI1 }}
+          SI2: ${{ secrets.SI2 }}
+        run: |
+          echo "::add-mask::$SI1"
+          echo "::add-mask::$SI2"
+
       - name: Checkout code
         uses: actions/checkout@v5
 

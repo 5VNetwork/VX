@@ -251,6 +251,29 @@ class AutoSubscriptionUpdater with ChangeNotifier {
     ).toString();
   }
 
+  /// Prefer recently confirmed-usable nodes; [usable]/ok`) can be stale.
+  OutboundHandler? _mostLikelyUsableHandler(List<OutboundHandler> handlers) {
+    if (handlers.isEmpty) return null;
+    handlers = List.of(handlers)
+      ..sort((a, b) {
+        final aOk = a.ok > 0;
+        final bOk = b.ok > 0;
+        if (aOk != bOk) return aOk ? -1 : 1;
+        final byTime = b.pingTestTime.compareTo(a.pingTestTime);
+        if (byTime != 0) return byTime;
+        if (a.ping > 0 && b.ping > 0) {
+          final byPing = a.ping.compareTo(b.ping);
+          if (byPing != 0) return byPing;
+        } else if (a.ping > 0) {
+          return -1;
+        } else if (b.ping > 0) {
+          return 1;
+        }
+        return b.speed.compareTo(a.speed);
+      });
+    return handlers.first;
+  }
+
   /// notify users about the result
   /// TODO: improve update experience
   Future<void> _updateSub(bool all, int id) async {
@@ -264,13 +287,12 @@ class AutoSubscriptionUpdater with ChangeNotifier {
         ),
       ),
     ];
-    handlers.addAll(
-      (await _outRepo.getHandlers(
-        usable: true,
-        limit: 10,
-        orderBySpeed1MBDesc: true,
-      )).map((e) => e.toConfig()),
+    final proxy = _mostLikelyUsableHandler(
+      await _outRepo.getHandlers(usable: true),
     );
+    if (proxy != null) {
+      handlers.add(proxy.toConfig());
+    }
     late final UpdateSubscriptionResponse res;
     if (all) {
       final subs = await _outRepo.getAllSubs();
