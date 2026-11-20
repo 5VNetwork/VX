@@ -659,6 +659,28 @@ class XConfigHelper {
     return config;
   }
 
+  /// Subnets of the tun device (ipv4 and ipv6) as cidrs. Invalid or empty
+  /// values are skipped, because an invalid cidr makes the router fail to build.
+  List<String> _tunSubnetCidrs() {
+    final cidrs = <String>[];
+    for (final value in [
+      _persistentStateRepo.tunCidr4,
+      _persistentStateRepo.tunCidr6,
+    ]) {
+      final cidr = value.trim();
+      final parts = cidr.split('/');
+      if (parts.length != 2) continue;
+      final ip = InternetAddress.tryParse(parts[0]);
+      final bits = int.tryParse(parts[1]);
+      if (ip == null || bits == null) continue;
+      final maxBits = ip.type == InternetAddressType.IPv4 ? 32 : 128;
+      // 0 would match every address
+      if (bits <= 0 || bits > maxBits) continue;
+      cidrs.add(cidr);
+    }
+    return cidrs;
+  }
+
   Future<(RouterConfig, GeoConfig)> getRouterGeoConfig(
     DnsConfig dnsConfig,
   ) async {
@@ -717,6 +739,7 @@ class XConfigHelper {
         .customRouteModes
         .filter((e) => e.name.equals(mode))
         .getSingle();
+    final tunSubnetCidrs = _tunSubnetCidrs();
     routerConfig = RouterConfig(
       rules: [
         RuleConfig(
@@ -729,6 +752,18 @@ class XConfigHelper {
           dstPortRanges: [PortRange(from: 53, to: 53)],
           outboundTag: _dnsTag,
         ),
+        // Nothing lives behind the tun device, so traffic to its own subnet
+        // is never legitimate. If it is forwarded to an outbound (e.g. direct),
+        // the outbound's packets reach the tun again, which creates another
+        // session that is forwarded again, and so on. This endless loop saturates
+        // the cpu and the bandwidth.
+        // It must come after the dns rule above so that dns still works.
+        // No outbound_tag and no selector_tag means block.
+        if (tunSubnetCidrs.isNotEmpty)
+          RuleConfig(
+            ruleName: 'reject traffic to tun subnet',
+            dstCidrs: tunSubnetCidrs,
+          ),
         RuleConfig(
           ruleName: 'reject default dns over tls',
           dstCidrs: [
