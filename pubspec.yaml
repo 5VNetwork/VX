@@ -119,7 +119,7 @@ dependencies:
     path: ../flutter_common/packages/ads
   firebase_crashlytics: ^5.0.8
   firebase_analytics: ^12.1.3
-  json_editor_flutter: ^1.4.2
+  spectre_json: ^1.1.8
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.1

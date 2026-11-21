@@ -1179,14 +1179,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.11.0"
-  json_editor_flutter:
-    dependency: "direct main"
-    description:
-      name: json_editor_flutter
-      sha256: "851a6adbfb6ee794809a941d82dde0c9f8b6c2fcadabcbde386f1cb6bf27466a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.2"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -1840,6 +1832,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
+  spectre_json:
+    dependency: "direct main"
+    description:
+      name: spectre_json
+      sha256: "90bf6d3416f42781300493a7ca2776aacf794b632ce47837355a48334f4b451d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.8"
   sqflite:
     dependency: transitive
     description:

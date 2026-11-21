@@ -23,11 +23,15 @@ String _formatConfigJson(String json) {
   }
 }
 
-String _editorValueToJsonString(dynamic value) {
-  if (value is String) {
-    return value;
+Map<String, dynamic> _jsonStringToMap(String json) {
+  final decoded = jsonDecode(json);
+  if (decoded is Map<String, dynamic>) {
+    return decoded;
   }
-  return const JsonEncoder.withIndent('  ').convert(value);
+  if (decoded is Map) {
+    return Map<String, dynamic>.from(decoded);
+  }
+  throw const FormatException('Root JSON must be an object');
 }
 
 class _ServerConfigJsonExpansionTile extends StatefulWidget {
@@ -201,13 +205,16 @@ class _ServerConfigJsonExpansionTileState
               height: 360,
               child: JsonEditor(
                 key: ValueKey(_isDirty ? 'json-editor-dirty' : _remoteJson),
-                json: _editorJson!,
-                themeColor: theme.colorScheme.primary,
-                editors: const [Editors.text, Editors.tree],
-                onChanged: (value) {
+                initialData: _jsonStringToMap(_editorJson!),
+                title: 'config.json',
+                viewType: ViewType.dual,
+                allowCopy: true,
+                onDataChanged: (value) {
                   setState(() {
                     _error = null;
-                    _editorJson = _editorValueToJsonString(value);
+                    _editorJson = const JsonEncoder.withIndent(
+                      '  ',
+                    ).convert(value);
                   });
                 },
               ),

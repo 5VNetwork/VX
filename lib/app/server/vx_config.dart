@@ -16,7 +16,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:json_editor_flutter/json_editor_flutter.dart';
+import 'package:spectre_json/spectre_json.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:vx/main.dart';
