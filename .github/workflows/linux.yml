@@ -114,6 +114,7 @@ jobs:
           touch ../tm-plugin/tm_windows/assets/wintun.dll
           touch ../tm-plugin/tm_windows/assets/vx_service.zip
           mkdir -p assets/ads
+          mkdir -p ../flutter_common/packages/ads/assets/ads
 
       - name: Package DEB
         env:
@@ -330,6 +331,7 @@ jobs:
           touch ../tm-plugin/tm_windows/assets/wintun.dll
           touch ../tm-plugin/tm_windows/assets/vx_service.zip
           mkdir -p assets/ads
+          mkdir -p ../flutter_common/packages/ads/assets/ads
 
       - name: Package DEB
         env:
