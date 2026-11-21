@@ -15,18 +15,6 @@
 
 import 'package:flutter/material.dart';
 
-class RawDialogPage extends Page {
-  const RawDialogPage({super.key, required this.child});
-  final Widget child;
-  @override
-  Route createRoute(BuildContext context) {
-    return RawDialogRoute(
-      barrierDismissible: false,
-      pageBuilder: (context, animation, secondaryAnimation) => child,
-      settings: this,
-    );
-  }
-}
 
 class AddPopUpRoute<T> extends PopupRoute<T> {
   AddPopUpRoute({super.settings, required this.child}) : super();

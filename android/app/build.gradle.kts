@@ -23,15 +23,15 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.14206865"
 
+    buildFeatures {
+        resValues = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
         // Flag to enable support for the new language APIs
         isCoreLibraryDesugaringEnabled = true
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
@@ -86,6 +86,12 @@ android {
                 value = "VX")
             applicationIdSuffix = ""
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
 

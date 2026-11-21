@@ -13,6 +13,18 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
+    configurations.configureEach {
+        resolutionStrategy {
+            // integration_test still requests espresso 3.2+, which breaks manifest
+            // namespace validation on AGP 9+.
+            force(
+                "androidx.test.espresso:espresso-core:3.6.1",
+                "androidx.test.espresso:espresso-idling-resource:3.6.1",
+                "androidx.test:runner:1.6.2",
+                "androidx.test:rules:1.6.1",
+            )
+        }
+    }
     project.evaluationDependsOn(":app")
 }
 

@@ -15,14 +15,6 @@
 
 part of 'main.dart';
 
-class _BackIntent extends Intent {
-  const _BackIntent();
-}
-
-class _ForwardIntent extends Intent {
-  const _ForwardIntent();
-}
-
 class _DesktopBackForwardHandler extends StatelessWidget {
   const _DesktopBackForwardHandler({required this.child});
   final Widget child;
@@ -45,30 +37,14 @@ class _DesktopBackForwardHandler extends StatelessWidget {
           desktopNavigateForward();
         }
       },
-      child: Shortcuts(
-        shortcuts: <ShortcutActivator, Intent>{
+      child: CallbackShortcuts(
+        bindings: <ShortcutActivator, VoidCallback>{
           const SingleActivator(LogicalKeyboardKey.browserBack):
-              const _BackIntent(),
+              desktopNavigateBack,
           const SingleActivator(LogicalKeyboardKey.browserForward):
-              const _ForwardIntent(),
+              desktopNavigateForward,
         },
-        child: Actions(
-          actions: <Type, Action<Intent>>{
-            _BackIntent: CallbackAction<_BackIntent>(
-              onInvoke: (_) {
-                desktopNavigateBack();
-                return null;
-              },
-            ),
-            _ForwardIntent: CallbackAction<_ForwardIntent>(
-              onInvoke: (_) {
-                desktopNavigateForward();
-                return null;
-              },
-            ),
-          },
-          child: child,
-        ),
+        child: child,
       ),
     );
   }
