@@ -563,14 +563,19 @@ QuicConfig getDefaultQuicConfig() {
     initialConnectionReceiveWindowBytes: Platform.isIOS
         ? Int64(200 * 1024)
         : Int64(20 * 1024 * 1024),
-    maxConnectionReceiveWindowBytes: Int64(20 * 1024 * 1024),
+    maxConnectionReceiveWindowBytes: Platform.isIOS
+        ? Int64(5 * 1024 * 1024)
+        : Int64(20 * 1024 * 1024),
     initialStreamReceiveWindowBytes: Platform.isIOS
         ? Int64(80 * 1024)
         : Int64(8 * 1024 * 1024),
-    maxStreamReceiveWindowBytes: Int64(8 * 1024 * 1024),
+    maxStreamReceiveWindowBytes: Platform.isIOS
+        ? Int64(2 * 1024 * 1024)
+        : Int64(8 * 1024 * 1024),
     maxIdleTimeout: 30,
     keepAlivePeriod: 10,
     disablePathMtuDiscovery: false,
+    disableChromeParrot: Platform.isIOS,
   );
 }
 
@@ -1341,6 +1346,9 @@ class _HysteriaState extends State<Hysteria> {
     _salamanderPasswordController = TextEditingController(
       text: widget.obfsConfig.salamander.password,
     );
+    if (!widget.quicConfig.hasDisableChromeParrot() && Platform.isIOS) {
+      widget.quicConfig.disableChromeParrot = true;
+    }
   }
 
   @override
@@ -1621,6 +1629,26 @@ class _HysteriaState extends State<Hysteria> {
               },
             ),
           ],
+        ),
+        const Gap(10),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(
+            AppLocalizations.of(context)!.disableChromeParrot,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          subtitle: Text(
+            AppLocalizations.of(context)!.disableChromeParrotDesc,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          value: widget.quicConfig.disableChromeParrot,
+          onChanged: (value) {
+            setState(() {
+              widget.quicConfig.disableChromeParrot = value;
+            });
+          },
         ),
         const Gap(10),
         ExpansionTile(

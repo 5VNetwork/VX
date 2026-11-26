@@ -3135,4 +3135,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fileTransferDeleteCloudUrl => '删除云端地址';
+
+  @override
+  String get disableChromeParrot => '禁用 Chrome 仿冒';
+
+  @override
+  String get disableChromeParrotDesc => '关闭时，QUIC 会仿冒 Chrome 指纹，此时你的部分 QUIC 设置不会生效。';
 }

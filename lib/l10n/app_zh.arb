@@ -1320,5 +1320,7 @@
   "fileTransferUrlDeleted": "已从账户中删除该地址。",
   "fileTransferDeleteUrlConfirm": "从账户中移除此设备的文件传输地址？其他设备将无法再看到它。",
   "fileTransferUploadUrlToCloud": "上传地址到云端",
-  "fileTransferDeleteCloudUrl": "删除云端地址"
+  "fileTransferDeleteCloudUrl": "删除云端地址",
+  "disableChromeParrot": "禁用 Chrome 仿冒",
+  "disableChromeParrotDesc": "关闭时，QUIC 会仿冒 Chrome 指纹，此时你的部分 QUIC 设置不会生效。"
 }

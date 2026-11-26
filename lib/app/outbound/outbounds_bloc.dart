@@ -73,6 +73,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     on<HandlersDeleteEvent>(_onDelete);
     on<DeleteUnusableEvent>(_onDeleteUnusable);
     on<SortHandlersEvent>(_sort);
+    on<FilterCountryEvent>(_filterCountry);
     on<SwitchHandlerEvent>(_switchHandler);
     on<ManuualSingleSelectionEvent>(_onManuualSingleSelection);
     on<HandlerEdittedEvent>(_onHandlerEditted);
@@ -417,6 +418,24 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     );
   }
 
+  Future<void> _filterCountry(
+    FilterCountryEvent e,
+    Emitter<OutboundState> emit,
+  ) async {
+    emit(state.copyWith(countryFilter: () => e.countryCode));
+    emit(
+      state.copyWith(
+        handlers: _sortHandlers(await _getHandlers(), state.sortCol),
+      ),
+    );
+  }
+
+  List<OutboundHandler> _filterByCountry(List<OutboundHandler> handlers) {
+    final filter = state.countryFilter;
+    if (filter == null) return handlers;
+    return handlers.where((h) => h.countryCode == filter).toList();
+  }
+
   // get currently displayed handlers
   Future<List<OutboundHandler>> _getHandlers() async {
     late List<OutboundHandler> handlers;
@@ -432,7 +451,7 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
       handlers = await _outboundRepo.getHandlers();
     }
 
-    return _setTestingFields(handlers);
+    return _filterByCountry(_setTestingFields(handlers));
   }
 
   Future<void> _onSelectedChange(
@@ -493,7 +512,14 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
         state.selected?.name == defaultGroupName) {
       final handlers = List<OutboundHandler>.from(state.handlers);
       handlers.add(newHandler);
-      emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
+      emit(
+        state.copyWith(
+          handlers: _sortHandlers(
+            _filterByCountry(handlers),
+            state.sortCol,
+          ),
+        ),
+      );
     }
     snack(rootLocalizations()?.handlerCopiedSuccess);
   }
@@ -700,7 +726,11 @@ class OutboundBloc extends Bloc<OutboundEvent, OutboundState> {
     }
     final handlers = List<OutboundHandler>.from(state.handlers);
     handlers.add(newHandler);
-    emit(state.copyWith(handlers: _sortHandlers(handlers, state.sortCol)));
+    emit(
+      state.copyWith(
+        handlers: _sortHandlers(_filterByCountry(handlers), state.sortCol),
+      ),
+    );
     _xController.handlerAdded();
     _autoTestInsertedHandlers([newHandler]);
     await updateCountry([newHandler], emit);
@@ -1343,7 +1373,7 @@ sealed class OutboundEvent extends Equatable {
   const OutboundEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class InitialEvent extends OutboundEvent {}
@@ -1442,6 +1472,15 @@ class OutboundHandlerGroupPlaceOnTopEvent extends OutboundEvent {
 class SortHandlersEvent extends OutboundEvent {
   const SortHandlersEvent(this.colSort);
   final (Col, SortOrder)? colSort;
+}
+
+/// Filter displayed nodes by [countryCode]. Pass `null` to show all countries.
+class FilterCountryEvent extends OutboundEvent {
+  const FilterCountryEvent(this.countryCode);
+  final String? countryCode;
+
+  @override
+  List<Object?> get props => [countryCode];
 }
 
 class SwitchHandlerEvent extends OutboundEvent {
@@ -1621,6 +1660,7 @@ class OutboundState {
     // header states
     this.testingArea = false,
     this.sortCol,
+    this.countryFilter,
     // table states
     this.using4 = 0,
     // this.using6 = 0,
@@ -1640,6 +1680,9 @@ class OutboundState {
   // final int using6;
   final bool testingArea;
   final (Col, SortOrder)? sortCol;
+
+  /// When non-null, only handlers with this country code are shown.
+  final String? countryFilter;
   final bool multiSelect;
   final OutboundTableSmallScreenPreference smallScreenPreference;
   final OutboundViewMode viewMode;
@@ -1651,6 +1694,7 @@ class OutboundState {
     int? using4,
     bool? testingArea,
     ValueGetter<(Col, SortOrder)?>? sortCol,
+    ValueGetter<String?>? countryFilter,
     bool? multiSelect,
     OutboundTableSmallScreenPreference? smallScreenPreference,
     OutboundViewMode? viewMode,
@@ -1664,6 +1708,9 @@ class OutboundState {
       // using6: using6 ?? this.using6,
       testingArea: testingArea ?? this.testingArea,
       sortCol: sortCol != null ? sortCol() : this.sortCol,
+      countryFilter: countryFilter != null
+          ? countryFilter()
+          : this.countryFilter,
       multiSelect: multiSelect ?? this.multiSelect,
       smallScreenPreference:
           smallScreenPreference ?? this.smallScreenPreference,

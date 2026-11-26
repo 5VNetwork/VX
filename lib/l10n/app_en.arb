@@ -1351,5 +1351,7 @@
   "fileTransferUrlDeleted": "Address removed from your account.",
   "fileTransferDeleteUrlConfirm": "Remove this device’s File Transfer address from your account? Other devices will no longer see it.",
   "fileTransferUploadUrlToCloud": "Upload URL to cloud",
-  "fileTransferDeleteCloudUrl": "Delete cloud URL"
+  "fileTransferDeleteCloudUrl": "Delete cloud URL",
+  "disableChromeParrot": "Disable Chrome Parrot",
+  "disableChromeParrotDesc": "When off, QUIC is fingerprinted like Chrome and not all of your QUIC settings will take effect."
 }

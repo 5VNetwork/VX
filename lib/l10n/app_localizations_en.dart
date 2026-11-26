@@ -3186,4 +3186,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileTransferDeleteCloudUrl => 'Delete cloud URL';
+
+  @override
+  String get disableChromeParrot => 'Disable Chrome Parrot';
+
+  @override
+  String get disableChromeParrotDesc => 'When off, QUIC is fingerprinted like Chrome and not all of your QUIC settings will take effect.';
 }

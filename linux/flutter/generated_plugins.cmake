@@ -4,10 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_linux
-  file_saver
   flutter_secure_storage_linux
   gtk
   pasteboard
+  file_saver
   screen_retriever_linux
   sentry_flutter
   sqlite3_flutter_libs

@@ -3192,4 +3192,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileTransferDeleteCloudUrl => 'Удалить облачный URL';
+
+  @override
+  String get disableChromeParrot => 'Отключить Chrome Parrot';
+
+  @override
+  String get disableChromeParrotDesc => 'Когда выкл., QUIC имитирует отпечаток Chrome, и не все ваши настройки QUIC применяются. Включите, чтобы использовать собственный отпечаток и применить ваши настройки.';
 }

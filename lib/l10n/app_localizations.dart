@@ -6006,6 +6006,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete cloud URL'**
   String get fileTransferDeleteCloudUrl;
+
+  /// No description provided for @disableChromeParrot.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Chrome Parrot'**
+  String get disableChromeParrot;
+
+  /// No description provided for @disableChromeParrotDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, QUIC is fingerprinted like Chrome and not all of your QUIC settings will take effect.'**
+  String get disableChromeParrotDesc;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

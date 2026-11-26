@@ -5,10 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   bitsdojo_window_windows
-  file_saver
   firebase_core
   flutter_secure_storage_windows
   pasteboard
+  file_saver
   screen_retriever_windows
   sentry_flutter
   sqlite3_flutter_libs

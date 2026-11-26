@@ -48,6 +48,8 @@ import 'package:vx/utils/qr.dart';
 import 'package:vx/utils/xapi_client.dart';
 import 'package:vx/widgets/form_dialog.dart';
 import 'package:vx/app/outbound/outbound_handler_card.dart';
+import 'package:vx/app/outbound/outbound_repo.dart';
+import 'package:vx/utils/geoip.dart';
 
 part 'action_menu_anchor.dart';
 part 'group_selector.dart';
@@ -376,7 +378,9 @@ class OutboundTableState extends State<OutboundTable> {
                                   >(
                                     listenWhen: (previous, current) =>
                                         previous.sortCol != current.sortCol ||
-                                        previous.selected != current.selected,
+                                        previous.selected != current.selected ||
+                                        previous.countryFilter !=
+                                            current.countryFilter,
                                     listener: (ctx, state) {
                                       if (_scrollController.hasClients) {
                                         _scrollController.animateTo(
@@ -1133,6 +1137,166 @@ List<Col> getCols(
   return cols;
 }
 
+/// Country column header: tap to sort; right-click / long-press opens a
+/// country filter dropdown.
+class _CountryFilterHeaderCell extends StatefulWidget {
+  const _CountryFilterHeaderCell({
+    this.loading = false,
+    this.sortCol,
+  });
+
+  final bool loading;
+  final (Col, SortOrder)? sortCol;
+
+  @override
+  State<_CountryFilterHeaderCell> createState() =>
+      _CountryFilterHeaderCellState();
+}
+
+class _CountryFilterHeaderCellState extends State<_CountryFilterHeaderCell> {
+  List<String> _countryCodes = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCountryCodes();
+  }
+
+  Future<void> _loadCountryCodes() async {
+    try {
+      final codes = await context.read<OutboundRepo>().getAllCountryCodes();
+      if (mounted) setState(() => _countryCodes = codes);
+    } catch (e) {
+      logger.e('Error loading country codes', error: e);
+    }
+  }
+
+  (Col, SortOrder)? _nextSort() {
+    const col = Col.countryIcon;
+    final sortCol = widget.sortCol;
+    if (sortCol == null || sortCol.$1 != col) {
+      return (col, col.defaultAsc);
+    }
+    if (sortCol.$2 == col.defaultAsc) {
+      if (col.defaultSortOnly) {
+        return null;
+      }
+      return (col, -sortCol.$2);
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<OutboundBloc, OutboundState, String?>(
+      selector: (state) => state.countryFilter,
+      builder: (context, countryFilter) {
+        final filterActive = countryFilter != null;
+        return MenuAnchor(
+          consumeOutsideTap: true,
+          builder: (context, controller, _) {
+            void openFilter([Offset? position]) {
+              if (controller.isOpen) {
+                controller.close();
+              } else {
+                _loadCountryCodes();
+                controller.open(position: position);
+              }
+            }
+
+            late Widget child;
+            var bold = false;
+            final sortCol = widget.sortCol;
+            if (widget.loading) {
+              child = const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              );
+            } else if (filterActive) {
+              bold = true;
+              child = getCountryIcon(countryFilter, size: 18);
+            } else if (sortCol == null || sortCol.$1 != Col.countryIcon) {
+              child = Col.countryIcon.headerWidget(context);
+            } else {
+              bold = true;
+              child = Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Col.countryIcon.headerWidget(context, sorting: true),
+                  Icon(
+                    size: 10,
+                    sortCol.$2 == 1 ? Icons.north : Icons.south,
+                    color: XBlue,
+                  ),
+                ],
+              );
+            }
+
+            return Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                onLongPressStart: (details) {
+                  openFilter(details.localPosition);
+                },
+                child: InkWell(
+                  onTap: widget.loading
+                      ? null
+                      : () => context.read<OutboundBloc>().add(
+                          SortHandlersEvent(_nextSort()),
+                        ),
+                  onSecondaryTapDown: (details) =>
+                      openFilter(details.localPosition),
+                  child: SizedBox(
+                    width: Col.countryIcon.getWidth(context),
+                    height: double.infinity,
+                    child: Center(
+                      child: DefaultTextStyle(
+                        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                          color: bold ? XBlue : null,
+                          fontWeight: bold
+                              ? FontWeight.bold
+                              : FontWeight.w500,
+                        ),
+                        child: child,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+          menuChildren: [
+            MenuItemButton(
+              trailingIcon: !filterActive
+                  ? const Icon(Icons.check, size: 16, color: XBlue)
+                  : null,
+              onPressed: filterActive
+                  ? () => context.read<OutboundBloc>().add(
+                      const FilterCountryEvent(null),
+                    )
+                  : null,
+              child: Text(AppLocalizations.of(context)!.all),
+            ),
+            if (_countryCodes.isNotEmpty) const Divider(),
+            for (final code in _countryCodes)
+              MenuItemButton(
+                leadingIcon: getCountryIcon(code, size: 18),
+                trailingIcon: countryFilter == code
+                    ? const Icon(Icons.check, size: 16, color: XBlue)
+                    : null,
+                onPressed: () => context.read<OutboundBloc>().add(
+                  FilterCountryEvent(code),
+                ),
+                child: Text(code),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class SortableHeaderCell extends StatelessWidget {
   const SortableHeaderCell({
     super.key,
@@ -1392,8 +1556,7 @@ enum Col {
           ),
         );
       case Col.countryIcon:
-        return SortableHeaderCell(
-          col: this,
+        return _CountryFilterHeaderCell(
           loading: testingArea,
           sortCol: sort,
         );
