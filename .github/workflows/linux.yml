@@ -10,7 +10,9 @@ on:
 
 jobs:
   build-linux-x64:
-    runs-on: ubuntu-latest
+    # Pin 24.04: ubuntu-latest (26+) ships rpm 6.x where %install cwd is
+    # BUILD/<pkg>-build, so fastforge's relative `cp -r vx/*` fails.
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -165,6 +167,22 @@ jobs:
           wget "https://download.5vnetwork.com/Noto_Sans_SC.zip" -O NotoSansSC.zip
           unzip -j NotoSansSC.zip "*/NotoSansSC-Medium.ttf" "*/NotoSansSC-Regular.ttf" -d assets/google_fonts
           rm NotoSansSC.zip
+
+      - name: Download geo
+        run: |
+          mkdir -p assets/geo
+          curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geoip.dat"
+          mv simplified_geoip.dat assets/geo/simplified_geoip.dat
+          curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geosite.dat"
+          mv simplified_geosite.dat assets/geo/simplified_geosite.dat
+
+      - name: Prepare ads assets and placeholder Windows libs
+        run: |
+          mkdir -p assets/ads
+          mkdir -p ../flutter_common/packages/ads/assets/ads
+          touch ../tm-plugin/tm_windows/assets/x.dll
+          touch ../tm-plugin/tm_windows/assets/wintun.dll
+          touch ../tm-plugin/tm_windows/assets/vx_service.zip
 
       - name: Cache pub dependencies (RPM)
         uses: actions/cache@v4
@@ -381,6 +399,22 @@ jobs:
           wget "https://download.5vnetwork.com/Noto_Sans_SC.zip" -O NotoSansSC.zip
           unzip -j NotoSansSC.zip "*/NotoSansSC-Medium.ttf" "*/NotoSansSC-Regular.ttf" -d assets/google_fonts
           rm NotoSansSC.zip
+
+      - name: Download geo
+        run: |
+          mkdir -p assets/geo
+          curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geoip.dat"
+          mv simplified_geoip.dat assets/geo/simplified_geoip.dat
+          curl -OL "https://github.com/5VNetwork/process-geo/releases/latest/download/simplified_geosite.dat"
+          mv simplified_geosite.dat assets/geo/simplified_geosite.dat
+
+      - name: Prepare ads assets and placeholder Windows libs
+        run: |
+          mkdir -p assets/ads
+          mkdir -p ../flutter_common/packages/ads/assets/ads
+          touch ../tm-plugin/tm_windows/assets/x.dll
+          touch ../tm-plugin/tm_windows/assets/wintun.dll
+          touch ../tm-plugin/tm_windows/assets/vx_service.zip
 
       - name: Cache pub dependencies (RPM)
         uses: actions/cache@v4
